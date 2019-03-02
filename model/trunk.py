@@ -39,3 +39,13 @@ class Trunk:
         self.trunk_finish_order_time = 0
         self.trunk_car_order_list = []
         self.trunk_cost = 1
+
+    def add_target_position(self, place):
+        self.trunk_target_position_list.append(place)
+
+    def remove_target_position(self):
+        if len(self.trunk_target_position_list) > 0:
+            self.trunk_target_position_list.remove(self.trunk_target_position_list[0])
+
+    def update_trunk_statue(self, statue=TRUNK_IN_ORDER):
+        self.trunk_state = statue
