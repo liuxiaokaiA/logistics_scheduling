@@ -1,11 +1,9 @@
 # coding: utf-8
-import numpy as np
-import time
-
 from model.inquiry_info import InquiryInfo
 import logging
 from .base.distribution_model import Poisson, get_destination
 from .base.order_id import OrderGroupId
+from .base.utils import get_time_torday
 from order import Order
 
 
@@ -33,18 +31,21 @@ class BaseStation:
         pass
 
     def create_orders(self):
-        order_count = Poisson(50).get_num()
-        timestamp = time.time()
+        # 泊松分布获取生成订单个数，传入参数
+        param = 50
+        order_count = Poisson(param).get_num()
+        # 获取今天0点的时间
+        timestamp = get_time_torday()
         now = timestamp
-        delay_time = 0
+        # 获取4S点分布以及每个4S点的订单个数
         destination_data = get_destination(order_count)
-        class_of_delay_time = 1
         default_car_num = 1
-
+        # 自动获取组id
         group = OrderGroupId().id
+        # 生成订单
         for destination in destination_data:
             car_num = destination_data[destination]
             for num in car_num:
-                Order(self.b_id, timestamp, now, delay_time,
-                        destination, default_car_num, class_of_delay_time, group)
+                order = Order(self.b_id, timestamp, now, destination, default_car_num, group)
+                order.set_delay_time()
 
