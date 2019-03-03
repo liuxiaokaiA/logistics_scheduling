@@ -51,6 +51,8 @@ class Gene:
         for key_ in key_order:
             for value_ in order[key_]:
                 if gene_data[count] == '1':
+                    if key_ not in all_data:
+                        all_data[key_] = []
                     all_data[key_].append(value_)
                 count += 1
         self.gene_data = all_data

@@ -1,20 +1,9 @@
 # coding: utf-8
-
-
 from model.trunk import Trunk
-# from log import MyLogging
-# from read_configure import read_fuc
-# from algorithm.ga import update_global
-# from model.trunk import trunk_init
-# from model.base_station import base_init
-
-
 from log import MyLogging
 from read_configure import read_fuc
 from algorithm.ga import update_global
-from model.trunk import trunk_init
-from model.base_station import base_init
-
+from global_data import list_base, list_destination, list_trunk
 
 
 def update(day):
@@ -29,16 +18,12 @@ def output(day):
     pass
 
 
-if __name__ == "main":
-    days = 100
+def init():
     from model.base_station import BaseStation
     from model.destination import Destination
     from model.inquiry_info import InquiryInfo
 
     inquriry_info = InquiryInfo()
-    list_base = []
-    list_destination = []
-    list_trunk = []
     baseNum = 40
     destination_num = 2000
     trunk_num = 2400
@@ -52,7 +37,15 @@ if __name__ == "main":
 
     for trunk_index in range(trunk_num):
         temp_trunk = Trunk(trunk_index, inquriry_info)
+        list_trunk.append(temp_trunk)
 
+
+if __name__ == "main":
+    MyLogging()
+    default_conf = read_fuc('conf/default.conf')
+    update_global(default_conf)
+    init()
+    days = 100
     for day in range(days):
         update(day)
         comput(day)

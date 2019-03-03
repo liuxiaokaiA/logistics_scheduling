@@ -135,7 +135,7 @@ class Trunk:
             if self.trunk_state == TRUNK_IN_ORDER:
                 self.random_sleep()
                 self.trunk_position = self.trunk_before_day_position
-            elif self.trunk_state == TRUNK_ON_ROAD:
+            elif self.trunk_state == :
                 self.trunk_state = TRUNK_IN_ORDER_DESTINATION
                 self.wait_destination = self.trunk_target_position_list[-1]
                 self.trunk_position = self.inquiry_info.inquiry_destination_position(
@@ -199,3 +199,6 @@ class Trunk:
         else:
             return 1.2 * (1 + car_number * 0.05)
 
+
+def get_cost(car_num, start, end):
+    pass
