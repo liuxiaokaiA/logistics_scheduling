@@ -1,3 +1,5 @@
+from cmath import sqrt
+
 import numpy as np
 
 from model.inquiry_info import InquiryInfo
@@ -14,6 +16,7 @@ class BaseStation:
         if not isinstance(inquiry_info, InquiryInfo):
             logging.error("Please enter right InquiryInfo")
         self.position = inquiry_info.inquiry_base_position_by_id(b_id)
+        self.near_trunk_list = []
 
     def get_position(self):
         """获取网点position"""
@@ -23,8 +26,11 @@ class BaseStation:
         """查询网点与某个网点或某个4S店的距离"""
         return self.inquiry_info.inquiry_distance(self, place)
 
-    def update_nearly_trunk(self, trunk_list, distance=200):
+    def update_near_trunk(self, trunk_list, distance=200):
         """获取附近指定距离内车辆"""
-        pass
+        for index in range(len(trunk_list)):
+            self.near_trunk_list = []
+            if self.position.get_position_distance(trunk_list[index].position) < 200:
+                self.near_trunk_list.append(trunk_list[index].trunk_id)
 
 

@@ -17,7 +17,7 @@ import sys
 
 class Trunk:
 
-    def __init__(self, trunk_id, inquiry_info):
+    def __init__(self, trunk_id, inquiry_info, trunk_speed=100):
         self.trunk_id = trunk_id
 
         if self.trunk_id < 800:
@@ -39,9 +39,13 @@ class Trunk:
         self.trunk_finish_order_time = 0
         self.trunk_car_order_list = []
         self.trunk_cost = 1
+        self.trunk_speed = trunk_speed
 
     def add_target_position(self, place):
         self.trunk_target_position_list.append(place)
+
+    def add_target_position_list(self, place_list):
+        self.trunk_target_position_list += place_list
 
     def remove_target_position(self):
         if len(self.trunk_target_position_list) > 0:
@@ -49,3 +53,6 @@ class Trunk:
 
     def update_trunk_statue(self, statue=TRUNK_IN_ORDER):
         self.trunk_state = statue
+
+    def update_trunk_position(self, time):
+        pass
