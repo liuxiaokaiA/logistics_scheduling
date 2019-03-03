@@ -199,5 +199,3 @@ class Trunk:
         else:
             return 1.2 * (1 + car_number * 0.05)
 
-
-
