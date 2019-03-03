@@ -33,7 +33,7 @@ class Order(object):
         elif self.delay_time > 10:
             self.class_of_delay_time = 3
         else:
-            print 'delay_time error!!,order id: %s' % str(self.id)
+            print('delay_time error!!,order id: %s' % str(self.id))
 
     def update_order(self):
         self.now = get_time_torday()

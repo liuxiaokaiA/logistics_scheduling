@@ -19,3 +19,4 @@ class Position:
 
     def get_position_distance(self, other_position):
         return sqrt(pow(other_position.x - self.x, 2) + pow(other_position.y - self.y, 2))
+

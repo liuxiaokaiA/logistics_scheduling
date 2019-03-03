@@ -36,14 +36,14 @@ class OrderGroupId(object):
 
 
 if __name__ == '__main__':
-    print OrderId().id
-    print OrderId().id
-    print OrderId().id
-    print OrderId().id
-    print OrderId().id
+    print(OrderId().id)
+    print(OrderId().id)
+    print(OrderId().id)
+    print(OrderId().id)
+    print(OrderId().id)
 
-    print OrderGroupId().id
-    print OrderGroupId().id
-    print OrderGroupId().id
-    print OrderGroupId().id
-    print OrderGroupId().id
+    print (OrderGroupId().id)
+    print (OrderGroupId().id)
+    print (OrderGroupId().id)
+    print (OrderGroupId().id)
+    print (OrderGroupId().id)
