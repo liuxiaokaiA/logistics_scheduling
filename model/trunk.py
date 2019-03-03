@@ -130,6 +130,7 @@ class Trunk:
         temp_time_list = []
         for index in range(len(self.trunk_target_time_list)):
             if self.trunk_target_time_list[index] > 24:
+
                 temp_time_list.append(self.trunk_target_time_list[index] - 24)
         if len(temp_time_list) == 0:
             if self.trunk_state == TRUNK_IN_ORDER:
@@ -198,3 +199,11 @@ class Trunk:
             return 1.1 * (1 + car_number * 0.05)
         else:
             return 1.2 * (1 + car_number * 0.05)
+=======
+                temp_target_list.append(self.trunk_target_time_list[index] - 24)
+        self.trunk_target_time_list = temp_target_list
+
+
+def trunk_init():
+    pass
+
