@@ -1,9 +1,16 @@
+
 from cmath import sqrt
 
 import numpy as np
 
+# coding: utf-8
 from model.inquiry_info import InquiryInfo
 import logging
+
+from model.order import Order
+from .base.distribution_model import Poisson, get_destination
+from .base.order_id import OrderGroupId
+from .base.utils import get_time_torday
 
 
 class BaseStation:
@@ -33,4 +40,22 @@ class BaseStation:
             if self.position.get_position_distance(trunk_list[index].position) < 200:
                 self.near_trunk_list.append(trunk_list[index].trunk_id)
 
+    def create_orders(self):
+        # 泊松分布获取生成订单个数，传入参数
+        param = 50
+        order_count = Poisson(param).get_num()
+        # 获取今天0点的时间
+        timestamp = get_time_torday()
+        now = timestamp
+        # 获取4S点分布以及每个4S点的订单个数
+        destination_data = get_destination(order_count)
+        default_car_num = 1
+        # 自动获取组id
+        group = OrderGroupId().id
+        # 生成订单
+        for destination in destination_data:
+            car_num = destination_data[destination]
+            for num in car_num:
+                order = Order(self.b_id, timestamp, now, destination, default_car_num, group)
+                order.set_delay_time()
 

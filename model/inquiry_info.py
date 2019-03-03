@@ -90,3 +90,13 @@ class InquiryInfo:
             else:
                 logging.error("inquiry parame id wrong")
                 return 0
+
+    def inquiry_nearest_base_station(self, d_id):
+        temp_id = 0
+        nearest_distance = 99999999
+        for i in range(40):
+            current_distance = self.inquiry_distance_by_id(b_id_1=i, d_id_1=d_id)
+            if current_distance < nearest_distance:
+                nearest_distance = current_distance
+                temp_id = i
+        return temp_id
