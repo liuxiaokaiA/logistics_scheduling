@@ -114,3 +114,7 @@ class Trunk:
             if self.trunk_target_time_list[index] > 24:
                 temp_target_list.append(self.trunk_target_time_list[index] - 24)
         self.trunk_target_time_list = temp_target_list
+
+
+def trunk_init():
+    pass
