@@ -1,7 +1,9 @@
-# coding: utf-8
+
 from cmath import sqrt
 
 import numpy as np
+
+# coding: utf-8
 from model.inquiry_info import InquiryInfo
 import logging
 
