@@ -1,4 +1,5 @@
 # coding: utf-8
+import numpy as np
 
 
 class Poisson(object):
@@ -6,8 +7,7 @@ class Poisson(object):
         self.parameter = parameter
 
     def get_num(self):
-        # 暂时直接返回
-        return self.parameter
+        return np.random.poisson(lam=self.parameter, size=1)[0]
 
 
 # 获取目的4S店的分布以及订单个数
