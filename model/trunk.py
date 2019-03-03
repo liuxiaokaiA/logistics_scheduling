@@ -53,8 +53,9 @@ class Trunk:
         self.trunk_cost = 1
         # 汽车速度
         self.trunk_speed = trunk_speed
-        # 当前所在的网点，只有等计划的时候能用
-        self.trunk_current_base_station_id = self.trunk_base_id
+
+        # 等计划的时候,表示现在所在能用。运货时候，此坐标表示未来空车将去的网点
+        self.trunk_future_base_station_id = self.trunk_base_id
 
     def add_target_position_list(self, position_list):
         if len(self.trunk_target_position_list) != 0:
@@ -62,20 +63,20 @@ class Trunk:
 
         # 车辆目的地序列更新
         self.trunk_target_position_list = position_list
-        self.inquiry_info.inquiry_nearest_base_station(position_list[-1])
+        # 自动搜素最近一个网点作为最后目的地
+        self.trunk_future_base_station_id, last_distance = self.inquiry_info.inquiry_nearest_base_station(
+            position_list[-1])
 
-
-        #自动搜素最近一个网点作为最后目的地
-
+        self.trunk_target_time_list = []
         # 车辆预计到达时间更新
         for index in range(len(self.trunk_target_position_list)):
             distance = 0.0
             if index == 0:
                 if isinstance(self.trunk_target_position_list[0], BaseStation):
-                    distance = self.inquiry_info.inquiry_distance_by_id(b_id_1=self.trunk_current_base_station_id,
+                    distance = self.inquiry_info.inquiry_distance_by_id(b_id_1=self.trunk_future_base_station_id,
                                                                         b_id_2=self.trunk_target_position_list[0].b_id)
                 else:
-                    distance = self.inquiry_info.inquiry_distance_by_id(b_id_1=self.trunk_current_base_station_id,
+                    distance = self.inquiry_info.inquiry_distance_by_id(b_id_1=self.trunk_future_base_station_id,
                                                                         d_id_1=self.trunk_target_position_list[0].d_id)
             else:
                 distance = self.inquiry_info.inquiry_distance(self.trunk_target_position_list[index - 1],
@@ -87,6 +88,7 @@ class Trunk:
             else:
                 self.trunk_target_time_list.append(self.trunk_target_time_list[-1] + evaluate_time)
 
+        self.trunk_target_time_list.append(last_distance/self.trunk_speed)
         # 车辆预计进入等待时间更新
         self.trunk_finish_order_time = self.trunk_target_time_list[-1]
 
@@ -110,5 +112,5 @@ class Trunk:
         temp_target_list = []
         for index in range(len(self.trunk_target_time_list)):
             if self.trunk_target_time_list[index] > 24:
-                temp_target_list.append(self.trunk_target_time_list[index]-24)
+                temp_target_list.append(self.trunk_target_time_list[index] - 24)
         self.trunk_target_time_list = temp_target_list

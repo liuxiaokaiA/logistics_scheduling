@@ -99,4 +99,4 @@ class InquiryInfo:
             if current_distance < nearest_distance:
                 nearest_distance = current_distance
                 temp_id = i
-        return temp_id
+        return temp_id, nearest_distance
