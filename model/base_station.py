@@ -1,7 +1,9 @@
-# coding: utf-8
+
 from cmath import sqrt
 
 import numpy as np
+
+# coding: utf-8
 from model.inquiry_info import InquiryInfo
 import logging
 
@@ -22,7 +24,6 @@ class BaseStation:
             logging.error("Please enter right InquiryInfo")
         self.position = inquiry_info.inquiry_base_position_by_id(b_id)
         self.near_trunk_list = []
-        self.new_orders = set()
 
     def get_position(self):
         """获取网点position"""
@@ -57,8 +58,4 @@ class BaseStation:
             for num in car_num:
                 order = Order(self.b_id, timestamp, now, destination, default_car_num, group)
                 order.set_delay_time()
-                self.new_orders.add(order)
 
-
-def base_init():
-    pass
