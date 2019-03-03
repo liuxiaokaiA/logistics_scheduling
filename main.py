@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from model.trunk import Trunk
 
 from model.trunk import Trunk
 # from log import MyLogging
@@ -9,6 +8,12 @@ from model.trunk import Trunk
 # from model.trunk import trunk_init
 # from model.base_station import base_init
 
+
+from log import MyLogging
+from read_configure import read_fuc
+from algorithm.ga import update_global
+from model.trunk import trunk_init
+from model.base_station import base_init
 
 
 
