@@ -198,3 +198,10 @@ class Trunk:
             return 1.1 * (1 + car_number * 0.05)
         else:
             return 1.2 * (1 + car_number * 0.05)
+
+
+
+def trunk_init():
+    pass
+
+
