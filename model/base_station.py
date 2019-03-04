@@ -96,7 +96,7 @@ class BaseStation:
                 return id
             elif trunk_type == TRUNK_TYPE_MIDDLE and trunk_num * 2 / 3 > id >= trunk_num / 3:
                 return id
-            elif trunk_type == TRUNK_TYPE_BIG and trunk_num >= trunk_num * 2 / 3:
+            elif trunk_type == TRUNK_TYPE_BIG and id >= trunk_num * 2 / 3:
                 return id
             else:
                 return None
