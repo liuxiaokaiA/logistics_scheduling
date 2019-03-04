@@ -9,8 +9,10 @@ from global_data import list_base, list_destination, list_trunk, all_scheduling
 
 
 def update(day):
-    for index in range(len(list_trunk)):
-        list_trunk[index].trunk_update_day()
+    for base in list_base:
+        base.create_orders()
+    for trunk in list_trunk:
+        trunk.trunk_update_day()
 
 
 def comput(day):
