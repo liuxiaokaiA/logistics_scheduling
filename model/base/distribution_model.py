@@ -13,9 +13,10 @@ class Poisson(object):
 
 def get_destination_id(destination_count):
     while 1:
-        id = destination_count / 4 * np.matlib.randn() + destination_count / 2
-        if 0 <= int(id) < 2000:
-            return id
+        # # sigma * np.matlib.randn(...) + mu
+        id = destination_count / 4 * np.matlib.randn(1) + destination_count / 2
+        if 0 <= int(id[0]) < 2000:
+            return id[0]
 
 
 # 获取目的4S店的分布以及订单个数
