@@ -21,3 +21,7 @@ def read_fuc(conf_path):
         'offspring_max': conf.getint('data', 'offspring_max'),
     }
     return default_conf
+
+
+if __name__ == '__main__':
+    print read_fuc('conf/')

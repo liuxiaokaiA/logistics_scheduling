@@ -1,5 +1,5 @@
 # coding: utf-8
-from model.order import Order
+import logging
 from model.trunk import Trunk
 from log import MyLogging
 from read_configure import read_fuc
@@ -48,14 +48,17 @@ def init():
         list_trunk.append(temp_trunk)
 
 
-if __name__ == "main":
+if __name__ == "__main__":
     MyLogging()
-    default_conf = read_fuc('conf/default.conf')
+    log = logging.getLogger('debug')
+    default_conf = read_fuc('conf/')
     update_global(default_conf)
+    log.info('start to init')
     init()
-
+    log.info('init down.')
     days = 100
     for day in range(days):
+        log.info('days: %d ' % day)
         update(day)
         comput(day)
         output(day)

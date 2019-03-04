@@ -78,7 +78,7 @@ LOGGING = {
         },
         'debug': {
             'level': 'DEBUG',
-            'class': 'mylog.MultiProcessSafeDailyRotatingFileHandler',
+            'class': 'log.MultiProcessSafeDailyRotatingFileHandler',
             'filename': os.path.join(BASE_DIR, 'log/debug.log'),
             'when': 'midnight',
             'formatter': 'default',
@@ -86,14 +86,14 @@ LOGGING = {
         },
         'error': {
             'level': 'ERROR',
-            'class': 'mylog.MultiProcessSafeDailyRotatingFileHandler',
+            'class': 'log.MultiProcessSafeDailyRotatingFileHandler',
             'filename': os.path.join(BASE_DIR, 'log/error.log'),
             'when': 'midnight',
             'formatter': 'default',
         },
         'info': {
             'level': 'INFO',
-            'class': 'mylog.MultiProcessSafeDailyRotatingFileHandler',
+            'class': 'log.MultiProcessSafeDailyRotatingFileHandler',
             'filename': os.path.join(BASE_DIR, 'log/info.log'),
             'when': 'midnight',
             'formatter': 'default',
@@ -101,7 +101,7 @@ LOGGING = {
         },
         'warn': {
             'level': 'WARN',
-            'class': 'mylog.MultiProcessSafeDailyRotatingFileHandler',
+            'class': 'log.MultiProcessSafeDailyRotatingFileHandler',
             'filename': os.path.join(BASE_DIR, 'log/warn.log'),
             'when': 'midnight',
             'formatter': 'default',
@@ -147,7 +147,7 @@ LOGGING_simple = {
         },
         'default': {
             'level': 'DEBUG',
-            'class': 'mylog.MultiProcessSafeDailyRotatingFileHandler',
+            'class': 'log.MultiProcessSafeDailyRotatingFileHandler',
             'formatter': 'standard',
             'filename': './log/info.log'
         }
