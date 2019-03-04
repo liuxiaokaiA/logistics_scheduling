@@ -73,6 +73,7 @@ class Trunk:
 
         # 附近网点
         self.near_base_list = []
+        self.get_near_base_list()
 
     def add_target_position_list(self, position_list):
 
@@ -200,6 +201,7 @@ class Trunk:
             elif self.trunk_state == TRUNK_ON_ROAD_NOT_USE:
                 self.trunk_current_base_station_id = self.trunk_future_base_station_id
                 self.trunk_future_base_station_id = None
+                self.trunk_position = self.inquiry_info.inquiry_base_position_by_id(self.trunk_current_base_station_id)
                 if self.trunk_current_base_station_id != self.trunk_base_id:
                     self.trunk_state = TRUNK_IN_ORDER_DESTINATION
                     self.wait_day += 1
@@ -238,7 +240,7 @@ class Trunk:
                 if len(temp_time_list) > 1:
                     self.trunk_target_position_list = self.trunk_target_position_list[-1 * len(temp_time_list) + 1:]
                 elif len(temp_time_list) == 1:
-                    self.trunk_target_position_list =[]
+                    self.trunk_target_position_list = []
 
             # 更新状态
             if isinstance(self.trunk_target_position_list[0], BaseStation):
@@ -248,6 +250,7 @@ class Trunk:
             self.trunk_target_time_list = temp_time_list
             self.trunk_finish_order_time -= 24
         self.trunk_before_day_position = self.trunk_position
+        self.get_near_base_list()
 
     def calculate_position(self, position1, position2, time):
         """计算位置辅助"""
@@ -276,3 +279,9 @@ class Trunk:
     def trunk_cost_one_road(self, position1, position2, car_number):
         """一段路程的费用"""
         return self.trunk_cost(car_number) * (position1.get_position_distance(position2))
+
+    def get_near_base_list(self):
+        self.near_base_list = []
+        for i in range(40):
+            if self.trunk_position.get_position_distance(self.inquiry_info.inquiry_base_position_by_id(i)) < 200:
+                self.near_base_list.append(i)
