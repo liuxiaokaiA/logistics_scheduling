@@ -15,6 +15,7 @@ from cmath import sqrt
 from data.StatueData import TRUNK_IN_ORDER, TRUNK_TYPE_BIG, TRUNK_TYPE_MIDDLE, TRUNK_TYPE_SMALL, TRUNK_ON_ROAD, \
     TRUNK_IN_ORDER_DESTINATION, TRUNK_NOT_USE, TRUNK_ON_ROAD_NOT_USE
 from data.position import Position
+from global_data import trunk_num
 from model.base_station import BaseStation
 from model.destination import Destination
 from model.inquiry_info import InquiryInfo
@@ -29,9 +30,9 @@ class Trunk:
         # 车辆编号
         self.trunk_id = trunk_id
         # 车辆类型,数字表示运载量
-        if self.trunk_id < 800:
+        if self.trunk_id < trunk_num/3:
             self.trunk_type = TRUNK_TYPE_SMALL
-        elif self.trunk_id < 1600:
+        elif self.trunk_id < trunk_num*2/3:
             self.trunk_type = TRUNK_TYPE_MIDDLE
         else:
             self.trunk_type = TRUNK_TYPE_BIG
@@ -55,8 +56,6 @@ class Trunk:
         self.trunk_finish_order_time = 0
         # 所运小汽车所属订单序列
         self.trunk_car_order_list = []
-        # 当前状态每公里费用
-        self.trunk_cost = 1
         # 汽车速度
         self.trunk_speed = trunk_speed
         # 此坐标表示未来运输车将去的网点
@@ -149,6 +148,7 @@ class Trunk:
         self.trunk_target_time_list.append(self.trunk_target_time_list[-1] + last_distance / self.trunk_speed)
         # 车辆预计进入等待时间更新
         self.trunk_finish_order_time = self.trunk_target_time_list[-1]
+        self.trunk_current_base_station_id = None
 
     def add_order(self, order):
         # 添加单个 order

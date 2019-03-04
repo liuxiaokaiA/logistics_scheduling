@@ -1,6 +1,17 @@
+from global_data import distance_around
 from model.inquiry_info import InquiryInfo
 import sys
 import logging
+
+"""
+@File    :   position_generate.py
+@Contact :   liuhaobwjc@163.com
+@License :   (C)Copyright 2017-2018, Liugroup-NLPR-CASIA
+
+@Modify Time      @Author    @Version    @Desciption
+------------      -------    --------    -----------
+2019-03-01 14:10   liuhao      1.0         None
+"""
 
 
 class Destination:
@@ -12,6 +23,10 @@ class Destination:
             sys.exit(1)
         self.inquiry_info = inquiry_info
         self.position = inquiry_info.inquiry_destination_position_by_id(d_id)
+        self.near_distance_list = []
+        for i in range(2000):
+            if (inquiry_info.inquiry_distance_by_id(d_id_1=d_id, d_id_2=i)) < distance_around:
+                self.near_distance_list.append(i)
 
     def get_position(self):
         return self.position
