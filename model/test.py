@@ -34,15 +34,24 @@ for destination_index in range(destination_num):
 for trunk_index in range(trunk_num):
     temp_trunk = Trunk(trunk_index, inquriry_info)
     list_trunk.append(temp_trunk)
-    order1 = Order(1, 12, 0, destination=list_destination[1], car_num=1)
-    order2 = Order(1, 12, 0, destination=list_destination[2], car_num=1)
-    order3 = Order(1, 12, 0, destination=list_destination[3], car_num=1)
-    order4 = Order(1, 12, 0, destination=list_destination[4], car_num=1)
+    order1 = Order(1, 12, 0, destination=list_destination[1], car_num=1, group=0)
+    order2 = Order(1, 12, 0, destination=list_destination[2], car_num=1, group=1)
+    order3 = Order(1, 12, 0, destination=list_destination[3], car_num=1, group=2)
+    order4 = Order(1, 12, 0, destination=list_destination[4], car_num=1, group=3)
 
-    list_position = [list_destination[1], list_destination[2], list_destination[3], list_destination[4]]
-    list_trunk[0].add_target_position_list(list_position)
-    list_trunk[0].add_order_list([order1, order2, order3, order4])
+list_position = [list_destination[1], list_destination[2], list_destination[3], list_destination[4]]
+list_trunk[0].add_target_position_list(list_position)
+order_list = [order1,order2,order3,order4]
+list_trunk[0].add_order_list(order_list)
 
-    days = 100
-    for day in range(days):
-        list_trunk[0].trunk_update_day()
+days = 10
+for day in range(days):
+    list_trunk[0].trunk_update_day()
+    print("")
+    print(day)
+    print(list_trunk[0].trunk_target_position_list)
+    print(list_trunk[0].trunk_target_time_list)
+    print(list_trunk[0].trunk_finish_order_time)
+    print(list_trunk[0].trunk_state)
+    print(list_trunk[0].trunk_car_order_list)
+    print(list_trunk[0].trunk_future_base_station_id)
