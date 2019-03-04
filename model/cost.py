@@ -201,6 +201,7 @@ def get_order_cost():
             continue
         else:
             return VALUE_MAX
+    return sum_cost
 
 
 def trunk_penalty_cost(car_num_rate):

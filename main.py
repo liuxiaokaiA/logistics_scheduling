@@ -13,7 +13,7 @@ def update(day):
 
 
 def comput(day):
-    trunk_max_order = get_trunk_max_order
+    trunk_max_order = get_trunk_max_order()
     data = get_orders_trunk_can_take(trunk_max_order)
     ga = GA()
     ga.GA_main(data, trunk_max_order)

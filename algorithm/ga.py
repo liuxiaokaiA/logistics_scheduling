@@ -207,7 +207,8 @@ class GA:
             result = -1
             while result < 0:
                 for i in range(MUTATION_COUNT):
-                    pos = random.randrange(1,gene_size)
+                    # print gene_size
+                    pos = random.randrange(1, gene_size)
                     self.change_gene_data(gene,pos-1)
                 result = self.evaluate_gene(gene)
 
