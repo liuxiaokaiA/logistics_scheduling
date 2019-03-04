@@ -5,7 +5,7 @@ from global_data import list_base, list_destination, list_trunk
 def get_trunk_max_order():
     trunk_max_order = {}
     for trunk in list_trunk:
-        if not trunk.status:
+        if trunk.trunk_state in (2, 4):
             continue
         max_order = trunk.trunk_type
         exist_order = len(trunk.trunk_car_order_list)
@@ -24,13 +24,16 @@ def get_orders_trunk_can_take(trunk_max_order):
                 order_must_take.append(order)
     # trunk附近的网点的订单
     for trunk_id in trunk_max_order:
+        # print 'trunk_id: %d' % trunk_id
         trunk = list_trunk[trunk_id]
         bases = trunk.near_base_list
         if trunk_id not in data:
             data[trunk_id] = []
         for base_id in bases:
+            # print 'base: %d' % base_id
             base = list_base[base_id]
             for order in base.new_orders:
+                # print 'order: %d' % order.id
                 # 1-5天不着急，顺路才运
                 if order.class_of_delay_time == 1:
                     if trunk.trunk_future_base_station_id is None:
