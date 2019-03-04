@@ -1,4 +1,5 @@
 # coding: utf-8
+from model.order import Order
 from model.trunk import Trunk
 from log import MyLogging
 from read_configure import read_fuc
@@ -45,8 +46,19 @@ if __name__ == "main":
     default_conf = read_fuc('conf/default.conf')
     update_global(default_conf)
     init()
+
+    order1 = Order(1, 12, 0, destination=list_destination[1], car_num=1)
+    order2 = Order(1, 12, 0, destination=list_destination[2], car_num=1)
+    order3 = Order(1, 12, 0, destination=list_destination[3], car_num=1)
+    order4 = Order(1, 12, 0, destination=list_destination[4], car_num=1)
+    trunk1 = list_trunk[0]
+    list_position = [list_destination[1], list_destination[2], list_destination[3], list_destination[4]]
+list_trunk.add_target_position_list(list_position)
+list_trunk.add_order_list([order1, order2, order3, order4])
+
     days = 100
     for day in range(days):
+        list_trunk[0].trunk_update_day()
         update(day)
         comput(day)
         output(day)

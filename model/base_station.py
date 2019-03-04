@@ -21,7 +21,9 @@ class BaseStation:
             logging.error("Please enter right InquiryInfo")
         self.position = inquiry_info.inquiry_base_position_by_id(b_id)
         self.near_trunk_list = []
+        self.near_destination_list = []
         self.new_orders = set()
+
 
     def get_position(self):
         """获取网点position"""
@@ -37,6 +39,9 @@ class BaseStation:
             self.near_trunk_list = []
             if self.position.get_position_distance(trunk_list[index].position) < 200:
                 self.near_trunk_list.append(trunk_list[index].trunk_id)
+
+
+
 
     def create_orders(self):
         # 泊松分布获取生成订单个数，传入参数

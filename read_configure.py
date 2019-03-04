@@ -1,12 +1,12 @@
 import logging
-import ConfigParser
+import configparser
 
 
 log = logging.getLogger('default')
 
 
 def read_fuc(conf_path):
-    conf = ConfigParser.ConfigParser()
+    conf = configparser.ConfigParser()
     try:
         conf.read(conf_path+'default.conf')
     except IOError:
