@@ -22,6 +22,9 @@ class BaseStation:
         self.position = inquiry_info.inquiry_base_position_by_id(b_id)
         self.near_trunk_list = []
         self.near_destination_list = []
+        for i in range(2000):
+            if (inquiry_info.inquiry_distance_by_id(bid_1=b_id, d_id_1=i)) < 200:
+                self.near_destination_list.append(i)
         self.new_orders = set()
 
     def get_position(self):
@@ -58,4 +61,3 @@ class BaseStation:
                 order = Order(self.b_id, timestamp, now, destination, default_car_num, group)
                 order.set_delay_time()
                 self.new_orders.add(order)
-
