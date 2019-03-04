@@ -69,14 +69,12 @@ class GA:
         self.key_order = []
         self.max_order = {}
         self.gene_set = set()
-        self.status = None
 
-    def init_order(self, data, max_order, status):
+    def init_order(self, data, max_order):
         # order = { trunk: order}
         self.order = data
         self.key_order = list(self.order)
         self.max_order = max_order
-        self.status = status
 
     def init_colony(self):
         self.colony = []
@@ -259,8 +257,8 @@ class GA:
             # log.error('times: '+str(times)+' max_: '+str(max_)+' best_gene: '+str(best_gene.value))
         return result
 
-    def GA_main(self):
-        self.init_order()
+    def GA_main(self, data, max_order):
+        self.init_order(data, max_order)
         times = 1
         while 1:
             self.init_colony()
