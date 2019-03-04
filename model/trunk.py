@@ -22,7 +22,6 @@ import logging
 import sys
 
 
-
 class Trunk:
 
     def __init__(self, trunk_id, inquiry_info, trunk_speed=100):
@@ -144,7 +143,7 @@ class Trunk:
 
         # 自动搜素最近一个网点作为最后目的地
         self.trunk_future_base_station_id, last_distance = self.inquiry_info.inquiry_nearest_base_station(
-            position_list[-1])
+            position_list[-1].d_id)
         # 计算进入最后网点等待时间
         self.trunk_target_time_list.append(self.trunk_target_time_list[-1] + last_distance / self.trunk_speed)
         # 车辆预计进入等待时间更新
@@ -179,7 +178,7 @@ class Trunk:
                 self.wait_day = 0
                 self.trunk_position = self.trunk_before_day_position
             elif self.trunk_state == TRUNK_ON_ROAD:
-                self.trunk_current_base_station_id, last_distance = self.trunk_future_base_station_id
+                self.trunk_current_base_station_id = self.trunk_future_base_station_id
                 self.trunk_future_base_station_id = None
                 self.trunk_position = self.inquiry_info.inquiry_base_position_by_id(
                     self.trunk_current_base_station_id)
@@ -222,27 +221,30 @@ class Trunk:
 
             else:
                 self.trunk_position = self.calculate_position(
-                    self.trunk_target_position_list[-1 * len(temp_time_list) - 1].position,
                     self.trunk_target_position_list[-1 * len(temp_time_list)].position,
+                    self.trunk_target_position_list[-1 * len(temp_time_list) + 1].position,
                     temp_time_list[0]
                 )
 
                 reach_position_list = self.trunk_target_position_list[
-                                      0:len(self.trunk_target_position_list) - len(temp_time_list)]
+                                      0:len(self.trunk_target_position_list) - len(temp_time_list) + 1]
 
                 # 倒着删掉订单
                 for i in range(len(self.trunk_car_order_list) - 1, -1, -1):
                     for j in range(len(reach_position_list)):
                         if isinstance(reach_position_list[j], Destination):
-                            if self.trunk_car_order_list[i].destination.d_id == reach_position_list[j].destination.d_id:
+                            if self.trunk_car_order_list[i].destination.d_id == reach_position_list[j].d_id:
                                 self.trunk_car_order_list.remove(self.trunk_car_order_list[i])
-                self.trunk_target_position_list = self.trunk_target_position_list[-1 * len(temp_time_list):]
+                if len(temp_time_list) > 1:
+                    self.trunk_target_position_list = self.trunk_target_position_list[-1 * len(temp_time_list) + 1:]
+                elif len(temp_time_list) == 1:
+                    self.trunk_target_position_list =[]
 
             # 更新状态
             if isinstance(self.trunk_target_position_list[0], BaseStation):
-                    self.trunk_state = TRUNK_ON_ROAD_NOT_USE
+                self.trunk_state = TRUNK_ON_ROAD_NOT_USE
             else:
-                    self.trunk_state = TRUNK_ON_ROAD
+                self.trunk_state = TRUNK_ON_ROAD
             self.trunk_target_time_list = temp_time_list
             self.trunk_finish_order_time -= 24
         self.trunk_before_day_position = self.trunk_position
@@ -274,5 +276,3 @@ class Trunk:
     def trunk_cost_one_road(self, position1, position2, car_number):
         """一段路程的费用"""
         return self.trunk_cost(car_number) * (position1.get_position_distance(position2))
-
-
