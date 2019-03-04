@@ -5,7 +5,7 @@ from log import MyLogging
 from read_configure import read_fuc
 from algorithm.ga import update_global, GA
 from algorithm.model_data import get_trunk_max_order, get_orders_trunk_can_take, modify_model
-from global_data import list_base, list_destination, list_trunk
+from global_data import list_base, list_destination, list_trunk, all_scheduling
 
 
 def update(day):
@@ -20,6 +20,7 @@ def comput(day):
     best_gene = ga.selectBest()
     gene_data = best_gene.gene_to_data(ga.order, ga.key_order)
     modify_model(gene_data)
+    all_scheduling[day] = gene_data
 
 
 def output(day):
