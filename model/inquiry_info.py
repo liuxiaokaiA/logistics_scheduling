@@ -16,9 +16,9 @@ from data.position import Position
 
 class InquiryInfo:
     def __init__(self):
-        self.base_position = pd.read_csv('../generate/base_position.csv')
-        self.shop_position = pd.read_csv('../generate/shop_position.csv')
-        self.distance = pd.read_csv('../generate/ditance.csv')
+        self.base_position = pd.read_csv('generate/base_position.csv')
+        self.shop_position = pd.read_csv('generate/shop_position.csv')
+        self.distance = pd.read_csv('generate/ditance.csv')
 
     def inquiry_base_position(self, base_station):
         from model.base_station import BaseStation
