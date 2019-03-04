@@ -10,13 +10,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8c14f268-e773-4d44-acb8-caa57ef4d0c4" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/algorithm/model_data.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/algorithm/ga.py" afterPath="$PROJECT_DIR$/algorithm/ga.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/global_data.py" afterPath="$PROJECT_DIR$/global_data.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data/StatueData.py" afterPath="$PROJECT_DIR$/data/StatueData.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/log.py" afterPath="$PROJECT_DIR$/log.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.py" afterPath="$PROJECT_DIR$/main.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/model/base/distribution_model.py" afterPath="$PROJECT_DIR$/model/base/distribution_model.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/model/cost.py" afterPath="$PROJECT_DIR$/model/cost.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/model/base_station.py" afterPath="$PROJECT_DIR$/model/base_station.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/model/test.py" afterPath="$PROJECT_DIR$/model/test.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/model/trunk.py" afterPath="$PROJECT_DIR$/model/trunk.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/read_configure.py" afterPath="$PROJECT_DIR$/read_configure.py" />
     </list>
     <ignored path="logistics_scheduling.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -49,10 +50,10 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="17" column="34" selection-start-line="17" selection-start-column="34" selection-end-line="17" selection-end-column="34" />
+            <state relative-caret-position="324">
+              <caret line="18" column="34" selection-start-line="18" selection-start-column="34" selection-end-line="18" selection-end-column="34" />
               <folding>
-                <element signature="e#16#45#0" expanded="true" />
+                <element signature="e#46#75#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -80,11 +81,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="base_station.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="base_station.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/model/base_station.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-383">
-              <caret line="22" column="28" selection-start-line="22" selection-start-column="13" selection-end-line="22" selection-end-column="28" />
+            <state relative-caret-position="-329">
+              <caret line="23" column="28" selection-start-line="22" selection-start-column="13" selection-end-line="22" selection-end-column="28" />
               <folding>
                 <element signature="e#16#38#0" expanded="true" />
               </folding>
@@ -92,7 +93,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="distribution_model.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="distribution_model.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/model/base/distribution_model.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-86">
@@ -129,8 +130,8 @@
       <file leaf-file-name="trunk.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/model/trunk.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2885">
-              <caret line="24" column="11" selection-start-line="24" selection-start-column="6" selection-end-line="24" selection-end-column="11" />
+            <state relative-caret-position="4788">
+              <caret line="266" column="0" selection-start-line="266" selection-start-column="0" selection-end-line="277" selection-end-column="0" />
               <folding>
                 <element signature="e#322#335#0" expanded="true" />
               </folding>
@@ -174,13 +175,13 @@
         <option value="$PROJECT_DIR$/log.py" />
         <option value="$PROJECT_DIR$/global_data.py" />
         <option value="$PROJECT_DIR$/model/base_station.py" />
-        <option value="$PROJECT_DIR$/model/trunk.py" />
         <option value="$PROJECT_DIR$/algorithm/ga.py" />
         <option value="$PROJECT_DIR$/algorithm/get_data_from_model.py" />
         <option value="$PROJECT_DIR$/main.py" />
         <option value="$PROJECT_DIR$/model/base/distribution_model.py" />
         <option value="$PROJECT_DIR$/algorithm/model_data.py" />
         <option value="$PROJECT_DIR$/model/cost.py" />
+        <option value="$PROJECT_DIR$/model/trunk.py" />
       </list>
     </option>
   </component>
@@ -506,12 +507,12 @@
       <option name="presentableId" value="Default" />
       <updated>1551352366386</updated>
       <workItem from="1551352368929" duration="63000" />
-      <workItem from="1551611999671" duration="26380000" />
+      <workItem from="1551611999671" duration="26928000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="45200000" />
+    <option name="totallyTimeSpent" value="45748000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1280" height="800" extended-state="0" />
@@ -613,7 +614,7 @@
         <state relative-caret-position="180">
           <caret line="22" column="0" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
           <folding>
-            <element signature="e#16#45#0" expanded="true" />
+            <element signature="e#46#75#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -731,16 +732,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/model/base_station.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-383">
-          <caret line="22" column="28" selection-start-line="22" selection-start-column="13" selection-end-line="22" selection-end-column="28" />
-          <folding>
-            <element signature="e#16#38#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/algorithm/ga.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
@@ -759,22 +750,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/model/trunk.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2885">
-          <caret line="24" column="11" selection-start-line="24" selection-start-column="6" selection-end-line="24" selection-end-column="11" />
-          <folding>
-            <element signature="e#322#335#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="17" column="34" selection-start-line="17" selection-start-column="34" selection-end-line="17" selection-end-column="34" />
+        <state relative-caret-position="324">
+          <caret line="18" column="34" selection-start-line="18" selection-start-column="34" selection-end-line="18" selection-end-column="34" />
           <folding>
-            <element signature="e#16#45#0" expanded="true" />
+            <element signature="e#46#75#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -803,6 +784,26 @@
           <caret line="5" column="22" selection-start-line="5" selection-start-column="22" selection-end-line="5" selection-end-column="22" />
           <folding>
             <element signature="e#16#34#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/model/trunk.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4788">
+          <caret line="266" column="0" selection-start-line="266" selection-start-column="0" selection-end-line="277" selection-end-column="0" />
+          <folding>
+            <element signature="e#322#335#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/model/base_station.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-329">
+          <caret line="23" column="28" selection-start-line="22" selection-start-column="13" selection-end-line="22" selection-end-column="28" />
+          <folding>
+            <element signature="e#16#38#0" expanded="true" />
           </folding>
         </state>
       </provider>

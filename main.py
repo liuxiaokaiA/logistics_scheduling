@@ -1,4 +1,5 @@
 # coding: utf-8
+from model.order import Order
 from model.trunk import Trunk
 from log import MyLogging
 from read_configure import read_fuc
@@ -52,6 +53,7 @@ if __name__ == "main":
     default_conf = read_fuc('conf/default.conf')
     update_global(default_conf)
     init()
+
     days = 100
     for day in range(days):
         update(day)

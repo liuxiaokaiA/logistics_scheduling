@@ -39,7 +39,7 @@ class SingleLevel(logging.Filter):
 
 
 BASE_DIR = os.path.dirname((os.path.abspath(__file__)))
-print BASE_DIR
+print (BASE_DIR)
 LOGGING = {
     'disable_existing_loggers': False,
     'version': 1,

@@ -21,6 +21,7 @@ class BaseStation:
             logging.error("Please enter right InquiryInfo")
         self.position = inquiry_info.inquiry_base_position_by_id(b_id)
         self.near_trunk_list = []
+        self.near_destination_list = []
         self.new_orders = set()
 
     def get_position(self):
@@ -58,6 +59,3 @@ class BaseStation:
                 order.set_delay_time()
                 self.new_orders.add(order)
 
-
-def base_init():
-    pass
