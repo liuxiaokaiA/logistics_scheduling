@@ -9,7 +9,8 @@ from global_data import list_base, list_destination, list_trunk
 
 
 def update(day):
-    pass
+    for index in range(len(list_trunk)):
+        list_trunk[index].trunk_update_day()
 
 
 def comput(day):

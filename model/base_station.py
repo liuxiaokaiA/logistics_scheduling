@@ -23,7 +23,7 @@ class BaseStation:
         self.near_trunk_list = []
         self.near_destination_list = []
         for i in range(2000):
-            if (inquiry_info.inquiry_distance_by_id(bid_1=b_id, d_id_1=i)) < 200:
+            if (inquiry_info.inquiry_distance_by_id(b_id_1=b_id, d_id_1=i)) < 200:
                 self.near_destination_list.append(i)
         self.new_orders = set()
 
