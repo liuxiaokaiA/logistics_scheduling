@@ -74,8 +74,8 @@ class BaseStation:
         param = 50
         order_count = Poisson(param).get_num()
         # 获取今天0点的时间
-        timestamp = get_time_torday()
-        now = timestamp
+        timestamp = day
+        now = day
         # 获取4S点分布以及每个4S点的订单个数
         destination_data = get_destination(order_count)
         default_car_num = 1
@@ -84,13 +84,12 @@ class BaseStation:
         # 生成订单
         for destination in destination_data:
             car_num = destination_data[destination]
-            for num in car_num:
+            for i in range(car_num):
                 order = Order(self.b_id, timestamp, now, destination, default_car_num, group)
                 order.set_delay_time()
                 self.new_orders.add(order)
 
-    def use_trunk_type_id(self, trunk_type=TRUNK_TYPE_SMALL):
-
+    def get_trunk(self, trunk_type=TRUNK_TYPE_SMALL):
         for id in self.trunk_in_station:
             if trunk_type == TRUNK_TYPE_SMALL and id < trunk_num / 3:
                 return id
@@ -100,3 +99,12 @@ class BaseStation:
                 return id
             else:
                 return None
+
+
+def get_near_trunk(base, trunk_list, distance=200):
+    """获取附近指定距离内车辆"""
+    near_trunk_list = []
+    for index in range(len(trunk_list)):
+        if base.position.get_position_distance(trunk_list[index].position) < distance:
+            near_trunk_list.append(trunk_list[index].trunk_id)
+    return near_trunk_list

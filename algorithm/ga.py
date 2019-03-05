@@ -82,24 +82,27 @@ class GA:
             if len(self.colony) >= self.colony_max_size:
                 break
             str_ = ''
+            # print self.key_order
+            # print self.order
             for key_ in self.key_order:
-                key_str = ''
+                # print key_
+                num = random.randint(1, self.max_order[key_])
+                id_list = set()
                 while 1:
-                    key_str = ''
-                    count = 0
-                    for value in self.order[key_]:
-                        num = random.randint(0, 1)
-                        if num == 0:
-                            key_str += '0'
-                        else:
-                            key_str += '1'
-                            count += 1
-                    if count <= self.max_order[key_]:
+                    if len(id_list) == num:
                         break
+                    id_list.add(random.randint(0, len(self.order[key_])-1))
+                key_str = ''
+                for id in range(len(self.order[key_])):
+                    if id in id_list:
+                        key_str += '1'
+                    else:
+                        key_str += '0'
                 str_ += key_str
 
             gene_temp = Gene()
             gene_temp.size = len(str_)
+            # print gene_temp.size
             gene_temp.data = str_
             result = self.evaluate_gene(gene_temp)
 
@@ -254,8 +257,8 @@ class GA:
                 new_colony.append(gene_temp)
             self.colony = []
             self.colony = new_colony
-            # best_gene = self.selectBest()
-            # log.error('times: '+str(times)+' max_: '+str(max_)+' best_gene: '+str(best_gene.value))
+            best_gene = self.selectBest()
+            print('times: '+str(times)+' max_: '+str(max_)+' best_gene: '+str(best_gene.value))
         return result
 
     def GA_main(self, data, max_order):
