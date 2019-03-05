@@ -15,11 +15,11 @@ from global_data import list_base, list_destination, list_trunk, all_scheduling,
 def update(day):
     log.info('update base')
     for base in list_base:
-        base.create_orders()
+        base.create_orders(day)
         base.update_in_station_trunk(list_trunk)
         base.update_near_trunk(list_trunk)
         for order in base.new_orders:
-            order.update_order()
+            order.update_order(day)
     for trunk in list_trunk:
         trunk.trunk_update_day()
 
@@ -28,7 +28,10 @@ def comput(day):
     get_whole_trunk()
     trunk_max_order = get_trunk_max_order()
     data = get_orders_trunk_can_take(trunk_max_order)
-    # print data
+    gene_len = 0
+    for key in data:
+        gene_len += len(data[key])
+    print gene_len
     ga = GA()
     log.info('start to compute')
     ga.GA_main(data, trunk_max_order)

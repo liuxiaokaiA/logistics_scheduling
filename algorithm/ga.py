@@ -8,7 +8,7 @@ from model.cost import compute_cost
 SUCCESS = 1
 FAILED = 0
 log = logging.getLogger('default')
-VALUE_MAX = 10000000
+VALUE_MAX = 1000000000
 
 
 def update_global(default_conf):
@@ -84,9 +84,11 @@ class GA:
             str_ = ''
             # print self.key_order
             # print self.order
+            # print self.max_order
             for key_ in self.key_order:
                 # print key_
-                num = random.randint(1, self.max_order[key_])
+                min_len = min(self.max_order[key_], len(self.order[key_]))
+                num = random.randint(0, min_len)
                 id_list = set()
                 while 1:
                     if len(id_list) == num:
@@ -121,6 +123,7 @@ class GA:
     def evaluate_gene(self, gene):
         gene.gene_to_data(self.order, self.key_order)
         compute_cost(gene)
+        # print gene.value
         return gene.value
 
     def change_gene_data(self,gene,pos):
@@ -266,6 +269,7 @@ class GA:
         times = 1
         while 1:
             self.init_colony()
+            log.info('init_colony down! start to evolution_loop')
             result = self.evolution_loop()
             if result == SUCCESS:
                 break

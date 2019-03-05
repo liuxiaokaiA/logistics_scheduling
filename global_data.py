@@ -1,3 +1,4 @@
+# coding: utf-8
 list_base = []
 list_destination = []
 list_trunk = []
@@ -10,4 +11,4 @@ trunk_num = 1200
 # 网点数量，最大40
 base_num = 40
 # 4s店数目，最多2000
-destination_num = 2000
+destination_num = 200

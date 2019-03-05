@@ -1,5 +1,5 @@
 # coding: utf-8
-import logging
+import logging, time
 from global_data import list_base, list_destination, list_trunk
 from data.StatueData import TRUNK_IN_ORDER, TRUNK_ON_ROAD, TRUNK_IN_ORDER_DESTINATION
 
@@ -7,7 +7,7 @@ from data.StatueData import TRUNK_IN_ORDER, TRUNK_ON_ROAD, TRUNK_IN_ORDER_DESTIN
 log = logging.getLogger('default')
 
 
-VALUE_MAX = 10000000
+VALUE_MAX = 1000000000
 order_data = {}
 base_penalty = 6000
 
@@ -23,6 +23,7 @@ order_data = {
 
 def get_order_data():
     global order_data
+    order_data = {}
     for base in list_base:
         for order in base.new_orders:
             if order.id in order_data:
@@ -96,6 +97,7 @@ def get_cost_trunk_in_order(trunk, orders):
     for order_id in orders:
         order_data[order_id]['is_loading'] += 1
         if order_data[order_id]['is_loading'] > 1:
+            print "order_data[order_id]['is_loading'] > 1"
             return VALUE_MAX
         order = order_data[order_id]['object']
         if order.base not in bases:
@@ -190,7 +192,8 @@ def get_order_cost():
     for order_id in order_data:
         if order_data[order_id]['is_loading'] == 0:
             order = order_data[order_id]['object']
-            sum_cost += list_trunk[-1].trunk_cost_one_road(1, order.base, order.destination)
+            sum_cost += list_trunk[-1].trunk_cost_one_road(1, list_base[order.base].position,
+                                                           list_destination[order.destination].position)
             if order.class_of_delay_time == 2:
                 sum_cost += trunk_penalty_cost(0.5)+10
             if order.class_of_delay_time == 3:
@@ -207,30 +210,56 @@ def trunk_penalty_cost(car_num_rate):
     return cost
 
 
+def change_gene(gene_data):
+    order_data = {}
+    gene_data_ok = {}
+    for key in gene_data:
+        for order in gene_data[key]:
+            if order not in order_data:
+                order_data[order] = []
+            order_data[order].append(key)
+    for order in order_data:
+        # print order, order_data[order]
+        if order_data[order][0] not in gene_data_ok:
+            gene_data_ok[order_data[order][0]] = []
+        gene_data_ok[order_data[order][0]].append(order)
+    return gene_data_ok
+
+
 def compute_cost(gene):
     get_order_data()
     # trunk: [order]
     gene_data = gene.gene_data
     sum_cost = 0
-    print gene_data
-
+    gene_data = change_gene(gene_data)
+    # print gene_data
     for trunk_id in gene_data:
         trunk = list_trunk[trunk_id]
         # 在途可运车
         if trunk.trunk_state == TRUNK_ON_ROAD:
+            print 'error, can not be here'
             sum_cost += get_cost_trunk_on_road(trunk, gene_data[trunk_id])
         # 起始等待车
         elif trunk.trunk_state == TRUNK_IN_ORDER:
             sum_cost += get_cost_trunk_in_order(trunk, gene_data[trunk_id])
         # 终点等待车
         elif trunk.trunk_state == TRUNK_IN_ORDER_DESTINATION:
+            print 'error, can not be here'
             sum_cost += get_cost_trunk_in_order_dest(trunk, gene_data[trunk_id])
         else:
+            print 'error, can not be here'
             sum_cost += VALUE_MAX
 
         if sum_cost >= VALUE_MAX:
-            return sum_cost
+            # print 'trunk_id', trunk_id, gene_data[trunk_id]
+            time.sleep(100)
+            gene.value = sum_cost
+            return
     sum_cost += get_order_cost()
     if sum_cost >= VALUE_MAX:
-        return sum_cost
-    return sum_cost
+        gene.value = sum_cost
+        # print 'get_order_cost'
+        time.sleep(100)
+        return
+    # print gene.value
+    gene.value = sum_cost

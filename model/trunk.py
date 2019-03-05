@@ -235,7 +235,7 @@ class Trunk:
                 for i in range(len(self.trunk_car_order_list) - 1, -1, -1):
                     for j in range(len(reach_position_list)):
                         if isinstance(reach_position_list[j], Destination):
-                            if self.trunk_car_order_list[i].destination.d_id == reach_position_list[j].d_id:
+                            if self.trunk_car_order_list[i].destination == reach_position_list[j].d_id:
                                 self.trunk_car_order_list.remove(self.trunk_car_order_list[i])
                 if len(temp_time_list) > 1:
                     self.trunk_target_position_list = self.trunk_target_position_list[-1 * len(temp_time_list) + 1:]
@@ -243,10 +243,13 @@ class Trunk:
                     self.trunk_target_position_list = []
 
             # 更新状态
+            '''
             if isinstance(self.trunk_target_position_list[0], BaseStation):
                 self.trunk_state = TRUNK_ON_ROAD_NOT_USE
             else:
                 self.trunk_state = TRUNK_ON_ROAD
+            '''
+            self.trunk_state = TRUNK_ON_ROAD
             self.trunk_target_time_list = temp_time_list
             self.trunk_finish_order_time -= 24
         self.trunk_before_day_position = self.trunk_position
