@@ -288,3 +288,4 @@ class Trunk:
         for i in range(base_num):
             if self.trunk_position.get_position_distance(self.inquiry_info.inquiry_base_position_by_id(i)) < distance_around:
                 self.near_base_list.append(i)
+        return self.near_base_list

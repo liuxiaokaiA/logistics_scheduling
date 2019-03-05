@@ -6,9 +6,9 @@ from model.trunk import Trunk
 from log import MyLogging
 from read_configure import read_fuc
 from algorithm.ga import update_global, GA
-from algorithm.model_data import get_trunk_max_order, get_orders_trunk_can_take,\
+from algorithm.model_data import get_trunk_max_order, get_orders_trunk_can_take, \
     modify_model, get_whole_trunk
-from global_data import list_base, list_destination, list_trunk, all_scheduling,\
+from global_data import list_base, list_destination, list_trunk, all_scheduling, \
     trunk_num, destination_num, base_num
 
 
@@ -24,7 +24,7 @@ def update(day):
         trunk.trunk_update_day()
 
 
-def comput(day):
+def compute(day):
     get_whole_trunk()
     trunk_max_order = get_trunk_max_order()
     data = get_orders_trunk_can_take(trunk_max_order)
@@ -56,11 +56,26 @@ def output(day):
             else:
                 trunk_sum_transport += trunk.trunk_type
                 trunk_transport_car += len(trunk.trunk_car_order_list)
-    trunk_empty_rate = trunk_empty/trunk_sum
-    trunK_transport_rate = trunk_transport_car/trunk_sum_transport
-    order_low = 0
-    order_middle = 0
-    order_high = 0
+    trunk_empty_rate = (trunk_empty * 1.0) / trunk_sum
+    trunk_transport_rate = (trunk_transport_car * 1.0) / trunk_sum_transport
+    order_delay_low = 0
+    order_delay_middle = 0
+    order_delay_high = 0
+    sum_delay_day = 0
+    for base in list_base:
+        for order in base.new_orders:
+            delay_time = day - order.timestamp
+            sum_delay_day += delay_time
+            if delay_time <= 5:
+                order_delay_low += 1
+            elif delay_time <= 10:
+                order_delay_middle += 1
+            elif delay_time > 10:
+                order_delay_high += 1
+    average_delay_day = (sum_delay_day * 1.0) / (order_delay_low + order_delay_middle + order_delay_high)
+    print("当前空车率%f，当前搭载率%f" % (trunk_empty_rate, trunk_transport_rate))
+    print("当前压板五天以下订单数%d，当前压板五天以上十天以下订单数%d，当前压板十天以上订单数%d" % (order_delay_low, order_delay_middle, order_delay_high))
+    print("当前平均压板时间%f" % average_delay_day)
 
 
 def init():
@@ -68,17 +83,17 @@ def init():
     from model.destination import Destination
     from model.inquiry_info import InquiryInfo
 
-    inquriry_info = InquiryInfo()
+    inquiry_info = InquiryInfo()
     for base_index in range(base_num):
-        temp_base = BaseStation(base_index, inquriry_info)
+        temp_base = BaseStation(base_index, inquiry_info)
         list_base.append(temp_base)
 
     for destination_index in range(destination_num):
-        temp_destination = Destination(destination_index, inquriry_info)
+        temp_destination = Destination(destination_index, inquiry_info)
         list_destination.append(temp_destination)
 
     for trunk_index in range(trunk_num):
-        temp_trunk = Trunk(trunk_index, inquriry_info)
+        temp_trunk = Trunk(trunk_index, inquiry_info)
         list_trunk.append(temp_trunk)
 
 
@@ -95,6 +110,6 @@ if __name__ == "__main__":
         log.info('days: %d ' % day)
         update(day)
         log.info('update down, start to compute')
-        comput(day)
+        compute(day)
         log.info('compute down, start to output')
         output(day)
