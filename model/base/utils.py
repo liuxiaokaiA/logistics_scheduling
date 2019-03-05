@@ -6,4 +6,4 @@ import time
 
 
 def get_time_torday():
-    return int(time.mktime(time.strptime(time.time(), '%Y%m%d')))
+    pass

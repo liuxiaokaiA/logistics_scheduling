@@ -49,7 +49,7 @@ def get_cost_trunk_on_road(trunk, orders):
     temp_position = trunk.trunk_position
     for base_id in bases:
         base = list_base[base_id]
-        cost_ += trunk.get_cost(car_num, temp_position, base.position)
+        cost_ += trunk.trunk_cost_one_road(car_num, temp_position, base.position)
         temp_position = base.position
         car_num += len(bases[base_id])
 
@@ -68,7 +68,7 @@ def get_cost_trunk_on_road(trunk, orders):
     # 可以优化
     for dest_id in dests:
         dest = list_destination[dest_id]
-        cost_ += trunk.get_cost(car_num, temp_position, dest.position)
+        cost_ += trunk.trunk_cost_one_road(car_num, temp_position, dest.position)
         temp_position = dest.position
         car_num -= len(dests[dest_id])
 
@@ -83,7 +83,7 @@ def get_cost_trunk_on_road(trunk, orders):
     car_num = len(trunk.trunk_car_order_list)
     for dest_id in old_dests:
         dest = list_destination[dest_id]
-        cost_ -= trunk.get_cost(car_num, temp_position, dest.position)
+        cost_ -= trunk.trunk_cost_one_road(car_num, temp_position, dest.position)
         temp_position = dest.position
         car_num -= len(dests[dest_id])
 
@@ -103,16 +103,14 @@ def get_cost_trunk_in_order(trunk, orders):
         bases[order.base].append(order)
     cost_ = 0
     car_num = 0
-    temp_position = None
+    temp_position = list_base[trunk.trunk_base_id].position
     if trunk.trunk_base_id in bases:
-        base = list_base[trunk.trunk_base_id]
         car_num += len(bases[trunk.trunk_base_id])
-        temp_position = base.position
     for base_id in bases:
         if base_id == trunk.trunk_base_id:
             continue
         base = list_base[base_id]
-        cost_ += trunk.get_cost(car_num, temp_position, base.position)
+        cost_ += trunk.trunk_cost_one_road(car_num, temp_position, base.position)
         temp_position = base.position
         car_num += len(bases[base_id])
 
@@ -126,7 +124,7 @@ def get_cost_trunk_in_order(trunk, orders):
     # 可以优化
     for dest_id in dests:
         dest = list_destination[dest_id]
-        cost_ += trunk.get_cost(car_num, temp_position, dest.position)
+        cost_ += trunk.trunk_cost_one_road(car_num, temp_position, dest.position)
         temp_position = dest.position
         car_num -= len(dests[dest_id])
 
@@ -138,7 +136,7 @@ def get_cost_trunk_in_order_dest(trunk, orders):
     cost_ = 0
     trunk_base_id = trunk.trunk_base_id
     trunk_base = list_base[trunk_base_id]
-    cost_ += trunk.get_cost(0, trunk.trunk_position, trunk_base.position)
+    cost_ += trunk.trunk_cost_one_road(0, trunk.trunk_position, trunk_base.position)
     bases = {}
     for order_id in orders:
         order_data[order_id]['is_loading'] += 1
@@ -155,7 +153,7 @@ def get_cost_trunk_in_order_dest(trunk, orders):
         base = list_base[base_id]
         if base.position == trunk.trunk_position:
             continue
-        return_cost += trunk.get_cost(car_num, temp_position, base.position)
+        return_cost += trunk.trunk_cost_one_road(car_num, temp_position, base.position)
         temp_position = base.position
         car_num += len(bases[base_id])
 
@@ -169,12 +167,12 @@ def get_cost_trunk_in_order_dest(trunk, orders):
     # 可以优化
     for dest_id in dests:
         dest = list_destination[dest_id]
-        return_cost += trunk.get_cost(car_num, temp_position, dest.position)
+        return_cost += trunk.trunk_cost_one_road(car_num, temp_position, dest.position)
         temp_position = dest.position
         car_num -= len(dests[dest_id])
 
     # 运完回去
-    return_cost += trunk.get_cost(0, temp_position, trunk_base.position)
+    return_cost += trunk.trunk_cost_one_road(0, temp_position, trunk_base.position)
     if return_cost:
         cost_ = return_cost - cost_ + trunk_penalty_cost(float(len(orders))/trunk.trunk_type)
     else:
@@ -192,7 +190,7 @@ def get_order_cost():
     for order_id in order_data:
         if order_data[order_id]['is_loading'] == 0:
             order = order_data[order_id]['object']
-            sum_cost += list_trunk[-1].get_cost(1, order.base, order.destination)
+            sum_cost += list_trunk[-1].trunk_cost_one_road(1, order.base, order.destination)
             if order.class_of_delay_time == 2:
                 sum_cost += trunk_penalty_cost(0.5)+10
             if order.class_of_delay_time == 3:
@@ -214,6 +212,7 @@ def compute_cost(gene):
     # trunk: [order]
     gene_data = gene.gene_data
     sum_cost = 0
+    print gene_data
 
     for trunk_id in gene_data:
         trunk = list_trunk[trunk_id]

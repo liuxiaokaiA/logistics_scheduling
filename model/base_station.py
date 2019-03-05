@@ -37,18 +37,18 @@ class BaseStation:
 
     def update_near_trunk(self, trunk_list, distance=200):
         """获取附近指定距离内车辆"""
+        self.near_trunk_list = []
         for index in range(len(trunk_list)):
-            self.near_trunk_list = []
-            if self.position.get_position_distance(trunk_list[index].position) < 200:
+            if self.position.get_position_distance(trunk_list[index].position) < distance:
                 self.near_trunk_list.append(trunk_list[index].trunk_id)
 
-    def create_orders(self):
+    def create_orders(self, day):
         # 泊松分布获取生成订单个数，传入参数
         param = 50
         order_count = Poisson(param).get_num()
         # 获取今天0点的时间
-        timestamp = get_time_torday()
-        now = timestamp
+        timestamp = day
+        now = day
         # 获取4S点分布以及每个4S点的订单个数
         destination_data = get_destination(order_count)
         default_car_num = 1
@@ -57,7 +57,16 @@ class BaseStation:
         # 生成订单
         for destination in destination_data:
             car_num = destination_data[destination]
-            for num in car_num:
+            for i in range(car_num):
                 order = Order(self.b_id, timestamp, now, destination, default_car_num, group)
                 order.set_delay_time()
                 self.new_orders.add(order)
+
+
+def get_near_trunk(base, trunk_list, distance=200):
+    """获取附近指定距离内车辆"""
+    near_trunk_list = []
+    for index in range(len(trunk_list)):
+        if base.position.get_position_distance(trunk_list[index].position) < distance:
+            near_trunk_list.append(trunk_list[index].trunk_id)
+    return near_trunk_list

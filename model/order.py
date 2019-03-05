@@ -35,6 +35,6 @@ class Order(object):
         else:
             print('delay_time error!!,order id: %s' % str(self.id))
 
-    def update_order(self):
-        self.now = get_time_torday()
+    def update_order(self, day):
+        self.now = day
         self.set_delay_time()

@@ -55,8 +55,6 @@ class Trunk:
         self.trunk_finish_order_time = 0
         # 所运小汽车所属订单序列
         self.trunk_car_order_list = []
-        # 当前状态每公里费用
-        self.trunk_cost = 1
         # 汽车速度
         self.trunk_speed = trunk_speed
         # 此坐标表示未来运输车将去的网点
@@ -276,7 +274,7 @@ class Trunk:
         else:
             return 1.2 * (1 + car_number * 0.05)
 
-    def trunk_cost_one_road(self, position1, position2, car_number):
+    def trunk_cost_one_road(self, car_number, position1, position2):
         """一段路程的费用"""
         return self.trunk_cost(car_number) * (position1.get_position_distance(position2))
 
