@@ -7,7 +7,7 @@ from log import MyLogging
 from read_configure import read_fuc
 from algorithm.ga import update_global, GA
 from algorithm.model_data import get_trunk_max_order, get_orders_trunk_can_take, modify_model
-from global_data import list_base, list_destination, list_trunk, all_scheduling, trunk_num
+from global_data import list_base, list_destination, list_trunk, all_scheduling, trunk_num, baseNum, destination_num
 
 
 def update(day):
@@ -57,8 +57,6 @@ def init():
     from model.inquiry_info import InquiryInfo
 
     inquriry_info = InquiryInfo()
-    baseNum = 40
-    destination_num = 2000
     for base_index in range(baseNum):
         temp_base = BaseStation(base_index, inquriry_info)
         list_base.append(temp_base)
