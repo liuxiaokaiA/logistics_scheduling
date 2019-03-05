@@ -101,7 +101,7 @@ class BaseStation:
                 return None
 
 
-def get_near_trunk(base, trunk_list, distance=200):
+def get_near_trunk(base, trunk_list, distance=distance_around):
     """获取附近指定距离内车辆"""
     near_trunk_list = []
     for index in range(len(trunk_list)):

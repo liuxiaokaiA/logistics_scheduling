@@ -25,7 +25,7 @@ class Order(object):
         self.group = group
 
     def set_delay_time(self):
-        self.delay_time = (self.now - self.timestamp) / 24*3600
+        self.delay_time = self.now - self.timestamp
         if self.delay_time <= 5:
             self.class_of_delay_time = 1
         elif 5 < self.delay_time <= 10:
