@@ -276,7 +276,7 @@ class Trunk:
         else:
             return 1.2 * (1 + car_number * 0.05)
 
-    def trunk_cost_one_road(self, position1, position2, car_number):
+    def trunk_cost_one_road(self, car_number, position1, position2):
         """一段路程的费用"""
         return self.trunk_cost(car_number) * (position1.get_position_distance(position2))
 

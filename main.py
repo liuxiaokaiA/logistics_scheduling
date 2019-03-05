@@ -6,11 +6,14 @@ from model.trunk import Trunk
 from log import MyLogging
 from read_configure import read_fuc
 from algorithm.ga import update_global, GA
-from algorithm.model_data import get_trunk_max_order, get_orders_trunk_can_take, modify_model
-from global_data import list_base, list_destination, list_trunk, all_scheduling, trunk_num, destination_num, base_num
+from algorithm.model_data import get_trunk_max_order, get_orders_trunk_can_take,\
+    modify_model, get_whole_trunk
+from global_data import list_base, list_destination, list_trunk, all_scheduling,\
+    trunk_num, destination_num, base_num
 
 
 def update(day):
+    log.info('update base')
     for base in list_base:
         base.create_orders()
         base.update_in_station_trunk(list_trunk)
@@ -22,12 +25,17 @@ def update(day):
 
 
 def comput(day):
+    get_whole_trunk()
     trunk_max_order = get_trunk_max_order()
     data = get_orders_trunk_can_take(trunk_max_order)
+    # print data
     ga = GA()
+    log.info('start to compute')
     ga.GA_main(data, trunk_max_order)
+    log.info('ga down.start to get best gene')
     best_gene = ga.selectBest()
     gene_data = best_gene.gene_to_data(ga.order, ga.key_order)
+    log.info('start to modify_model')
     modify_model(gene_data)
     all_scheduling[day] = gene_data
 
@@ -83,5 +91,7 @@ if __name__ == "__main__":
     for day in range(days):
         log.info('days: %d ' % day)
         update(day)
+        log.info('update down, start to compute')
         comput(day)
+        log.info('compute down, start to output')
         output(day)

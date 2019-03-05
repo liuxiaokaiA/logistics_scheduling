@@ -8,7 +8,7 @@ from global_data import distance_around
 
 
 def get_time_torday():
-    return int(time.mktime(time.strptime(time.time(), '%Y%m%d')))
+    pass
 
 
 def is_near(position1, position2, distance):

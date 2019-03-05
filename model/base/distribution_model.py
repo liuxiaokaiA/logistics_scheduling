@@ -1,4 +1,5 @@
 # coding: utf-8
+import numpy.matlib
 import numpy as np
 import random
 
@@ -14,13 +15,13 @@ class Poisson(object):
 def get_destination_id(destination_count):
     while 1:
         # # sigma * np.matlib.randn(...) + mu
-        id = destination_count / 4 * np.matlib.randn(1) + destination_count / 2
-        if 0 <= int(id[0]) < 2000:
-            return id[0]
+        id = np.random.normal(destination_count/2, destination_count/4)
+        if 0 <= int(id) < 2000:
+            return int(id)
 
 
 # 获取目的4S店的分布以及订单个数
-def get_destination(count, destination_count):
+def get_destination(count, destination_count=2000):
     sum_ = count
     dests = {}
     while sum_:
@@ -39,5 +40,6 @@ def get_destination(count, destination_count):
                 dests[id] = n_dest
             else:
                 continue
+            break
 
     return dests
