@@ -58,8 +58,8 @@ class BaseStation:
 
     def update_near_trunk(self, trunk_list, distance=distance_around):
         """获取附近指定距离内车辆"""
+        self.near_trunk_list = []
         for index in range(len(trunk_list)):
-            self.near_trunk_list = []
             if self.position.get_position_distance(trunk_list[index].position) < distance:
                 self.near_trunk_list.append(trunk_list[index].trunk_id)
 
