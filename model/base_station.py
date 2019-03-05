@@ -13,7 +13,7 @@ import numpy as np
 
 from data.StatueData import TRUNK_TYPE_SMALL, TRUNK_IN_ORDER, TRUNK_IN_ORDER_DESTINATION, TRUNK_TYPE_MIDDLE, \
     TRUNK_TYPE_BIG
-from global_data import trunk_num, distance_around
+from global_data import trunk_num, distance_around, base_num, destination_num
 from model.inquiry_info import InquiryInfo
 import logging
 
@@ -38,12 +38,12 @@ class BaseStation:
         self.near_base_list = []
         self.trunk_in_station = []
         for index in range(trunk_num):
-            if index % 40 == self.b_id:
+            if index % base_num == self.b_id:
                 self.trunk_in_station.append(index)
-        for i in range(2000):
+        for i in range(destination_num):
             if (inquiry_info.inquiry_distance_by_id(b_id_1=b_id, d_id_1=i)) < distance_around:
                 self.near_destination_list.append(i)
-        for j in range(40):
+        for j in range(base_num):
             if (inquiry_info.inquiry_distance_by_id(b_id_1=b_id, b_id_2=j)) < distance_around:
                 self.near_destination_list.append(j)
         self.new_orders = set()
@@ -58,8 +58,8 @@ class BaseStation:
 
     def update_near_trunk(self, trunk_list, distance=distance_around):
         """获取附近指定距离内车辆"""
+        self.near_trunk_list = []
         for index in range(len(trunk_list)):
-            self.near_trunk_list = []
             if self.position.get_position_distance(trunk_list[index].position) < distance:
                 self.near_trunk_list.append(trunk_list[index].trunk_id)
 
