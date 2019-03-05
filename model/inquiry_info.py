@@ -12,6 +12,7 @@
 import pandas as pd
 import logging
 from data.position import Position
+from global_data import base_num, destination_num
 
 
 class InquiryInfo:
@@ -69,13 +70,13 @@ class InquiryInfo:
            d_id_2:
         """
         wrongNum = 0
-        if b_id_1 < 0 or b_id_1 > 39:
+        if b_id_1 < 0 or b_id_1 > base_num:
             wrongNum += 1
-        if b_id_2 < 0 or b_id_2 > 39:
+        if b_id_2 < 0 or b_id_2 > base_num:
             wrongNum += 1
-        if d_id_1 < 0 or d_id_1 > 1999:
+        if d_id_1 < 0 or d_id_1 > destination_num:
             wrongNum += 1
-        if d_id_2 < 0 or d_id_2 > 1999:
+        if d_id_2 < 0 or d_id_2 > destination_num:
             wrongNum += 1
         if wrongNum == 0 or wrongNum == 1 or wrongNum == 3 or wrongNum == 4:
             logging.error("inquiry id wrong ")
@@ -88,13 +89,13 @@ class InquiryInfo:
             elif d_id_1 > -1 and d_id_2 > -1:
                 return self.distance.values[d_id_1 + 40, d_id_2 + 40]
             else:
-                logging.error("inquiry parame id wrong")
+                logging.error("inquiry parameter id wrong")
                 return 0
 
     def inquiry_nearest_base_station(self, d_id):
         temp_id = 0
         nearest_distance = 99999999
-        for i in range(40):
+        for i in range(base_num):
             current_distance = self.inquiry_distance_by_id(b_id_1=i, d_id_1=d_id)
             if current_distance < nearest_distance:
                 nearest_distance = current_distance

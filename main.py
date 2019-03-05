@@ -1,21 +1,25 @@
 # coding: utf-8
 import logging
+
+from data.StatueData import TRUNK_ON_ROAD, TRUNK_ON_ROAD_NOT_USE
 from model.trunk import Trunk
 from log import MyLogging
 from read_configure import read_fuc
 from algorithm.ga import update_global, GA
 from algorithm.model_data import get_trunk_max_order, get_orders_trunk_can_take,\
     modify_model, get_whole_trunk
-from global_data import list_base, list_destination, list_trunk, all_scheduling
+from global_data import list_base, list_destination, list_trunk, all_scheduling,\
+    trunk_num, destination_num, base_num
 
 
 def update(day):
     log.info('update base')
     for base in list_base:
-        base.create_orders(day)
+        base.create_orders()
+        base.update_in_station_trunk(list_trunk)
+        base.update_near_trunk(list_trunk)
         for order in base.new_orders:
-            order.update_order(day)
-    log.info('update trunk')
+            order.update_order()
     for trunk in list_trunk:
         trunk.trunk_update_day()
 
@@ -37,7 +41,23 @@ def comput(day):
 
 
 def output(day):
-    pass
+    trunk_empty = 0
+    trunk_sum = 0
+    trunk_transport_car = 0
+    trunk_sum_transport = 0
+    for trunk in list_trunk:
+        if trunk.trunk_state == TRUNK_ON_ROAD or trunk.trunk_state == TRUNK_ON_ROAD_NOT_USE:
+            trunk_sum += 1
+            if len(trunk.trunk_car_order_list) == 0:
+                trunk_empty += 0
+            else:
+                trunk_sum_transport += trunk.trunk_type
+                trunk_transport_car += len(trunk.trunk_car_order_list)
+    trunk_empty_rate = trunk_empty/trunk_sum
+    trunK_transport_rate = trunk_transport_car/trunk_sum_transport
+    order_low = 0
+    order_middle = 0
+    order_high = 0
 
 
 def init():
@@ -46,10 +66,7 @@ def init():
     from model.inquiry_info import InquiryInfo
 
     inquriry_info = InquiryInfo()
-    baseNum = 40
-    destination_num = 2000
-    trunk_num = 2400
-    for base_index in range(baseNum):
+    for base_index in range(base_num):
         temp_base = BaseStation(base_index, inquriry_info)
         list_base.append(temp_base)
 
