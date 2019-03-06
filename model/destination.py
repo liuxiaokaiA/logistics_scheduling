@@ -26,7 +26,7 @@ class Destination:
         self.near_destination_list = []
         for i in range(destination_num):
             if (inquiry_info.inquiry_distance_by_id(d_id_1=d_id, d_id_2=i)) < distance_around and i != d_id:
-                self.near_distance_list.append(i)
+                self.near_destination_list.append(i)
 
     def get_position(self):
         return self.position

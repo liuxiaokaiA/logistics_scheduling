@@ -179,7 +179,7 @@ def get_cost_trunk_in_order_dest(trunk, orders):
         cost_ = return_cost - cost_ + trunk_penalty_cost(float(len(orders))/trunk.trunk_type)
     else:
         # 大于5天停留惩罚成本
-        if trunk.wait_day > 5:
+        if trunk.wait_day > 3:
             cost_ += trunk_penalty_cost(0) + 1000
         # 空车惩罚
         else:
@@ -237,17 +237,17 @@ def compute_cost(gene):
         trunk = list_trunk[trunk_id]
         # 在途可运车
         if trunk.trunk_state == TRUNK_ON_ROAD:
-            print 'error, can not be here'
+            # print 'error, can not be here. TRUNK_ON_ROAD'
             sum_cost += get_cost_trunk_on_road(trunk, gene_data[trunk_id])
         # 起始等待车
         elif trunk.trunk_state == TRUNK_IN_ORDER:
             sum_cost += get_cost_trunk_in_order(trunk, gene_data[trunk_id])
         # 终点等待车
         elif trunk.trunk_state == TRUNK_IN_ORDER_DESTINATION:
-            print 'error, can not be here'
+            # print 'error, can not be here. TRUNK_IN_ORDER_DESTINATION'
             sum_cost += get_cost_trunk_in_order_dest(trunk, gene_data[trunk_id])
         else:
-            print 'error, can not be here'
+            print 'error, can not be here, other statuse'
             sum_cost += VALUE_MAX
 
         if sum_cost >= VALUE_MAX:

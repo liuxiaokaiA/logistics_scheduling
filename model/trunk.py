@@ -213,9 +213,18 @@ class Trunk:
             self.trunk_target_time_list = []
         else:
             if len(temp_time_list) == len(self.trunk_target_time_list):
+                # '''
+                position = None
+                if len(self.trunk_target_position_list) != 0:
+                    position = self.trunk_target_position_list[0].position
+                else:
+                    position = self.inquiry_info.inquiry_base_position_by_id(self.trunk_future_base_station_id)
+                # '''
+                # position = self.trunk_target_position_list[0].position
                 self.trunk_position = self.calculate_position(self.trunk_before_day_position,
-                                                              self.trunk_target_position_list[0].position,
+                                                              position,
                                                               temp_time_list[0])
+
                 # if isinstance(self.trunk_target_position_list[0], BaseStation):
                 #     self.trunk_state = TRUNK_ON_ROAD_NOT_USE
                 # else:
@@ -232,11 +241,14 @@ class Trunk:
                                       0:len(self.trunk_target_position_list) - len(temp_time_list) + 1]
 
                 # 倒着删掉订单
-                for i in range(len(self.trunk_car_order_list) - 1, -1, -1):
-                    for j in range(len(reach_position_list)):
-                        if isinstance(reach_position_list[j], Destination):
-                            if self.trunk_car_order_list[i].destination == reach_position_list[j].d_id:
-                                self.trunk_car_order_list.remove(self.trunk_car_order_list[i])
+                del_order = []
+                for i in self.trunk_car_order_list:
+                    for j in reach_position_list:
+                        if isinstance(j, Destination):
+                            if i.destination == j.d_id:
+                                del_order.append(i)
+                for order in del_order:
+                    self.trunk_car_order_list.remove(order)
                 if len(temp_time_list) > 1:
                     self.trunk_target_position_list = self.trunk_target_position_list[-1 * len(temp_time_list) + 1:]
                 elif len(temp_time_list) == 1:
@@ -259,8 +271,12 @@ class Trunk:
         """计算位置辅助"""
         distance1 = position1.get_position_distance(position2)
         distance2 = self.trunk_speed * time
-        x = position2.x - distance2 / distance1 * (position2.x - position1.x)
-        y = position2.y - distance2 / distance1 * (position2.y - position1.y)
+        x = position2.x
+        if abs(position2.x - position1.x) > 0.005:
+            x = position2.x - distance2 / distance1 * (position2.x - position1.x)
+        y = position2.y
+        if abs(position2.y - position1.y) > 0.005:
+            y = position2.y - distance2 / distance1 * (position2.y - position1.y)
         return Position(x, y)
 
     def random_sleep(self):

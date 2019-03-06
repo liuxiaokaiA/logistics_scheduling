@@ -16,8 +16,9 @@ def get_empty_trunks(base, count):
     while 1:
         type = random.randint(6, 8)
         trunk = base.get_trunk(type)
-        if trunk:
+        if trunk is not None:
             trunks.append(trunk)
+            list_base[list_trunk[trunk].trunk_base_id].trunk_in_station.remove(trunk)
         else:
             type1 = None
             while 1:
@@ -25,8 +26,9 @@ def get_empty_trunks(base, count):
                 if type1 != type:
                     break
             trunk = base.get_trunk(type1)
-            if trunk:
+            if trunk is not None:
                 trunks.append(trunk)
+                list_base[list_trunk[trunk].trunk_base_id].trunk_in_station.remove(trunk)
             else:
                 type2 = None
                 while 1:
@@ -34,8 +36,9 @@ def get_empty_trunks(base, count):
                     if type2 not in (type, type1):
                         break
                 trunk = base.get_trunk(type2)
-                if trunk:
+                if trunk is not None:
                     trunks.append(trunk)
+                    list_base[list_trunk[trunk].trunk_base_id].trunk_in_station.remove(trunk)
                 else:
                     return trunks
         if len(trunks) == count:
@@ -153,11 +156,13 @@ def modify_model(gene_data):
             dest = list_destination[dest_id]
             position_list.append(dest)
 
+        if not position_list:
+            position_list.append(list_base[trunk.trunk_base_id])
+
         trunk.add_target_position_list(position_list)
 
 
-def trunk_take_orders(trunk_id, orders):
-    trunk = list_trunk[trunk_id]
+def trunk_take_orders(trunk, orders):
     all_order = {}
     for base in list_base:
         for order in base.new_orders:
@@ -190,14 +195,19 @@ def trunk_take_orders(trunk_id, orders):
         position_list.append(dest)
 
     trunk.add_target_position_list(position_list)
-    list_base[trunk.trunk_base_id].trunk_in_station.remove(trunk_id)
 
 
 # 从base中选择trunk添加order
-def get_trunk_to_work(base, type, all_orders):
-    trunk = base.get_trunk(type)
-    if not trunk:
+def get_trunk_to_work(base, type, all_orders, is_log):
+    if is_log:
+        print type
+    trunk_id = base.get_trunk(type)
+    if trunk_id is None:
+        if is_log:
+            print 'trunk is none. base:', base.b_id
         return False
+    trunk = list_trunk[trunk_id]
+    list_base[trunk.trunk_base_id].trunk_in_station.remove(trunk.trunk_id)
     if type <= len(all_orders):
         orders = all_orders[:type]
         trunk_take_orders(trunk, orders)
@@ -206,32 +216,32 @@ def get_trunk_to_work(base, type, all_orders):
     return True
 
 
-def get_trunk_from_base(base, orders):
+def get_trunk_from_base(base, orders, is_log=False):
     while 1:
         if len(orders) >= 8:
-            if get_trunk_to_work(base, 8, orders):
+            if get_trunk_to_work(base, 8, orders, is_log):
                 orders = orders[8:]
-            elif get_trunk_to_work(base, 7, orders):
+            elif get_trunk_to_work(base, 7, orders, is_log):
                 orders = orders[7:]
-            elif get_trunk_to_work(base, 6, orders):
+            elif get_trunk_to_work(base, 6, orders, is_log):
                 orders = orders[6:]
             else:
                 break
         elif len(orders) == 7:
-            if get_trunk_to_work(base, 7, orders):
+            if get_trunk_to_work(base, 7, orders, is_log):
                 orders = []
-            elif get_trunk_to_work(base, 6, orders):
+            elif get_trunk_to_work(base, 6, orders, is_log):
                 orders = orders[6:]
-            elif get_trunk_to_work(base, 8, orders):
+            elif get_trunk_to_work(base, 8, orders, is_log):
                 orders = []
             else:
                 break
         elif 4 <= len(orders) <= 6:
-            if get_trunk_to_work(base, 6, orders):
+            if get_trunk_to_work(base, 6, orders, is_log):
                 orders = []
-            elif get_trunk_to_work(base, 7, orders):
+            elif get_trunk_to_work(base, 7, orders, is_log):
                 orders = []
-            elif get_trunk_to_work(base, 8, orders):
+            elif get_trunk_to_work(base, 8, orders, is_log):
                 orders = []
             else:
                 break
@@ -256,39 +266,46 @@ def get_whole_trunk():
     print '周围网点，同路线的整订单外派'
     for base in list_base:
         # print 'base: ', base.b_id
-        # 附近网点的目的地，订单
-        base_order = {}
-        # 附近的所有网点
+        # 附近目的地，订单
+        dest_order = {}
+        # 附近的所有网点,包含本身
         base_list = base.near_base_list
         if base.b_id not in base_list:
             base_list.append(base.b_id)
         for base_near_id in base_list:
             base_near = list_base[base_near_id]
             for order in base_near.new_orders:
-                if order.destination not in base_order:
-                    base_order[order.destination] = []
-                base_order[order.destination].append(order)
+                if order.destination not in dest_order:
+                    dest_order[order.destination] = set()
+                dest_order[order.destination].add(order)
 
-        for destid in base_order:
+        for destid in dest_order:
             destination = list_destination[destid]
             # 目的地附近目的地
             dest_list = destination.near_destination_list
             # 本目的地的order
-            near_order = base_order[destid]
+            near_order = dest_order[destid]
             # 再遍历附近目的地
-            for dest_near_id in base_order:
+            for dest_near_id in dest_order:
                 # 是周围网点，但不是本网点
                 if dest_near_id in dest_list and dest_near_id != destid:
-                    near_order += base_order[dest_near_id]
+                    near_order |= dest_order[dest_near_id]
             # 所有顺路order
             temp = near_order
             # print 'temp: ', [od.id for od in temp]
             for base_near_id in base_list[::-1]:
                 base = list_base[base_near_id]
-                near_order = get_trunk_from_base(base, near_order)
-
-            del_order = list(set(temp) - set(near_order))
+                temp = get_trunk_from_base(base, list(temp), False)
+                if len(near_order) < 4:
+                    break
+            temp_id = [order_.id for order_ in temp]
+            # print temp_id
+            del_order = [order_ for order_ in near_order if order_.id not in temp_id]
             # print 'del_order: ', [od.id for od in del_order]
             for order_ in del_order:
-                if order_.destination in base_order:
-                    base_order[order_.destination].remove(order_)
+                if order_.destination in dest_order:
+                    # print dest_order[order_.destination]
+                    # print 'dest_order: ', [od.id for od in dest_order[order_.destination]], order_.id
+                    dest_order[order_.destination].remove(order_)
+                    # import time
+                    # time.sleep(100)
