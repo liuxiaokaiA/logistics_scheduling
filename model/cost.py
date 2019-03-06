@@ -226,10 +226,26 @@ def change_gene(gene_data):
     return gene_data_ok
 
 
-def compute_cost(gene):
+def change_gene_data(gene_data, trunk_data):
+    # gene_data = {order_id: trunk_count]}
+    # trunk_data[trunk_count] = trunk_id
+    if not gene_data:
+        return
+    gene_data_ = {}
+    for order_id in gene_data:
+        if gene_data[order_id]:
+            trunk_id = trunk_data[gene_data[order_id]]
+            if trunk_id not in gene_data_:
+                gene_data_[trunk_id] = []
+            gene_data_[trunk_id].append(order_id)
+    return gene_data_
+
+
+def compute_cost(gene, trunk_data):
     get_order_data()
     # trunk: [order]
-    gene_data = gene.gene_data
+    gene_data_ = gene.gene_data
+    gene_data = change_gene_data(gene_data_, trunk_data)
     sum_cost = 0
     gene_data = change_gene(gene_data)
     # print gene_data

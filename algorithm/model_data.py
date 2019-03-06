@@ -61,12 +61,27 @@ def get_trunk_max_order():
     # 行驶状态先不考虑调度
     # 到达状态可调度
     for trunk in list_trunk:
-        if trunk.trunk_state not in (3,):
+        if trunk.trunk_state not in (3, ):
             continue
         max_order = trunk.trunk_type
         trunk_max_order[trunk.trunk_id] = max_order
 
     return trunk_max_order
+
+
+def get_orders_list(trunk_max_order, data):
+    trunk_data = {}
+    order_list = set()
+    trunk_count = 1
+    for trunk_id in data:
+        trunk_len = trunk_max_order[trunk_id] - len(list_trunk[trunk_id].trunk_car_order_list)
+        for i in range(trunk_len):
+            trunk_data[trunk_count] = trunk_id
+            trunk_count += 1
+        for order_id in data[trunk_id]:
+            order_list.add(order_id)
+    order_list = list(order_list)
+    return trunk_data, order_list
 
 
 def get_orders_trunk_can_take(trunk_max_order):
@@ -107,11 +122,27 @@ def get_orders_trunk_can_take(trunk_max_order):
     return data
 
 
-def modify_model(gene_data):
+def change_gene_data(gene_data, trunk_data):
+    # gene_data = {order_id: trunk_count]}
+    # trunk_data[trunk_count] = trunk_id
+    if not gene_data:
+        return
+    gene_data_ = {}
+    for order_id in gene_data:
+        if gene_data[order_id]:
+            trunk_id = trunk_data[gene_data[order_id]]
+            if trunk_id not in gene_data_:
+                gene_data_[trunk_id] = []
+            gene_data_[trunk_id].append(order_id)
+    return gene_data_
+
+
+def modify_model(gene_data, trunk_data):
     # gene_data = {trunk: [order]}
     # 获取所有的order
     if not gene_data:
         return
+    gene_data = change_gene_data(gene_data, trunk_data)
     all_order = {}
     for base in list_base:
         for order in base.new_orders:
@@ -160,6 +191,7 @@ def modify_model(gene_data):
             position_list.append(list_base[trunk.trunk_base_id])
 
         trunk.add_target_position_list(position_list)
+    return gene_data
 
 
 def trunk_take_orders(trunk, orders):
