@@ -8,11 +8,14 @@ from read_configure import read_fuc
 from algorithm.ga import update_global, GA
 from algorithm.model_data import get_trunk_max_order, get_orders_trunk_can_take, \
     modify_model, get_whole_trunk, get_orders_list
+
 from global_data import list_base, list_destination, list_trunk, all_scheduling, trunk_num, destination_num, \
     base_num, gene_bits
 
 history_order_num = 0
 list_trunk_not_in_base = []
+
+
 
 
 def update(day):
@@ -41,7 +44,10 @@ def compute(day):
     trunk_data, order_list = get_orders_list(trunk_max_order, data)
     gene_len = 0
     gene_len += len(order_list) * gene_bits
-    print ('gene length: ', len(order_list) * gene_bits, len(order_list))
+
+
+    print 'gene length: ', len(order_list) * gene_bits, len(order_list)
+
     ga = GA()
     log.info('start to compute')
     # ga.GA_main(data, trunk_max_order)

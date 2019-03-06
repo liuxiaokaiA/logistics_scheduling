@@ -3,12 +3,13 @@ import random
 import logging
 import copy
 from model.cost import compute_cost
+import numpy
 
 
 SUCCESS = 1
 FAILED = 0
 log = logging.getLogger('default')
-VALUE_MAX = 10000000
+VALUE_MAX = 1000000000
 
 
 def update_global(default_conf):
@@ -43,6 +44,7 @@ class Gene:
         result = SUCCESS
         return result
 
+    '''
     def gene_to_data(self, order, key_order):
         gene_data = self.data
         count = 0
@@ -55,6 +57,17 @@ class Gene:
                         all_data[key_] = []
                     all_data[key_].append(value_)
                 count += 1
+        self.gene_data = all_data
+    '''
+
+    def gene_to_data(self, gene_bits, order_list):
+        gene_data = copy.deepcopy(self.data)
+        count = 0
+        all_data = {}
+
+        for key_ in order_list:
+            all_data[key_] = int('0b'+gene_data[:gene_bits], 2)
+            gene_data = gene_data[gene_bits:]
         self.gene_data = all_data
 
 
@@ -69,12 +82,23 @@ class GA:
         self.key_order = []
         self.max_order = {}
         self.gene_set = set()
+        self.order_list = []
+        self.trunk_list = []
+        self.trunk_data = {}
+        self.gene_bits = 15
 
     def init_order(self, data, max_order):
         # order = { trunk: order}
         self.order = data
         self.key_order = list(self.order)
         self.max_order = max_order
+
+    def init_order2(self, trunk_data, order_list):
+        # order = { trunk: order}
+        self.order_list = order_list
+        self.trunk_list = list(trunk_data)
+        self.trunk_data = trunk_data
+        self.gene_bits = 15
 
     def init_colony(self):
         self.colony = []
@@ -84,9 +108,11 @@ class GA:
             str_ = ''
             # print self.key_order
             # print self.order
+            # print self.max_order
             for key_ in self.key_order:
                 # print key_
-                num = random.randint(1, self.max_order[key_])
+                min_len = min(self.max_order[key_], len(self.order[key_]))
+                num = random.randint(0, min_len)
                 id_list = set()
                 while 1:
                     if len(id_list) == num:
@@ -118,9 +144,66 @@ class GA:
             else:
                 continue
 
+    def get_one_var(self, str_):
+        data = ''
+        for i in range(self.gene_bits - len(str_)):
+            data += '0'
+        data += str_
+        return data
+
+    def init_colony2(self):
+        self.colony = []
+        while 1:
+            if len(self.colony) >= self.colony_max_size:
+                break
+            str_ = ''
+            # trunk_list, order_list
+            arr = numpy.random.choice(self.trunk_list, size=len(self.trunk_list),
+                                      replace=False, p=None)
+            arr_len = len(self.trunk_list)
+            count = 0
+            for order_ in self.order_list:
+                # print key_
+                is_empty = random.randint(0, 10)
+                if is_empty > 7:
+                    if count < arr_len:
+                        trunk_id = arr[count]
+                    else:
+                        trunk_id = 0
+                    b_trunk_id = bin(int(trunk_id))[2:]
+                    str_ += self.get_one_var(b_trunk_id)
+                    count += 1
+                else:
+                    str_ += self.get_one_var('')
+            gene_temp = Gene()
+            gene_temp.size = len(str_)
+            # print gene_temp.size
+            gene_temp.data = str_
+            result = self.evaluate_gene(gene_temp)
+
+            if result > 0:
+                # print result
+                if gene_temp.data not in self.gene_set:
+                    self.gene_set.add(gene_temp.data)
+                else:
+                    continue
+                self.colony.append(gene_temp)
+            elif result == 0:
+                self.colony.append(gene_temp)
+            else:
+                continue
+    '''
     def evaluate_gene(self, gene):
         gene.gene_to_data(self.order, self.key_order)
         compute_cost(gene)
+        # print gene.value
+        return gene.value
+    '''
+
+    def evaluate_gene(self, gene):
+        gene.gene_to_data(self.gene_bits, self.order_list)
+        compute_cost(gene, self.trunk_data)
+        # print gene.value
         return gene.value
 
     def change_gene_data(self,gene,pos):
@@ -177,16 +260,15 @@ class GA:
         gene1 = chosen[0]
         gene2 = chosen[1]
         gene_size = gene1.size
+        gene_bits_size = gene_size/self.gene_bits
         pos_ = []
         for i in range(4):
-            pos_.append(random.randint(0, gene_size-1))
+            pos_.append(random.randint(0, gene_bits_size-1))
         pos_.sort()
         gene_new = Gene()
         for i in range(gene_size):
-            if pos_:
-                pos_temp = pos_[0]
-            if ((i >= pos_[0]) and (i <= pos_[1])) or \
-                    ((i >= pos_[2]) and (i <= pos_[3])):
+            if ((i >= pos_[0] * self.gene_bits) and (i <= pos_[1] * self.gene_bits)) or \
+                    ((i >= pos_[2] * self.gene_bits) and (i <= pos_[3] * self.gene_bits)):
                 gene_new.data += gene2.data[i]
             else:
                 gene_new.data += gene1.data[i]
@@ -220,7 +302,7 @@ class GA:
         for times in range(EVOLUTION_MAX_TIME):
             max_ = 0
             offsprint = []
-            self.mutation()
+            # self.mutation()
             for gene_temp in self.colony:
                 if max_ < gene_temp.value:
                     max_ = gene_temp.value
@@ -266,6 +348,21 @@ class GA:
         times = 1
         while 1:
             self.init_colony()
+            log.info('init_colony down! start to evolution_loop')
+            result = self.evolution_loop()
+            if result == SUCCESS:
+                break
+            elif times == TRY_TIMES:
+                log.error('error!!!! '+str(times)+' times')
+                break
+            times += 1
+
+    def GA_main2(self, trunk_data, order_list):
+        self.init_order2(trunk_data, order_list)
+        times = 1
+        while 1:
+            self.init_colony2()
+            log.info('init_colony down! start to evolution_loop')
             result = self.evolution_loop()
             if result == SUCCESS:
                 break
