@@ -60,7 +60,7 @@ class BaseStation:
         """获取附近指定距离内车辆"""
         self.near_trunk_list = []
         for index in range(len(trunk_list)):
-            if self.position.get_position_distance(trunk_list[index].position) < distance:
+            if self.position.get_position_distance(trunk_list[index].trunk_position) < distance:
                 self.near_trunk_list.append(trunk_list[index].trunk_id)
 
     def update_in_station_trunk(self, trunk_list):
@@ -69,7 +69,7 @@ class BaseStation:
             if trunk.trunk_state == TRUNK_IN_ORDER and trunk.trunk_base_id == self.b_id:
                 self.trunk_in_station.append(trunk.trunk_id)
 
-    def create_orders(self):
+    def create_orders(self, day):
         # 泊松分布获取生成订单个数，传入参数
         param = 50
         order_count = Poisson(param).get_num()
