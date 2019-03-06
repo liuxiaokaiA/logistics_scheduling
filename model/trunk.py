@@ -75,7 +75,7 @@ class Trunk:
         self.get_near_base_list()
 
     def add_target_position_list(self, position_list):
-
+        self.wait_day = 0
         # 从当前网点返回base_station
         if isinstance(position_list[-1], BaseStation):
             self.trunk_state = TRUNK_ON_ROAD
@@ -86,7 +86,7 @@ class Trunk:
             self.trunk_target_time_list.append(distance / self.trunk_speed)
             return
 
-            # 前往运送订单
+        # 前往运送订单
         # 表示正在运货，在网点200公里附近，前往网点取货，不可调度
         if len(self.trunk_target_position_list) != 0:
             self.trunk_state = TRUNK_ON_ROAD_NOT_USE
