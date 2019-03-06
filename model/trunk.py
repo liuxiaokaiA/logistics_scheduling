@@ -30,9 +30,9 @@ class Trunk:
         # 车辆编号
         self.trunk_id = trunk_id
         # 车辆类型,数字表示运载量
-        if self.trunk_id < trunk_num/3:
+        if self.trunk_id < trunk_num / 3:
             self.trunk_type = TRUNK_TYPE_SMALL
-        elif self.trunk_id < trunk_num*2/3:
+        elif self.trunk_id < trunk_num * 2 / 3:
             self.trunk_type = TRUNK_TYPE_MIDDLE
         else:
             self.trunk_type = TRUNK_TYPE_BIG
@@ -142,10 +142,19 @@ class Trunk:
             self.trunk_state = TRUNK_ON_ROAD_NOT_USE
 
         # 自动搜素最近一个网点作为最后目的地
-        self.trunk_future_base_station_id, last_distance = self.inquiry_info.inquiry_nearest_base_station(
-            position_list[-1].d_id)
-        # 计算进入最后网点等待时间
-        self.trunk_target_time_list.append(self.trunk_target_time_list[-1] + last_distance / self.trunk_speed)
+        if self.trunk_current_base_station_id == self.trunk_base_id:
+            self.trunk_future_base_station_id, last_distance = self.inquiry_info.inquiry_nearest_base_station(
+                position_list[-1].d_id)
+            # 计算进入最后网点等待时间
+            self.trunk_target_time_list.append(self.trunk_target_time_list[-1] + last_distance / self.trunk_speed)
+        # 异地等待网点出发送单，回到最初base
+        else:
+            self.trunk_future_base_station_id = self.trunk_base_id
+            last_distance = self.inquiry_info.inquiry_distance_by_id(b_id_1=self.trunk_base_id,
+                                                                     d_id_1=position_list[-1].d_id)
+            # 计算进入最后网点等待时间
+            self.trunk_target_time_list.append(self.trunk_target_time_list[-1] + last_distance / self.trunk_speed)
+
         # 车辆预计进入等待时间更新
         self.trunk_finish_order_time = self.trunk_target_time_list[-1]
         self.trunk_current_base_station_id = None
@@ -302,6 +311,7 @@ class Trunk:
     def get_near_base_list(self):
         self.near_base_list = []
         for i in range(base_num):
-            if self.trunk_position.get_position_distance(self.inquiry_info.inquiry_base_position_by_id(i)) < distance_around:
+            if self.trunk_position.get_position_distance(
+                    self.inquiry_info.inquiry_base_position_by_id(i)) < distance_around:
                 self.near_base_list.append(i)
         return self.near_base_list
