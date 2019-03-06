@@ -61,10 +61,10 @@ def get_trunk_max_order():
     # 行驶状态先不考虑调度
     # 到达状态可调度
     for trunk in list_trunk:
-        if trunk.trunk_state not in (3, ):
+        if trunk.trunk_state not in (3, 1):
             continue
         max_order = trunk.trunk_type
-        trunk_max_order[trunk.trunk_id] = max_order
+        trunk_max_order[trunk.trunk_id] = max_order - len(trunk.trunk_car_order_list)
 
     return trunk_max_order
 
@@ -74,8 +74,7 @@ def get_orders_list(trunk_max_order, data):
     order_list = set()
     trunk_count = 1
     for trunk_id in data:
-        trunk_len = trunk_max_order[trunk_id] - len(list_trunk[trunk_id].trunk_car_order_list)
-        for i in range(trunk_len):
+        for i in range(trunk_max_order[trunk_id]):
             trunk_data[trunk_count] = trunk_id
             trunk_count += 1
         for order_id in data[trunk_id]:
@@ -115,9 +114,9 @@ def get_orders_trunk_can_take(trunk_max_order):
                 # 5-10天，不顺路也运
                 elif order.class_of_delay_time == 2:
                     data[trunk_id].append(order.id)
-        # 大于10天，500公里内的运
+        # 大于10天，1000公里内的运
         for order in order_must_take:
-            if is_near(trunk.trunk_position, list_base[order.base].position, 500):
+            if is_near(trunk.trunk_position, list_base[order.base].position, 1000):
                 data[trunk_id].append(order.id)
     return data
 
@@ -134,15 +133,18 @@ def change_gene_data(gene_data, trunk_data):
             if trunk_id not in gene_data_:
                 gene_data_[trunk_id] = []
             gene_data_[trunk_id].append(order_id)
+    for trunk in list_trunk:
+        if trunk.wait_day >= 5:
+            gene_data_[trunk.trunk_id] = []
     return gene_data_
 
 
-def modify_model(gene_data, trunk_data):
+def modify_model(gene_data_, trunk_data):
     # gene_data = {trunk: [order]}
     # 获取所有的order
-    if not gene_data:
+    if not gene_data_:
         return
-    gene_data = change_gene_data(gene_data, trunk_data)
+    gene_data = change_gene_data(gene_data_, trunk_data)
     all_order = {}
     for base in list_base:
         for order in base.new_orders:
@@ -187,8 +189,10 @@ def modify_model(gene_data, trunk_data):
             dest = list_destination[dest_id]
             position_list.append(dest)
 
-        if not position_list:
-            position_list.append(list_base[trunk.trunk_base_id])
+        if trunk.trunk_current_base_station_id != trunk.trunk_base_id:
+            if trunk.wait_day >= 5 and not position_list:
+                print 'empty trunk return.trunk id : ', trunk.trunk_id
+                position_list.append(list_base[trunk.trunk_base_id])
 
         trunk.add_target_position_list(position_list)
     return gene_data
@@ -328,7 +332,7 @@ def get_whole_trunk():
             for base_near_id in base_list[::-1]:
                 base = list_base[base_near_id]
                 temp = get_trunk_from_base(base, list(temp), False)
-                if len(near_order) < 4:
+                if len(temp) < 4:
                     break
             temp_id = [order_.id for order_ in temp]
             # print temp_id

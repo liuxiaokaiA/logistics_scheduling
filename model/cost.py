@@ -60,8 +60,7 @@ def get_cost_trunk_on_road(trunk, orders):
         if order.destination not in dests:
             dests[order.destination] = []
         dests[order.destination].append(order)
-    for order_id in trunk.trunk_car_order_list:
-        order = order_data[order_id]['object']
+    for order in trunk.trunk_car_order_list:
         if order.destination not in dests:
             dests[order.destination] = []
         dests[order.destination].append(order)
@@ -74,8 +73,7 @@ def get_cost_trunk_on_road(trunk, orders):
         car_num -= len(dests[dest_id])
 
     old_dests = {}
-    for order_id in trunk.trunk_car_order_list:
-        order = order_data[order_id]['object']
+    for order in trunk.trunk_car_order_list:
         if order.destination not in old_dests:
             old_dests[order.destination] = []
         old_dests[order.destination].append(order)
@@ -179,7 +177,7 @@ def get_cost_trunk_in_order_dest(trunk, orders):
         cost_ = return_cost - cost_ + trunk_penalty_cost(float(len(orders))/trunk.trunk_type)
     else:
         # 大于5天停留惩罚成本
-        if trunk.wait_day > 3:
+        if trunk.wait_day >= 5:
             cost_ += trunk_penalty_cost(0) + 1000
         # 空车惩罚
         else:
@@ -197,7 +195,7 @@ def get_order_cost():
             if order.class_of_delay_time == 2:
                 sum_cost += trunk_penalty_cost(0.5)+10
             if order.class_of_delay_time == 3:
-                sum_cost += trunk_penalty_cost(0.8)+10
+                sum_cost += trunk_penalty_cost(0)+10
         elif order_data[order_id]['is_loading'] == 1:
             continue
         else:
@@ -238,6 +236,11 @@ def change_gene_data(gene_data, trunk_data):
             if trunk_id not in gene_data_:
                 gene_data_[trunk_id] = []
             gene_data_[trunk_id].append(order_id)
+    for trunk_count in trunk_data:
+        trunk_id = trunk_data[trunk_count]
+        trunk = list_trunk[trunk_id]
+        if trunk.wait_day >= 5:
+            gene_data_[trunk_id] = []
     return gene_data_
 
 

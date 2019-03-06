@@ -113,7 +113,7 @@ def output(day):
 
     average_delay_day = (sum_delay_day * 1.0) / (order_delay_low + order_delay_middle + order_delay_high)
     print("历史订单总数为    ：%d" % history_order_num)
-    print("已经运载的订单数  ：%d" % history_order_num-sum(base_sum_delay_order_list))
+    print("已经运载的订单数  ：%d" % (history_order_num - sum(base_sum_delay_order_list)))
     print("当前空车率%f，当前搭载率%f" % (trunk_empty_rate, trunk_transport_rate))
     print("当前正在运输车辆%d，当前在base等计划车辆%d，当前异地base等计划车辆%d" % (
         trunk_on_road_num, trunk_in_order_base, trunk_in_order_destination,))
