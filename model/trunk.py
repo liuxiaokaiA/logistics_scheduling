@@ -292,6 +292,7 @@ class Trunk:
                         self.trunk_target_position_list[reach_position_num].position, temp_time_list[0])
                     self.unload_order(reach_position_list)
 
+
         temp_time_list = []
         for index in range(len(self.trunk_target_time_list)):
             if self.trunk_target_time_list[index] > 24:
@@ -376,7 +377,6 @@ class Trunk:
                     self.trunk_target_position_list = self.trunk_target_position_list[-1 * len(temp_time_list) + 1:]
                 elif len(temp_time_list) == 1:
                     self.trunk_target_position_list = []
-
             # 更新状态
             '''
             if isinstance(self.trunk_target_position_list[0], BaseStation):
