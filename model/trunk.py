@@ -43,7 +43,6 @@ class Trunk:
         self.trunk_state = TRUNK_IN_ORDER
         if not isinstance(inquiry_info, InquiryInfo):
             logging.error("Please enter right InquiryInfo")
-            sys.exit(1)
         # 辅助查询类
         self.inquiry_info = inquiry_info
         # 车辆位置
@@ -62,7 +61,6 @@ class Trunk:
         self.trunk_future_base_station_id = None
         # 此坐标表示车当前所在网点id
         self.trunk_current_base_station_id = self.trunk_base_id
-
         # 前一天车坐标
         self.trunk_before_day_position = self.trunk_position
         # 汽车在网点等待时间
@@ -75,6 +73,58 @@ class Trunk:
         self.get_near_base_list()
 
     def add_target_position_list(self, position_list):
+        # 处理错误情况
+        if len(position_list) == 0:
+            logging.error("can not go without no position")
+            return
+
+        # 等待时间置为0
+        self.wait_day = 0
+
+        #  单独处理卡车召回到起点情况
+        if len(position_list) == 1 and isinstance(position_list[0], BaseStation):
+            self.trunk_state = TRUNK_ON_ROAD
+            distance = self.inquiry_info.inquiry_distance_by_id(b_id_1=self.trunk_current_base_station_id,
+                                                                b_id_2=self.trunk_base_id)
+            self.trunk_future_base_station_id = position_list[-1].b_id
+            self.trunk_target_time_list = []
+            self.trunk_target_time_list.append(distance / self.trunk_speed)
+            return
+
+        # 处理卡车从起点出发
+        if self.trunk_state == TRUNK_IN_ORDER:
+            # 车的状态更新
+            self.trunk_state = TRUNK_ON_ROAD
+            # 目的地序列更新
+            self.trunk_target_position_list = position_list
+            # 车辆到底目的地时间更新
+            self.trunk_target_time_list = []
+            for index in range(len(self.trunk_target_position_list)):
+                if index == 0:
+                    distance = self.trunk_position.get_position_distance(self.trunk_target_position_list[0].position)
+                else:
+                    distance = self.inquiry_info.inquiry_distance(self.trunk_target_position_list[index - 1],
+                                                                  self.trunk_target_position_list[index])
+
+                road_time = distance / self.trunk_speed
+                if index == 0:
+                    self.trunk_target_time_list.append(road_time)
+                else:
+                    self.trunk_target_time_list.append(self.trunk_target_time_list[-1] + road_time)
+            # 判断最后位置是否未base_station, 若不是，返回最近base_station
+            if isinstance(self.trunk_target_position_list[-1], BaseStation):
+                # 预计入库时间更新
+                self.trunk_finish_order_time = self.trunk_target_time_list[-1]
+                # 当前base_station 更新
+                self.trunk_current_base_station_id = None
+                # 未来入库 base_station 更新
+                self.trunk_future_base_station_id = self.trunk_target_position_list[-1].b_id
+
+
+
+
+
+
         self.wait_day = 0
         # 从当前网点返回base_station
         if isinstance(position_list[-1], BaseStation):
