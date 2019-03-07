@@ -16,8 +16,6 @@ history_order_num = 0
 list_trunk_not_in_base = []
 
 
-
-
 def update(day):
     log.info('update base')
     new_order_num = 0
@@ -44,8 +42,6 @@ def compute(day):
     trunk_data, order_list = get_orders_list(trunk_max_order, data)
     gene_len = 0
     gene_len += len(order_list) * gene_bits
-
-
     print 'gene length: ', len(order_list) * gene_bits, len(order_list)
 
     ga = GA()
@@ -54,9 +50,9 @@ def compute(day):
     ga.GA_main2(trunk_data, order_list)
     log.info('ga down.start to get best gene')
     best_gene = ga.selectBest()
-    gene_data = best_gene.gene_to_data(ga.gene_bits, ga.order_list)
+    best_gene.gene_to_data(ga.gene_bits, ga.order_list)
     log.info('start to modify_model')
-    all_scheduling[day] = modify_model(gene_data, trunk_data)
+    all_scheduling[day] = modify_model(best_gene.gene_data, trunk_data)
 
 
 def output(day):

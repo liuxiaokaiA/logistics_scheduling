@@ -61,10 +61,12 @@ def get_trunk_max_order():
     # 行驶状态先不考虑调度
     # 到达状态可调度
     for trunk in list_trunk:
+        # 不在自己本身网点的状态和行驶状态
         if trunk.trunk_state not in (3, 1):
             continue
         max_order = trunk.trunk_type
-        trunk_max_order[trunk.trunk_id] = max_order - len(trunk.trunk_car_order_list)
+        if trunk.trunk_id not in trunk_max_order:
+            trunk_max_order[trunk.trunk_id] = max_order - len(trunk.trunk_car_order_list)
 
     return trunk_max_order
 
@@ -106,7 +108,8 @@ def get_orders_trunk_can_take(trunk_max_order):
                 # 1-5天不着急，顺路才运
                 if order.class_of_delay_time == 1:
                     if trunk.trunk_future_base_station_id is None:
-                        data[trunk_id].append(order.id)
+                        if order.destination in list_base[trunk.trunk_base_id].near_destination_list:
+                            data[trunk_id].append(order.id)
                         continue
                     dest = list_base[trunk.trunk_future_base_station_id]
                     if order.destination in dest.near_destination_list:
@@ -135,7 +138,8 @@ def change_gene_data(gene_data, trunk_data):
             gene_data_[trunk_id].append(order_id)
     for trunk in list_trunk:
         if trunk.wait_day >= 5:
-            gene_data_[trunk.trunk_id] = []
+            if trunk.trunk_id not in gene_data_:
+                gene_data_[trunk.trunk_id] = []
     return gene_data_
 
 
@@ -180,8 +184,7 @@ def modify_model(gene_data_, trunk_data):
             if order.destination not in dests:
                 dests[order.destination] = []
             dests[order.destination].append(order)
-        for order_id in trunk.trunk_car_order_list:
-            order = all_order[order_id]
+        for order in trunk.trunk_car_order_list:
             if order.destination not in dests:
                 dests[order.destination] = []
             dests[order.destination].append(order)
@@ -191,9 +194,10 @@ def modify_model(gene_data_, trunk_data):
 
         if trunk.trunk_current_base_station_id != trunk.trunk_base_id:
             if trunk.wait_day >= 5 and not position_list:
-                print 'empty trunk return.trunk id : ', trunk.trunk_id
+                # print 'empty trunk return.trunk id : ', trunk.trunk_id
                 position_list.append(list_base[trunk.trunk_base_id])
-
+            elif trunk.wait_day < 5 and not position_list:
+                continue
         trunk.add_target_position_list(position_list)
     return gene_data
 
