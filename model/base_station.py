@@ -37,6 +37,7 @@ class BaseStation:
         self.near_destination_list = []
         self.near_base_list = []
         self.trunk_in_station = []
+        self.trunk_other_in_station = []
         for index in range(trunk_num):
             if index % base_num == self.b_id:
                 self.trunk_in_station.append(index)
@@ -68,6 +69,8 @@ class BaseStation:
         for trunk in trunk_list:
             if trunk.trunk_state == TRUNK_IN_ORDER and trunk.trunk_base_id == self.b_id:
                 self.trunk_in_station.append(trunk.trunk_id)
+            elif trunk.trunk_state == TRUNK_IN_ORDER_DESTINATION and trunk.trunk_current_base_station_id == self.b_id:
+                self.trunk_other_in_station.append(trunk.trunk_id)
 
     def create_orders(self, day):
         # 泊松分布获取生成订单个数，传入参数
