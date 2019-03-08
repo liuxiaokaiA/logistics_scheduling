@@ -127,6 +127,6 @@ def get_near_trunk(base, trunk_list, distance=distance_around):
     """获取附近指定距离内车辆"""
     near_trunk_list = []
     for index in range(len(trunk_list)):
-        if base.position.get_position_distance(trunk_list[index].position) < distance:
+        if base.position.get_position_distance(trunk_list[index].trunk_position) < distance:
             near_trunk_list.append(trunk_list[index].trunk_id)
     return near_trunk_list

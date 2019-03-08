@@ -251,6 +251,7 @@ class Trunk:
             logging.error("不能再添加车辆，车辆已满")
         # 目的地序列增加
         self.trunk_car_order_list.append(order)
+        order.trunk_id = self.trunk_id
 
     def add_order_list(self, order_list):
         """给予车辆订单list"""
@@ -260,6 +261,8 @@ class Trunk:
         else:
             self.trunk_car_order_list = []
             self.trunk_car_order_list = order_list
+        for order in self.trunk_car_order_list:
+            order.trunk_id = self.trunk_id
 
     def trunk_update_day(self):
         """每辆车每天进行更新"""
