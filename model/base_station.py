@@ -13,7 +13,7 @@ import numpy as np
 
 from data.StatueData import TRUNK_TYPE_SMALL, TRUNK_IN_ORDER, TRUNK_IN_ORDER_DESTINATION, TRUNK_TYPE_MIDDLE, \
     TRUNK_TYPE_BIG
-from global_data import trunk_num, distance_around, base_num, destination_num
+from global_data import trunk_num, distance_around, base_num, destination_num, order_num
 from model.inquiry_info import InquiryInfo
 import logging
 
@@ -66,6 +66,7 @@ class BaseStation:
 
     def update_in_station_trunk(self, trunk_list):
         self.trunk_in_station = []
+        self.trunk_other_in_station = []
         for trunk in trunk_list:
             if trunk.trunk_state == TRUNK_IN_ORDER and trunk.trunk_base_id == self.b_id:
                 self.trunk_in_station.append(trunk.trunk_id)
@@ -74,7 +75,7 @@ class BaseStation:
 
     def create_orders(self, day):
         # 泊松分布获取生成订单个数，传入参数
-        param = 50
+        param = order_num
         order_count = Poisson(param).get_num()
         # 获取今天0点的时间
         timestamp = day

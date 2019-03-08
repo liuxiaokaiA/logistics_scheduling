@@ -1,6 +1,6 @@
 # coding: utf-8
 import logging, time
-from global_data import list_base, list_destination, list_trunk
+from global_data import list_base, list_destination, list_trunk, max_day_stay_base
 from data.StatueData import TRUNK_IN_ORDER, TRUNK_ON_ROAD, TRUNK_IN_ORDER_DESTINATION
 
 
@@ -172,13 +172,14 @@ def get_cost_trunk_in_order_dest(trunk, orders):
         car_num -= len(dests[dest_id])
 
     # 大于5天停留惩罚成本
-    if trunk.wait_day >= 5:
+    if trunk.wait_day >= max_day_stay_base:
         cost_ += trunk_penalty_cost(0) + 1000
     # 运完回去
     return_cost += trunk.trunk_cost_one_road(0, temp_position, trunk_base.position)
     if return_cost:
         cost_ = return_cost - cost_ + trunk_penalty_cost(float(len(orders))/trunk.trunk_type)
-        cost_ -= trunk_penalty_cost(0) + 1000
+        if trunk.wait_day >= max_day_stay_base:
+            cost_ -= trunk_penalty_cost(0) + 1000
     return cost_
 
 
@@ -236,7 +237,7 @@ def change_gene_data(gene_data, trunk_data):
     for trunk_count in trunk_data:
         trunk_id = trunk_data[trunk_count]
         trunk = list_trunk[trunk_id]
-        if trunk.wait_day >= 5:
+        if trunk.wait_day >= max_day_stay_base:
             gene_data_[trunk_id] = []
     return gene_data_
 
@@ -248,7 +249,7 @@ def compute_cost(gene, trunk_data):
     gene_data = change_gene_data(gene_data_, trunk_data)
     sum_cost = 0
     if not gene_data:
-        return sum_cost
+        return VALUE_MAX
     gene_data = change_gene(gene_data)
     # print gene_data
     for trunk_id in gene_data:

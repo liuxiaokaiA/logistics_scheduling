@@ -21,7 +21,8 @@ class InquiryInfo:
             self.base_position = pd.read_csv('generate/base_position.csv')
             self.shop_position = pd.read_csv('generate/shop_position.csv')
             self.distance = pd.read_csv('generate/ditance.csv')
-        except:
+        except Exception as e:
+            print e
             self.base_position = pd.read_csv('../generate/base_position.csv')
             self.shop_position = pd.read_csv('../generate/shop_position.csv')
             self.distance = pd.read_csv('../generate/ditance.csv')

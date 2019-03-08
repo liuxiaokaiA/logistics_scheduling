@@ -208,7 +208,6 @@ class Trunk:
                 else:
                     distance = self.inquiry_info.inquiry_distance(self.trunk_target_position_list[index - 1],
                                                                   self.trunk_target_position_list[index])
-
                 road_time = distance / self.trunk_speed
                 if index == 0:
                     self.trunk_target_time_list.append(road_time)

@@ -9,7 +9,9 @@ distance_around = 200
 # 车的数量1200
 trunk_num = 2400
 # 网点数量，最大40
-base_num = 40
+base_num = 20
 # 4s店数目，最多2000
 destination_num = 1000
 gene_bits = 15
+max_day_stay_base = 3
+order_num = 50
