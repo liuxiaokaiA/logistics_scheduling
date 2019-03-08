@@ -132,7 +132,7 @@ def out_print(day):
                history_order_num, order_delay_low, order_delay_middle, order_delay_high, average_delay_day,
                today_order_num, trunk_empty_rate, trunk_transport_rate, trunk_on_road_num, empty_num,
                trunk_in_order_base, trunk_in_order_destination]
-    All_statistic[day].append(one_day)
+    All_statistic[day] = one_day
 
 # 网点      id =  self.b_id
 # 地理位置  position = self.position
@@ -183,7 +183,7 @@ def write_base(writer, day):
         temp_list = [id, position, trunk_num_1, trunk_num_2, trunk_num_3, trunk_num_4, trunk_num_5, order_num, delay_1,
                      delay_2, delay_3, dispatch_trunk_num, around_base, trunk_id_list_1, trunk_id_list_2]
         l.append(temp_list)
-        print temp_list
+        # print temp_list
 
     writer.write_data('base', l)
     # writer.save()
@@ -222,7 +222,7 @@ def write_order(writer, day):
 
 
 def write_statistic(writer, day):
-    statistic_title = [u'日期', u'已运载订单数', u'未运载订单数',
+    statistic_title = [u'日期', u'已运载订单数', u'未运载订单数', u'历史总订单数',
                        u'压板1-5订单数', u'压板5-10订单数', u'压板10天以上订单数',
                        u'平均压板天数', u'当日产生订单', u'空车率',
                        u'搭载率', u'重驶车数量', u'空驶车数量',
@@ -230,8 +230,9 @@ def write_statistic(writer, day):
     writer.write_title('statistic', statistic_title)
     day_data = []
     for day_ in All_statistic:
-        data = All_order[day_]
+        data = All_statistic[day_]
         day_data.append(data)
+        # print data
     writer.write_data('statistic', day_data)
 
 
