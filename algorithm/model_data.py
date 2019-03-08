@@ -199,12 +199,8 @@ def modify_model(gene_data_, trunk_data):
                 position_list.append(list_base[trunk.trunk_base_id])
             elif trunk.wait_day < max_day_stay_base and not position_list:
                 continue
-        try:
-            trunk.add_target_position_list(position_list)
-        except:
-            print position_list
-            import sys
-            sys.exit()
+        trunk.add_target_position_list(position_list)
+
     print 'empty trunk return.number : ', empty
     return gene_data
 
@@ -329,8 +325,8 @@ def get_trunk_return():
                 if dest_near_id in dest_list:
                     near_order |= dest_order[dest_near_id]
             # 所有顺路order
-
-            list_base[trunk.trunk_base_id].trunk_in_station.remove(trunk.trunk_id)
+            near_order = list(near_order)
+            base.trunk_other_in_station.remove(trunk.trunk_id)
             del_order = []
             if trunk.trunk_type >= len(near_order) >= 4:
                 del_order = near_order
@@ -401,12 +397,13 @@ def get_whole_trunk():
                 base = list_base[base_near_id]
                 try:
                     temp = get_trunk_from_base(base, list(temp), False)
-                except:
+                except Exception as e:
+                    print e
                     print 'dest_order', print_dest
                     print 'near_order', [order_.id for order_ in near_order]
                     print 'temp', [order_.id for order_ in temp]
                     print 'all near', all_near
-                    print 'all near del', all_near
+                    print 'all near del', all_near_del
                     import sys
                     sys.exit()
                 if len(temp) < 4:
