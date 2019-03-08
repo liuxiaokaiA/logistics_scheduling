@@ -3,6 +3,7 @@ import logging
 
 from data.StatueData import TRUNK_ON_ROAD, TRUNK_ON_ROAD_NOT_USE, TRUNK_IN_ORDER, TRUNK_IN_ORDER_DESTINATION
 from global_data import list_base, list_trunk, max_day_stay_base
+from base.write_excel import Writer
 
 
 log = logging.getLogger('default')
@@ -99,3 +100,28 @@ def out_print(day):
     print("当前压板五天以下订单数%d，当前压板五天以上十天以下订单数%d，当前压板十天以上订单数%d" % (order_delay_low, order_delay_middle, order_delay_high))
     print("当前平均压板时间%f" % average_delay_day)
 
+
+def write_base(day):
+    pass
+
+
+def write_trunk(day):
+    pass
+
+
+def write_order(day):
+    pass
+
+
+def write_statistic(day):
+    pass
+
+
+def write_excel(day):
+    writer = Writer(day)
+    write_base(day)
+    write_base(day)
+    write_base(day)
+    write_base(day)
+
+    writer.save()

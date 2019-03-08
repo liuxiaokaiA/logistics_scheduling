@@ -9,7 +9,7 @@ from algorithm.model_data import get_trunk_max_order, get_orders_trunk_can_take,
     modify_model, get_whole_trunk, get_orders_list
 from global_data import list_base, list_destination, list_trunk, all_scheduling, trunk_num, destination_num, \
     base_num, gene_bits
-from statistic.output import out_print, add_history_order_num
+from statistic.output import out_print, add_history_order_num, write_excel
 
 
 def update(day):
@@ -52,6 +52,7 @@ def compute(day):
 
 def output(day):
     out_print(day)
+    write_excel(day)
 
 
 def init():
