@@ -171,17 +171,14 @@ def get_cost_trunk_in_order_dest(trunk, orders):
         temp_position = dest.position
         car_num -= len(dests[dest_id])
 
+    # 大于5天停留惩罚成本
+    if trunk.wait_day >= 5:
+        cost_ += trunk_penalty_cost(0) + 1000
     # 运完回去
     return_cost += trunk.trunk_cost_one_road(0, temp_position, trunk_base.position)
     if return_cost:
         cost_ = return_cost - cost_ + trunk_penalty_cost(float(len(orders))/trunk.trunk_type)
-    else:
-        # 大于5天停留惩罚成本
-        if trunk.wait_day >= 5:
-            cost_ += trunk_penalty_cost(0) + 1000
-        # 空车惩罚
-        else:
-            cost_ += trunk_penalty_cost(0)
+        cost_ -= trunk_penalty_cost(0) + 1000
     return cost_
 
 
@@ -250,6 +247,8 @@ def compute_cost(gene, trunk_data):
     gene_data_ = gene.gene_data
     gene_data = change_gene_data(gene_data_, trunk_data)
     sum_cost = 0
+    if not gene_data:
+        return sum_cost
     gene_data = change_gene(gene_data)
     # print gene_data
     for trunk_id in gene_data:
