@@ -10,6 +10,7 @@ from model.order import All_order
 log = logging.getLogger('default')
 history_order_num = 0
 list_trunk_not_in_base = []
+All_statistic = {}
 
 
 def add_history_order_num(num):
@@ -100,8 +101,18 @@ def out_print(day):
     print('异地车辆统计: %s' % str(trunk_wait_time))
     print("当前压板五天以下订单数%d，当前压板五天以上十天以下订单数%d，当前压板十天以上订单数%d" % (order_delay_low, order_delay_middle, order_delay_high))
     print("当前平均压板时间%f" % average_delay_day)
-
-
+    if day not in All_statistic:
+        All_statistic[day] = []
+    one_day = [day, history_order_num - sum(base_sum_delay_order_list), sum(base_sum_delay_order_list),
+               history_order_num, order_delay_low, order_delay_middle, order_delay_high, average_delay_day,
+               当日产生订单, trunk_empty_rate, trunk_transport_rate, trunk_on_road_num, 空驶车数量,
+               trunk_in_order_base, trunk_in_order_destination]
+    All_statistic[day].append()
+    statistic_title = [u'日期', u'已运载订单数', u'未运载订单数', u'历史订单数',
+                       u'压板1-5订单数', u'压板5-10订单数', u'压板10天以上订单数',
+                       u'平均压板天数', u'当日产生订单', u'空车率',
+                       u'搭载率', u'重驶车数量', u'空驶车数量',
+                       u'本地base等计划车辆', u'异地base等计划车辆']
 def write_base(writer, day):
     pass
 
@@ -123,13 +134,29 @@ def write_order(writer, day):
         if order.trunk_id is None:
             data.append(u'未派单')
         else:
-            data.append('order.trunk_id')
+            data.append(order.trunk_id)
         day_data.append(data)
     writer.write_data('order', day_data)
 
 
 def write_statistic(writer, day):
-    pass
+    statistic_title = [u'日期', u'已运载订单数', u'未运载订单数',
+                       u'压板1-5订单数', u'压板5-10订单数', u'压板10天以上订单数',
+                       u'平均压板天数', u'当日产生订单', u'空车率',
+                       u'搭载率', u'重驶车数量', u'空驶车数量',
+                       u'等计划车数量', u'请假车数量']
+    writer.write_title('statistic', statistic_title)
+    day_data = []
+    for id_ in All_order:
+        order = All_order[id_]
+        data = [id_, order.base, order.destination, 1, order.timestamp,
+                order.now, order.delay_time, order.class_of_delay_time]
+        if order.trunk_id is None:
+            data.append(u'未派单')
+        else:
+            data.append(order.trunk_id)
+        day_data.append(data)
+    writer.write_data('order', day_data)
 
 
 def write_excel(day):
