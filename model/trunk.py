@@ -72,6 +72,18 @@ class Trunk:
         self.near_base_list = []
         self.get_near_base_list()
 
+        # 统计信息
+        # 1 板车ID   ： trunk_base_id
+        # 2 板车类型 ： trunk_type
+        # 3 归属车队 ： trunk_base_id
+        # 4 板车状态 ： trunk_state
+        # 5 当前位置 ： trunk_position
+        # 6 当前目的地序列：trunk_target_position_list
+        # 7 到达时间预计：trunk_target_time_list
+        # 8 订单情况：trunk_car_order_list
+        # 9 最终入库：trunk_future_base_station_id
+        # 10 最终入库时间 ：trunk_finish_order_time
+
     def add_target_position_list(self, position_list):
         # 处理错误情况
         if len(position_list) == 0:
@@ -209,7 +221,7 @@ class Trunk:
                 self.trunk_finish_order_time = self.trunk_target_time_list[-1]
             elif isinstance(self.trunk_target_position_list[-1], Destination):
                 # 此段代码无错。这里表示只有此时需要改变trunk_future_base_station_id
-                if isinstance(temp_before_position_list[-1], BaseStation):
+                if len(temp_before_position_list) > 0 and isinstance(temp_before_position_list[-1], BaseStation):
                     self.trunk_future_base_station_id, temp_distance = self.inquiry_info.inquiry_nearest_base_station(
                         self.trunk_target_position_list[-1].d_id)
 
