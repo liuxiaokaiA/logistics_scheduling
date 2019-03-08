@@ -123,8 +123,8 @@ class Trunk:
                     self.trunk_target_time_list.append(self.trunk_target_time_list[-1] + evaluate_time)
             # 车辆状态更新
             self.trunk_state = TRUNK_ON_ROAD
-
-        elif self.trunk_state == TRUNK_ON_ROAD:
+        # elif self.trunk_state == TRUNK_ON_ROAD:
+        else:
             for index in range(len(self.trunk_target_position_list)):
                 distance = 0.0
                 if index == 0:
@@ -139,7 +139,7 @@ class Trunk:
                 else:
                     self.trunk_target_time_list.append(self.trunk_target_time_list[-1] + evaluate_time)
             # 车辆状态更新
-            self.trunk_state = TRUNK_ON_ROAD_NOT_USE
+            self.trunk_state = TRUNK_ON_ROAD
 
         # 自动搜素最近一个网点作为最后目的地
         if self.trunk_current_base_station_id == self.trunk_base_id:

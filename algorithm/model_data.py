@@ -1,5 +1,5 @@
 # coding: utf-8
-from global_data import list_base, list_destination, list_trunk
+from global_data import list_base, list_destination, list_trunk, max_day_stay_base
 from model.base.utils import is_near
 import random
 
@@ -137,7 +137,7 @@ def change_gene_data(gene_data, trunk_data):
                 gene_data_[trunk_id] = []
             gene_data_[trunk_id].append(order_id)
     for trunk in list_trunk:
-        if trunk.wait_day >= 5:
+        if trunk.wait_day >= max_day_stay_base:
             if trunk.trunk_id not in gene_data_:
                 gene_data_[trunk.trunk_id] = []
     return gene_data_
@@ -153,6 +153,7 @@ def modify_model(gene_data_, trunk_data):
     for base in list_base:
         for order in base.new_orders:
             all_order[order.id] = order
+    empty = 0
     for trunk_id in gene_data:
         trunk = list_trunk[trunk_id]
         orders = gene_data[trunk_id]
@@ -191,14 +192,20 @@ def modify_model(gene_data_, trunk_data):
         for dest_id in dests:
             dest = list_destination[dest_id]
             position_list.append(dest)
-
         if trunk.trunk_current_base_station_id != trunk.trunk_base_id:
-            if trunk.wait_day >= 5 and not position_list:
+            if trunk.wait_day >= max_day_stay_base and not position_list:
                 # print 'empty trunk return.trunk id : ', trunk.trunk_id
+                empty += 1
                 position_list.append(list_base[trunk.trunk_base_id])
-            elif trunk.wait_day < 5 and not position_list:
+            elif trunk.wait_day < max_day_stay_base and not position_list:
                 continue
-        trunk.add_target_position_list(position_list)
+        try:
+            trunk.add_target_position_list(position_list)
+        except:
+            print position_list
+            import sys
+            sys.exit()
+    print 'empty trunk return.number : ', empty
     return gene_data
 
 
@@ -238,18 +245,18 @@ def trunk_take_orders(trunk, orders):
 
 
 # 从base中选择trunk添加order
-def get_trunk_to_work(base, type, all_orders, is_log):
+def get_trunk_to_work(base, type_, all_orders, is_log):
     if is_log:
-        print type
-    trunk_id = base.get_trunk(type)
+        print type_
+    trunk_id = base.get_trunk(type_)
     if trunk_id is None:
         if is_log:
             print 'trunk is none. base:', base.b_id
         return False
     trunk = list_trunk[trunk_id]
     list_base[trunk.trunk_base_id].trunk_in_station.remove(trunk.trunk_id)
-    if type <= len(all_orders):
-        orders = all_orders[:type]
+    if type_ < len(all_orders):
+        orders = all_orders[:type_]
         trunk_take_orders(trunk, orders)
     else:
         trunk_take_orders(trunk, all_orders)
@@ -290,7 +297,58 @@ def get_trunk_from_base(base, orders, is_log=False):
     return orders
 
 
+def get_trunk_return():
+    for base in list_base:
+        # print 'base: ', base.b_id
+        # 附近目的地，订单
+        dest_order = {}
+        # 附近的所有网点,包含本身
+        base_list = base.near_base_list
+        if base.b_id not in base_list:
+            base_list.append(base.b_id)
+        for base_near_id in base_list:
+            base_near = list_base[base_near_id]
+            for order in base_near.new_orders:
+                if order.destination not in dest_order:
+                    dest_order[order.destination] = set()
+                dest_order[order.destination].add(order)
+        print_dest = {}
+        for dest in dest_order:
+            print_dest[dest] = [order_.id for order_ in dest_order[dest]]
+
+        return_trunks = base.trunk_other_in_station
+        for trunk_id in return_trunks:
+            near_order = set()
+            trunk = list_trunk[trunk_id]
+            trunk_base = list_base[trunk.trunk_base_id]
+            # 目的地附近4S
+            dest_list = trunk_base.near_destination_list
+            # 再遍历附近目的地
+            for dest_near_id in dest_order:
+                # 周围网点订单
+                if dest_near_id in dest_list:
+                    near_order |= dest_order[dest_near_id]
+            # 所有顺路order
+
+            list_base[trunk.trunk_base_id].trunk_in_station.remove(trunk.trunk_id)
+            del_order = []
+            if trunk.trunk_type >= len(near_order) >= 4:
+                del_order = near_order
+            elif trunk.trunk_type < len(near_order):
+                del_order = near_order[:trunk.trunk_type]
+            if del_order:
+                trunk_take_orders(trunk, del_order)
+
+            for order_ in del_order:
+                if order_.destination in dest_order:
+                    dest_order[order_.destination].remove(order_)
+
+
 def get_whole_trunk():
+    # 顺路回去的整车
+    print '顺路回去的整车'
+    get_trunk_return()
+
     # 一个网点的整订单往外派
     print '一个网点的整订单往外派'
     for base in list_base:
@@ -318,7 +376,12 @@ def get_whole_trunk():
                 if order.destination not in dest_order:
                     dest_order[order.destination] = set()
                 dest_order[order.destination].add(order)
+        print_dest = {}
+        for dest in dest_order:
+            print_dest[dest] = [order_.id for order_ in dest_order[dest]]
 
+        all_near = {}
+        all_near_del = {}
         for destid in dest_order:
             destination = list_destination[destid]
             # 目的地附近目的地
@@ -332,15 +395,26 @@ def get_whole_trunk():
                     near_order |= dest_order[dest_near_id]
             # 所有顺路order
             temp = near_order
+            all_near[destid] = [order_.id for order_ in near_order]
             # print 'temp: ', [od.id for od in temp]
             for base_near_id in base_list[::-1]:
                 base = list_base[base_near_id]
-                temp = get_trunk_from_base(base, list(temp), False)
+                try:
+                    temp = get_trunk_from_base(base, list(temp), False)
+                except:
+                    print 'dest_order', print_dest
+                    print 'near_order', [order_.id for order_ in near_order]
+                    print 'temp', [order_.id for order_ in temp]
+                    print 'all near', all_near
+                    print 'all near del', all_near
+                    import sys
+                    sys.exit()
                 if len(temp) < 4:
                     break
             temp_id = [order_.id for order_ in temp]
             # print temp_id
             del_order = [order_ for order_ in near_order if order_.id not in temp_id]
+            all_near_del[destid] = [order_.id for order_ in del_order]
             # print 'del_order: ', [od.id for od in del_order]
             for order_ in del_order:
                 if order_.destination in dest_order:

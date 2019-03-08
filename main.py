@@ -10,7 +10,7 @@ from algorithm.model_data import get_trunk_max_order, get_orders_trunk_can_take,
     modify_model, get_whole_trunk, get_orders_list
 
 from global_data import list_base, list_destination, list_trunk, all_scheduling, trunk_num, destination_num, \
-    base_num, gene_bits
+    base_num, gene_bits, max_day_stay_base
 
 history_order_num = 0
 list_trunk_not_in_base = []
@@ -65,6 +65,7 @@ def output(day):
     # 统计在途和等计划车辆数
     trunk_on_road_num = 0
     trunk_in_order_destination = 0
+    trunk_wait_time = {}
     trunk_in_order_base = 0
     temp_trunk_not_in_base = []
     for trunk in list_trunk:
@@ -81,6 +82,9 @@ def output(day):
         elif trunk.trunk_state == TRUNK_IN_ORDER:
             trunk_in_order_base += 1
         elif trunk.trunk_state == TRUNK_IN_ORDER_DESTINATION:
+            if trunk.wait_day not in trunk_wait_time:
+                trunk_wait_time[trunk.wait_day] = 0
+            trunk_wait_time[trunk.wait_day] += 1
             trunk_in_order_destination += 1
     num = 0
     global list_trunk_not_in_base
@@ -111,7 +115,7 @@ def output(day):
             base_sum_delay_order += 1
             delay_time = day - order.timestamp
             sum_delay_day += delay_time
-            if delay_time <= 5:
+            if delay_time <= max_day_stay_base:
                 order_delay_low += 1
             elif delay_time <= 10:
                 order_delay_middle += 1
@@ -129,6 +133,7 @@ def output(day):
     print("当前空车率%f，当前搭载率%f" % (trunk_empty_rate, trunk_transport_rate))
     print("当前正在运输车辆%d，当前在base等计划车辆%d，当前异地base等计划车辆%d" % (
         trunk_on_road_num, trunk_in_order_base, trunk_in_order_destination,))
+    print('异地车辆统计: %s' % str(trunk_wait_time))
     print("当前压板五天以下订单数%d，当前压板五天以上十天以下订单数%d，当前压板十天以上订单数%d" % (order_delay_low, order_delay_middle, order_delay_high))
     print("当前平均压板时间%f" % average_delay_day)
 
