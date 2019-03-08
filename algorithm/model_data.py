@@ -373,6 +373,7 @@ def get_whole_trunk():
                 if order.destination not in dest_order:
                     dest_order[order.destination] = set()
                 dest_order[order.destination].add(order)
+
         print_dest = {}
         for dest in dest_order:
             print_dest[dest] = [order_.id for order_ in dest_order[dest]]
@@ -380,28 +381,37 @@ def get_whole_trunk():
         all_near = {}
         all_near_del = {}
         for destid in dest_order:
+            all_order = {}
             destination = list_destination[destid]
             # 目的地附近目的地
             dest_list = destination.near_destination_list
             # 本目的地的order
-            near_order = dest_order[destid]
+            for order in dest_order[destid]:
+                all_order[order.id] = order
             # 再遍历附近目的地
             for dest_near_id in dest_order:
                 # 是周围网点，但不是本网点
                 if dest_near_id in dest_list and dest_near_id != destid:
-                    near_order |= dest_order[dest_near_id]
+                    for order in dest_order[dest_near_id]:
+                        all_order[order.id] = order
             # 所有顺路order
-            temp = near_order
-            all_near[destid] = [order_.id for order_ in near_order]
+            temp = []
+            for id_ in all_order:
+                temp.append(all_order[id_])
+            all_near[destid] = temp
             # print 'temp: ', [od.id for od in temp]
             for base_near_id in base_list[::-1]:
                 base = list_base[base_near_id]
                 try:
-                    temp = get_trunk_from_base(base, list(temp), False)
+                    temp = get_trunk_from_base(base, temp, False)
                 except Exception as e:
+                    temp_dest = {}
+                    for dest in dest_order:
+                        temp_dest[dest] = [order_.id for order_ in dest_order[dest]]
                     print e
                     print 'dest_order', print_dest
-                    print 'near_order', [order_.id for order_ in near_order]
+                    print 'temp_dest', temp_dest
+                    print 'all_order', list(all_order)
                     print 'temp', [order_.id for order_ in temp]
                     print 'all near', all_near
                     print 'all near del', all_near_del
@@ -411,7 +421,7 @@ def get_whole_trunk():
                     break
             temp_id = [order_.id for order_ in temp]
             # print temp_id
-            del_order = [order_ for order_ in near_order if order_.id not in temp_id]
+            del_order = [all_order[order_id] for order_id in all_order if order_id not in temp_id]
             all_near_del[destid] = [order_.id for order_ in del_order]
             # print 'del_order: ', [od.id for od in del_order]
             for order_ in del_order:
