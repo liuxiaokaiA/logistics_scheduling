@@ -66,6 +66,7 @@ class BaseStation:
 
     def update_in_station_trunk(self, trunk_list):
         self.trunk_in_station = []
+        self.trunk_other_in_station = []
         for trunk in trunk_list:
             if trunk.trunk_state == TRUNK_IN_ORDER and trunk.trunk_base_id == self.b_id:
                 self.trunk_in_station.append(trunk.trunk_id)
