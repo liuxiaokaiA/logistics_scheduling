@@ -16,8 +16,6 @@ history_order_num = 0
 list_trunk_not_in_base = []
 
 
-
-
 def update(day):
     log.info('update base')
     new_order_num = 0
@@ -44,7 +42,6 @@ def compute(day):
     trunk_data, order_list = get_orders_list(trunk_max_order, data)
     gene_len = 0
     gene_len += len(order_list) * gene_bits
-
 
     print 'gene length: ', len(order_list) * gene_bits, len(order_list)
 
@@ -91,11 +88,13 @@ def output(day):
     for id in list_trunk_not_in_base:
         if id not in temp_trunk_not_in_base:
             num += 1
-    print ('异地车返回数量%d'%num)
+    print ('异地车返回数量%d' % num)
     list_trunk_not_in_base = temp_trunk_not_in_base
     trunk_empty_rate = (trunk_empty * 1.0) / trunk_sum
-    trunk_transport_rate = (trunk_transport_car * 1.0) / trunk_sum_transport
-
+    if trunk_sum_transport != 0:
+        trunk_transport_rate = (trunk_transport_car * 1.0) / trunk_sum_transport
+    else:
+        trunk_transport_rate = 0
     # 统计订单压板分类
     order_delay_low = 0
     order_delay_middle = 0

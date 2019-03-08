@@ -77,6 +77,8 @@ class Trunk:
         if len(position_list) == 0:
             logging.error("can not go without no position")
             return
+        if isinstance(position_list[-1], BaseStation) and len(position_list) > 1:
+            logging.warning("we suggest the last position should not be BaseStation")
 
         # 等待时间置为0
         self.wait_day = 0
@@ -222,6 +224,8 @@ class Trunk:
                 self.trunk_target_time_list.append(self.trunk_target_time_list[-1] + last_road_time)
                 # 预计入库时间更新
                 self.trunk_finish_order_time = self.trunk_target_time_list[-1]
+        else:
+            logging.error("The trunk can not be dispatch")
 
     def add_order(self, order):
         # 添加单个 order
@@ -248,7 +252,7 @@ class Trunk:
         elif self.trunk_state == TRUNK_IN_ORDER_DESTINATION:
             # 异地等待时间增加
             self.wait_day += 1
-        elif self.trunk_state == TRUNK_ON_ROAD:
+        elif self.trunk_state == TRUNK_ON_ROAD or self.trunk_state == TRUNK_ON_ROAD_NOT_USE:
             # 新的时间序列
             temp_time_list = []
             for time in self.trunk_target_time_list:
@@ -272,8 +276,9 @@ class Trunk:
                 self.trunk_target_time_list = []
             # 暂时知只处理Base全部在前面的情况
             else:
+
                 if len(temp_time_list) == len(self.trunk_target_time_list):
-                    # 一天一个目的地也未到达
+                    # 一天一个目的地也未到达，只更新时间和位置
                     if len(self.trunk_target_position_list) != 0:
                         position = self.trunk_target_position_list[0].position
                     else:
@@ -284,109 +289,32 @@ class Trunk:
                     self.trunk_target_time_list = temp_time_list
                     self.trunk_finish_order_time -= 24
                 else:
-                    # 经过目的地
+                    # 一天到达过目的地，需全部更新
                     reach_position_num = len(self.trunk_target_time_list) - len(temp_time_list)
                     reach_position_list = self.trunk_target_position_list[0:reach_position_num]
-                    self.trunk_position = self.calculate_position(
-                        self.trunk_target_position_list[reach_position_num - 1].position,
-                        self.trunk_target_position_list[reach_position_num].position, temp_time_list[0])
+                    # 计算当前位置
+                    if len(reach_position_list) != len(self.trunk_target_position_list):
+                        self.trunk_position = self.calculate_position(
+                            self.trunk_target_position_list[reach_position_num - 1].position,
+                            self.trunk_target_position_list[reach_position_num].position, temp_time_list[0])
+                    else:
+                        self.trunk_position = self.calculate_position(
+                            self.trunk_target_position_list[reach_position_num - 1].position,
+                            self.inquiry_info.inquiry_base_position_by_id(self.trunk_future_base_station_id), temp_time_list[0])
+                    # 卸载货物
                     self.unload_order(reach_position_list)
-
-
-        temp_time_list = []
-        for index in range(len(self.trunk_target_time_list)):
-            if self.trunk_target_time_list[index] > 24:
-                temp_time_list.append(self.trunk_target_time_list[index] - 24)
-
-        if len(temp_time_list) == 0:
-            if self.trunk_state == TRUNK_IN_ORDER:
-                self.wait_day = 0
-                self.trunk_position = self.trunk_before_day_position
-            elif self.trunk_state == TRUNK_ON_ROAD:
-                self.trunk_current_base_station_id = self.trunk_future_base_station_id
-                self.trunk_future_base_station_id = None
-                self.trunk_position = self.inquiry_info.inquiry_base_position_by_id(
-                    self.trunk_current_base_station_id)
-                if self.trunk_current_base_station_id != self.trunk_base_id:
-                    self.trunk_state = TRUNK_IN_ORDER_DESTINATION
-                    self.wait_day += 1
-                else:
-                    self.trunk_state = TRUNK_IN_ORDER
-            elif self.trunk_state == TRUNK_IN_ORDER_DESTINATION:
-                self.trunk_position = self.trunk_before_day_position
-                if self.trunk_current_base_station_id != self.trunk_base_id:
-                    self.wait_day += 1
-            elif self.trunk_state == TRUNK_NOT_USE:
-                """暂时不使用进入NOT_USE状态"""
-                self.sleep_day -= 1
-                if self.sleep_day == 0:
-                    self.trunk_state = TRUNK_IN_ORDER
-                self.trunk_position = self.trunk_before_day_position
-            elif self.trunk_state == TRUNK_ON_ROAD_NOT_USE:
-                self.trunk_current_base_station_id = self.trunk_future_base_station_id
-                self.trunk_future_base_station_id = None
-                self.trunk_position = self.inquiry_info.inquiry_base_position_by_id(self.trunk_current_base_station_id)
-                if self.trunk_current_base_station_id != self.trunk_base_id:
-                    self.trunk_state = TRUNK_IN_ORDER_DESTINATION
-                    self.wait_day += 1
-                else:
-                    self.trunk_state = TRUNK_IN_ORDER
-            self.trunk_finish_order_time = 0
-            self.trunk_target_position_list = []
-            self.trunk_car_order_list = []
-            self.trunk_target_time_list = []
-        else:
-            if len(temp_time_list) == len(self.trunk_target_time_list):
-                # '''
-                position = None
-                if len(self.trunk_target_position_list) != 0:
-                    position = self.trunk_target_position_list[0].position
-                else:
-                    position = self.inquiry_info.inquiry_base_position_by_id(self.trunk_future_base_station_id)
-                # '''
-                # position = self.trunk_target_position_list[0].position
-                self.trunk_position = self.calculate_position(self.trunk_before_day_position,
-                                                              position,
-                                                              temp_time_list[0])
-
-                # if isinstance(self.trunk_target_position_list[0], BaseStation):
-                #     self.trunk_state = TRUNK_ON_ROAD_NOT_USE
-                # else:
-                #     self.trunk_state = TRUNK_ON_ROAD
-
-            else:
-                self.trunk_position = self.calculate_position(
-                    self.trunk_target_position_list[-1 * len(temp_time_list)].position,
-                    self.trunk_target_position_list[-1 * len(temp_time_list) + 1].position,
-                    temp_time_list[0]
-                )
-
-                reach_position_list = self.trunk_target_position_list[
-                                      0:len(self.trunk_target_position_list) - len(temp_time_list) + 1]
-
-                # 倒着删掉订单
-                del_order = []
-                for i in self.trunk_car_order_list:
-                    for j in reach_position_list:
-                        if isinstance(j, Destination):
-                            if i.destination == j.d_id:
-                                del_order.append(i)
-                for order in del_order:
-                    self.trunk_car_order_list.remove(order)
-                if len(temp_time_list) > 1:
-                    self.trunk_target_position_list = self.trunk_target_position_list[-1 * len(temp_time_list) + 1:]
-                elif len(temp_time_list) == 1:
-                    self.trunk_target_position_list = []
-            # 更新状态
-            '''
-            if isinstance(self.trunk_target_position_list[0], BaseStation):
-                self.trunk_state = TRUNK_ON_ROAD_NOT_USE
-            else:
-                self.trunk_state = TRUNK_ON_ROAD
-            '''
-            self.trunk_state = TRUNK_ON_ROAD
-            self.trunk_target_time_list = temp_time_list
-            self.trunk_finish_order_time -= 24
+                    # 更新目的地序列
+                    self.trunk_target_position_list = self.trunk_target_position_list[reach_position_num:]
+                    # 更新到达目的地时间序列
+                    self.trunk_target_time_list = temp_time_list
+                    # 更新预计入库时间
+                    self.trunk_finish_order_time -= 24
+                    # 更新车当前的状态
+                    if len(self.trunk_target_position_list) > 0 and isinstance(self.trunk_target_position_list[0],
+                                                                               BaseStation):
+                        pass
+                    else:
+                        self.trunk_state = TRUNK_ON_ROAD
         self.trunk_before_day_position = self.trunk_position
         self.get_near_base_list()
 
@@ -436,6 +364,5 @@ class Trunk:
             for order in self.trunk_car_order_list:
                 if isinstance(place, Destination) and order.destination == place.d_id:
                     remove_order_list.append(order)
-        for order in self.trunk_car_order_list:
-            if order in remove_order_list:
-                self.trunk_car_order_list.remove(order)
+        for order in remove_order_list:
+            self.trunk_car_order_list.remove(order)
