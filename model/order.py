@@ -1,6 +1,8 @@
 # coding: utf-8
 from .base.order_id import OrderId
-from .base.utils import get_time_torday
+
+
+All_order = {}
 
 
 class Order(object):
@@ -23,6 +25,9 @@ class Order(object):
         self.class_of_delay_time = 0
         # 订单分组编号
         self.group = group
+        self.trunk_id = None
+        global All_order
+        All_order[self.id] = self
 
     def set_delay_time(self):
         self.delay_time = self.now - self.timestamp

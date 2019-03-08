@@ -5,6 +5,8 @@ from data.StatueData import TRUNK_ON_ROAD, TRUNK_ON_ROAD_NOT_USE, TRUNK_IN_ORDER
 from global_data import list_base, list_trunk, max_day_stay_base, base_num, trunk_num
 from base.write_excel import Writer
 from model.base_station import get_near_trunk
+from model.order import All_order
+
 
 log = logging.getLogger('default')
 history_order_num = 0
@@ -179,23 +181,36 @@ def write_base(day):
 # 9 最终入库：trunk_future_base_station_id
 # 10 最终入库时间 ：trunk_finish_order_time
 def write_trunk(day):
-
     pass
 
 
-def write_order(day):
-    pass
+def write_order(writer, day):
+    order_title = [u'订单ID', u'发运部编号', u'目的编号',
+                   u'压板数量', u'订单时间', u'压板日期',
+                   u'压板天数', u'滞留天数级别', u'运输车ID']
+    writer.write_title('order', order_title)
+    day_data = []
+    for id_ in All_order:
+        order = All_order[id_]
+        data = [id_, order.base, order.destination, 1, order.timestamp,
+                order.now, order.delay_time, order.class_of_delay_time]
+        if order.trunk_id is None:
+            data.append(u'未派单')
+        else:
+            data.append('order.trunk_id')
+        day_data.append(data)
+    writer.write_data('order', day_data)
 
 
-def write_statistic(day):
+def write_statistic(writer, day):
     pass
 
 
 def write_excel(day):
     writer = Writer(day)
-    write_base(day)
-    write_base(day)
-    write_base(day)
-    write_base(day)
+    write_base(writer, day)
+    write_trunk(writer, day)
+    write_order(writer, day)
+    write_statistic(writer, day)
 
     writer.save()
