@@ -64,8 +64,8 @@ def get_trunk_max_order():
         # 不在自己本身网点的状态和行驶状态
         if trunk.trunk_state not in (3, 1):
             continue
-        max_order = trunk.trunk_type
-        if trunk.trunk_id not in trunk_max_order:
+        max_order = trunk.trunk_type - len(trunk.trunk_car_order_list)
+        if max_order and trunk.trunk_id not in trunk_max_order:
             trunk_max_order[trunk.trunk_id] = max_order - len(trunk.trunk_car_order_list)
 
     return trunk_max_order
@@ -193,7 +193,8 @@ def modify_model(gene_data_, trunk_data):
             dest = list_destination[dest_id]
             position_list.append(dest)
         if trunk.trunk_current_base_station_id != trunk.trunk_base_id:
-            if trunk.wait_day >= max_day_stay_base and not position_list:
+            if trunk.wait_day >= max_day_stay_base \
+                    and not position_list and not trunk.trunk_car_order_list:
                 # print 'empty trunk return.trunk id : ', trunk.trunk_id
                 empty += 1
                 position_list.append(list_base[trunk.trunk_base_id])
