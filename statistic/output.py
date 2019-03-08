@@ -117,7 +117,7 @@ def out_print(day):
 
 base_title = [u'网点名称', u'地理位置', u'未发车辆（本地）', u'未发车辆（外地）', u'今天发车（本地）',
               u'今天发车（外地）', u'未归车辆（本地）', u'今日订单	压板订单（1-5）', u'压板订单（5-10）',
-              u'压板订单（10-?）', u'网点可调度车', u'周边200公里网点', u'周边200公里可调用车', u'周边500公里可调度用车']
+              u'压板订单（10-?）', u'网点可调度车', u'周边200公里网点', u'周边200公里可调用车数量', u'周边500公里可调度用车数量']
 
 
 # 网点      id =  self.b_id
@@ -134,15 +134,14 @@ base_title = [u'网点名称', u'地理位置', u'未发车辆（本地）', u'�
 # 200公里可调度车：trunk_id_list_1 = get_near_trunk（base，trunk_list）
 # 500公里可调度车：trunk_id_list_2 = get_near_trunk（base，trunk_list，500）
 
-def write_base(day):
-    writer = Writer(day)
+def write_base(writer, day):
     writer.write_title('base', base_title)
     global trunk_in_station_num_list
     global trunk_other_in_station_num_list
+    l = []
     for index, base in enumerate(list_base):
-        l = []
         id = base.b_id
-        position = base.position
+        position = '('+str(base.position.x)+','+str(base.position.y)+')'
         trunk_num_1 = len(base.trunk_in_station)
         trunk_num_2 = len(base.trunk_other_in_station)
         trunk_num_3 = trunk_in_station_num_list[index] - len(base.trunk_in_station)
@@ -160,14 +159,16 @@ def write_base(day):
             elif order.class_of_delay_time == 3:
                 delay_3 += 1
         dispatch_trunk_num = len(base.trunk_in_station) + len(base.trunk_other_in_station)
-        around_base = base.near_destination_list
-        trunk_id_list_1 = get_near_trunk(base, list_trunk)
-        trunk_id_list_2 = get_near_trunk(base, list_trunk, 500)
+        around_base = str(base.near_destination_list)
+        trunk_id_list_1 = len(get_near_trunk(base, list_trunk))
+        trunk_id_list_2 = len(get_near_trunk(base, list_trunk, 500))
         temp_list = [id, position, trunk_num_1, trunk_num_2, trunk_num_3, trunk_num_4, trunk_num_5, order_num, delay_1,
                      delay_2, delay_3, dispatch_trunk_num, around_base, trunk_id_list_1, trunk_id_list_2]
         l.append(temp_list)
-        writer.write_data('base', [l])
-    writer.save()
+        print temp_list
+
+    writer.write_data('base', l)
+    # writer.save()
 
 
 # 1 板车ID   ： trunk_base_id
@@ -180,7 +181,7 @@ def write_base(day):
 # 8 订单情况：trunk_car_order_list
 # 9 最终入库：trunk_future_base_station_id
 # 10 最终入库时间 ：trunk_finish_order_time
-def write_trunk(day):
+def write_trunk(writer, day):
     pass
 
 
