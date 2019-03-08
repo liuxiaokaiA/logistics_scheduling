@@ -48,6 +48,22 @@ class BaseStation:
             if (inquiry_info.inquiry_distance_by_id(b_id_1=b_id, b_id_2=j)) < distance_around and j != b_id:
                 self.near_destination_list.append(j)
         self.new_orders = set()
+        self.new_orders_num = 0
+        # 统计数据
+        # 网点     self.b_id
+        # 地理位置  self.position
+        # 未出发车辆（本地）：len（self.trunk_in_station)（output)
+        # 未出发车辆（外地）：len（self.trunk_other_in_station)(output)
+        # 今日发车       ：  len（self.trunk_in_station)（update)-len（self.trunk_in_station)（output)
+        # 今日发车（外地）：  len（self.trunk_other_in_station)（update)-len（self.trunk_other_in_station)（output)
+        # 未归车辆：trunk_num/base_num - len（self.trunk_in_station)（update)
+        # 今日订单数:self.new_orders_num(output)
+        # 压板订单 ：self.new_order[i].class_of_delay_time 1,2,3
+        # 网点可调度车：len（self.trunk_in_station)（output)+ len（self.trunk_other_in_station)(output)
+        # 周围200公里网点 ：self.near_destination_list
+        # 200公里可调度车：get_near_trunk（base，trunk_list）
+        # 500公里可调度车：get_near_trunk（base，trunk_list，500）
+
 
     def get_position(self):
         """获取网点position"""
@@ -86,8 +102,10 @@ class BaseStation:
         # 自动获取组id
         group = OrderGroupId().id
         # 生成订单
+        self.new_orders_num = 0
         for destination in destination_data:
             car_num = destination_data[destination]
+            self.new_orders_num += car_num
             for i in range(car_num):
                 order = Order(self.b_id, timestamp, now, destination, default_car_num, group)
                 order.set_delay_time()

@@ -11,11 +11,12 @@
 """
 import random
 from cmath import sqrt
+from itertools import permutations
 
 from data.StatueData import TRUNK_IN_ORDER, TRUNK_TYPE_BIG, TRUNK_TYPE_MIDDLE, TRUNK_TYPE_SMALL, TRUNK_ON_ROAD, \
     TRUNK_IN_ORDER_DESTINATION, TRUNK_NOT_USE, TRUNK_ON_ROAD_NOT_USE
 from data.position import Position
-from global_data import trunk_num, base_num, distance_around
+from global_data import trunk_num, base_num, distance_around, list_base
 from model.base_station import BaseStation
 from model.destination import Destination
 from model.inquiry_info import InquiryInfo
@@ -71,6 +72,8 @@ class Trunk:
         # 附近网点
         self.near_base_list = []
         self.get_near_base_list()
+        # 统计时间
+        self.empty_transport = False
 
         # 统计信息
         # 1 板车ID   ： trunk_base_id
@@ -84,7 +87,10 @@ class Trunk:
         # 9 最终入库：trunk_future_base_station_id
         # 10 最终入库时间 ：trunk_finish_order_time
 
-    def add_target_position_list(self, position_list):
+    def add_target_position_list(self, position_list_input):
+        # 首先优化路径
+        position_list = self.sort_position_list(position_list_input)
+
         # 处理错误情况
         if len(position_list) == 0:
             logging.error("can not go without no position")
@@ -97,6 +103,7 @@ class Trunk:
 
         #  单独处理卡车召回到起点情况
         if len(position_list) == 1 and isinstance(position_list[0], BaseStation):
+            self.empty_transport = True
             self.trunk_state = TRUNK_ON_ROAD
             distance = self.inquiry_info.inquiry_distance_by_id(b_id_1=self.trunk_current_base_station_id,
                                                                 b_id_2=self.trunk_base_id)
@@ -104,7 +111,7 @@ class Trunk:
             self.trunk_target_time_list = []
             self.trunk_target_time_list.append(distance / self.trunk_speed)
             return
-
+        self.empty_transport = False
         # 处理卡车从起点出发状态量
         if self.trunk_state == TRUNK_IN_ORDER:
             # 车的状态更新
@@ -264,6 +271,11 @@ class Trunk:
             # 异地等待时间增加
             self.wait_day += 1
         elif self.trunk_state == TRUNK_ON_ROAD or self.trunk_state == TRUNK_ON_ROAD_NOT_USE:
+            # 添加判断空驶逻辑
+            if self.trunk_target_position_list and isinstance(self.trunk_target_position_list[-1], BaseStation):
+                self.empty_transport = True
+            else:
+                self.empty_transport = False
             # 新的时间序列
             temp_time_list = []
             for time in self.trunk_target_time_list:
@@ -311,7 +323,8 @@ class Trunk:
                     else:
                         self.trunk_position = self.calculate_position(
                             self.trunk_target_position_list[reach_position_num - 1].position,
-                            self.inquiry_info.inquiry_base_position_by_id(self.trunk_future_base_station_id), temp_time_list[0])
+                            self.inquiry_info.inquiry_base_position_by_id(self.trunk_future_base_station_id),
+                            temp_time_list[0])
                     # 卸载货物
                     self.unload_order(reach_position_list)
                     # 更新目的地序列
@@ -377,3 +390,44 @@ class Trunk:
                     remove_order_list.append(order)
         for order in remove_order_list:
             self.trunk_car_order_list.remove(order)
+
+    def sort_position_list(self, position_list):
+        if len(position_list) == 1:
+            return position_list
+        base_list = []
+        destination_list = []
+        for index in range(len(position_list)):
+            if isinstance(position_list[index], Destination):
+                base_list = position_list[0:index]
+                destination_list = position_list[index:]
+                break
+        all_list = []
+        for temp1 in permutations(destination_list):
+            if base_list:
+                for temp2 in permutations(base_list):
+                    all_list.append(list(temp2 + temp1))
+            else:
+                all_list.append(list(temp1))
+        nearest_list = []
+        nearest_distance = 9999999
+
+        if self.trunk_state in (TRUNK_IN_ORDER, TRUNK_IN_ORDER_DESTINATION):
+            for current_list in all_list:
+                last_position, last_distance = self.inquiry_info.inquiry_nearest_base_station(current_list[-1].d_id)
+                sum_distance = last_distance
+                current_list.insert(0, list_base[self.trunk_current_base_station_id])
+                for index in range(len(current_list) - 1):
+                    sum_distance += self.inquiry_info.inquiry_distance(current_list[index], current_list[index + 1])
+                if sum_distance < nearest_distance:
+                    nearest_list = current_list
+                current_list.remove(current_list[0])
+        elif self.trunk_state == TRUNK_ON_ROAD:
+            for current_list in all_list:
+                last_position, last_distance = self.inquiry_info.inquiry_nearest_base_station(current_list[-1].d_id)
+                sum_distance = last_distance
+                sum_distance += self.trunk_position.get_position_distance(current_list[0].position)
+                for index in range(len(current_list) - 1):
+                    sum_distance += self.inquiry_info.inquiry_distance(current_list[index], current_list[index + 1])
+                if sum_distance < nearest_distance:
+                    nearest_list = current_list
+        return nearest_list
