@@ -47,13 +47,15 @@ def out_print(day):
     trunk_in_order_base = 0
     temp_trunk_not_in_base = []
     for trunk in list_trunk:
+        if trunk.empty_transport:
+            trunk_empty += 1
         if trunk.trunk_state == TRUNK_IN_ORDER_DESTINATION:
             temp_trunk_not_in_base.append(trunk.trunk_id)
         if trunk.trunk_state == TRUNK_ON_ROAD or trunk.trunk_state == TRUNK_ON_ROAD_NOT_USE:
             trunk_sum += 1
             trunk_on_road_num += 1
             if len(trunk.trunk_car_order_list) == 0:
-                trunk_empty += 0
+                pass
             else:
                 trunk_sum_transport += trunk.trunk_type
                 trunk_transport_car += len(trunk.trunk_car_order_list)
@@ -141,6 +143,7 @@ def out_print(day):
 base_title = [u'网点名称', u'地理位置', u'未发车辆（本地）', u'未发车辆（外地）', u'今天发车（本地）',
               u'今天发车（外地）', u'未归车辆（本地）', u'今日订单', u'压板订单（1-5）', u'压板订单（5-10）',
               u'压板订单（10-?）', u'网点可调度车', u'周边200公里网点', u'周边200公里可调用车数量', u'周边500公里可调度用车数量']
+
 
 def write_base(writer, day):
     base_title = [u'网点名称', u'地理位置', u'未发车辆（本地）', u'未发车辆（外地）', u'今天发车（本地）',
