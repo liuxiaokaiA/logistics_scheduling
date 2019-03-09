@@ -10,18 +10,15 @@ from algorithm.model_data import get_trunk_max_order, get_orders_trunk_can_take,
 from global_data import list_base, list_destination, list_trunk, all_scheduling, trunk_num, destination_num, \
     base_num, gene_bits
 from statistic.output import out_print, add_history_order_num, write_excel, \
-    add_update_trunk_in_station_num, set_today_order_num
+    trunk_in_station_num_list, trunk_other_in_station_num_list, set_today_order_num
 
 
 def update(day):
     log.info('update base')
     new_order_num = 0
 
-    from statistic.output import trunk_in_station_num_list
-    output.trunk_in_station_num_list = []
-    from statistic.output import trunk_other_in_station_num_list
-    output.trunk_other_in_station_num_list = []
-
+    trunk_in_station_num_list[:] = []
+    trunk_other_in_station_num_list[:] = []
     for trunk in list_trunk:
         trunk.trunk_update_day()
     for base in list_base:
@@ -36,8 +33,8 @@ def update(day):
         trunk_other_in_station_num_list.append(len(base.trunk_other_in_station))
     add_history_order_num(new_order_num)
     print("今日新产生订单数为 ：%d" % new_order_num)
-    add_update_trunk_in_station_num(len)
     set_today_order_num(new_order_num)
+
 
 
 def compute(day):
