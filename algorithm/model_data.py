@@ -1,6 +1,7 @@
 # coding: utf-8
 from global_data import list_base, list_destination, list_trunk, max_day_stay_base
 from model.base.utils import is_near
+from statistic.output import set_empty_num
 import random
 
 
@@ -203,6 +204,7 @@ def modify_model(gene_data_, trunk_data):
         trunk.add_target_position_list(position_list)
 
     print 'empty trunk return.number : ', empty
+    set_empty_num(empty)
     return gene_data
 
 
