@@ -252,9 +252,11 @@ def write_trunk(writer, day):
                 position = '(' + str(np.around(trunk.trunk_position.x, decimals=1)) + ',' + str(
                     np.around(trunk.trunk_position.y, decimals=1)) + ')'
 
-                target_position = u'网点' + str(trunk.trunk_future_base_station_id)
-                target_time = trunk.trunk_finish_order_time
+                target_position = u'入库' + str(trunk.trunk_future_base_station_id)
 
+                target_time = trunk.trunk_finish_order_time
+                if target_time == 0:
+                    target_time = '已入库'
                 temp_list = [id, type, trunk_base, trunk_state, position, target_position, target_time, order1, order2,
                              order3, order4, order5, order6, order7, order8]
                 all_list.append(temp_list)
