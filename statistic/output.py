@@ -4,9 +4,9 @@ import logging
 from data.StatueData import TRUNK_ON_ROAD, TRUNK_ON_ROAD_NOT_USE, TRUNK_IN_ORDER, TRUNK_IN_ORDER_DESTINATION
 from global_data import list_base, list_trunk, max_day_stay_base, base_num, trunk_num
 from base.write_excel import Writer
-from model.base_station import get_near_trunk
+from model.base_station import get_near_trunk, BaseStation
 from model.order import All_order
-
+import numpy as np
 
 log = logging.getLogger('default')
 history_order_num = 0
@@ -18,16 +18,6 @@ trunk_other_in_station_num_list = []
 def add_history_order_num(num):
     global history_order_num
     history_order_num += num
-
-
-def add_update_trunk_in_station_num(num_list):
-    global trunk_in_station_num
-    trunk_in_station_num = num_list
-
-
-def add_update_trunk_other_in_station_num(num_list):
-    global trunk_other_in_station_num
-    trunk_other_in_station_num = num_list
 
 
 def out_print(day):
@@ -116,7 +106,7 @@ def out_print(day):
 
 
 base_title = [u'网点名称', u'地理位置', u'未发车辆（本地）', u'未发车辆（外地）', u'今天发车（本地）',
-              u'今天发车（外地）', u'未归车辆（本地）', u'今日订单	压板订单（1-5）', u'压板订单（5-10）',
+              u'今天发车（外地）', u'未归车辆（本地）', u'今日订单', u'压板订单（1-5）', u'压板订单（5-10）',
               u'压板订单（10-?）', u'网点可调度车', u'周边200公里网点', u'周边200公里可调用车数量', u'周边500公里可调度用车数量']
 
 
@@ -126,7 +116,7 @@ base_title = [u'网点名称', u'地理位置', u'未发车辆（本地）', u'�
 # 未出发车辆（外地）：trunk_num_2 = len（self.trunk_other_in_station)(output)
 # 今日发车       ：  trunk_num_3= len（self.trunk_in_station)（update)-len（self.trunk_in_station)（output)
 # 今日发车（外地）：  trunk_num_4 = len（self.trunk_other_in_station)（update)-len（self.trunk_other_in_station)（output)
-# 未归车辆：trunk_num_5 = trunk_num/base_num - len（self.trunk_in_station)（update)
+# 未归车辆：trunk_num_5 = trunk_num/base_num - len（self.trunk_in_station)（update)+trunk_num3
 # 今日订单数: order_num = self.new_orders_num(output)
 # 压板订单 ：delay_order_num = self.new_order[i].class_of_delay_time 1,2,3
 # 网点可调度车：dispatch_trunk_num =len（self.trunk_in_station)（output)+ len（self.trunk_other_in_station)(output)
@@ -141,12 +131,13 @@ def write_base(writer, day):
     l = []
     for index, base in enumerate(list_base):
         id = base.b_id
-        position = '('+str(base.position.x)+','+str(base.position.y)+')'
+        position = '(' + str(np.around(base.position.x, decimals=1)) + ',' + str(
+            np.around(base.position.y, decimals=1)) + ')'
         trunk_num_1 = len(base.trunk_in_station)
         trunk_num_2 = len(base.trunk_other_in_station)
         trunk_num_3 = trunk_in_station_num_list[index] - len(base.trunk_in_station)
         trunk_num_4 = trunk_other_in_station_num_list[index] - len(base.trunk_other_in_station)
-        trunk_num_5 = trunk_num / base_num - trunk_in_station_num_list[index]
+        trunk_num_5 = trunk_num / base_num - trunk_in_station_num_list[index] + trunk_num_3
         order_num = base.new_orders_num
         delay_1 = 0
         delay_2 = 0
@@ -165,7 +156,7 @@ def write_base(writer, day):
         temp_list = [id, position, trunk_num_1, trunk_num_2, trunk_num_3, trunk_num_4, trunk_num_5, order_num, delay_1,
                      delay_2, delay_3, dispatch_trunk_num, around_base, trunk_id_list_1, trunk_id_list_2]
         l.append(temp_list)
-        print temp_list
+        # print temp_list
 
     writer.write_data('base', l)
     # writer.save()
@@ -181,8 +172,138 @@ def write_base(writer, day):
 # 8 订单情况：trunk_car_order_list
 # 9 最终入库：trunk_future_base_station_id
 # 10 最终入库时间 ：trunk_finish_order_time
+trunk_title = [u'板车ID', u'板车类型', u'归属车队', u'板车状态', u'当前位置',
+               u'目的地编号', u'时间', u'订单1', u'订单2', u'订单3', u'订单4', u'订单5', u'订单6', u'订单7', u'订单8']
+
+
 def write_trunk(writer, day):
-    pass
+    writer.write_title('trunk', trunk_title)
+    l = []
+    for index, trunk in enumerate(list_trunk):
+        all_list = []
+        id = ''
+        type = ''
+        trunk_base = ''
+        trunk_state = ''
+        position = ''
+        target_position = ''
+        target_time = ''
+        order1 = ''
+        order2 = ''
+        order3 = ''
+        order4 = ''
+        order5 = ''
+        order6 = ''
+        order7 = ''
+        order8 = ''
+        if trunk.trunk_state in (TRUNK_IN_ORDER_DESTINATION, TRUNK_IN_ORDER):
+            id = trunk.trunk_id
+            type = trunk.trunk_type
+            trunk_base = trunk.trunk_base_id
+            trunk_state = trunk.trunk_state
+            position = '(' + str(np.around(trunk.trunk_position.x, decimals=1)) + ',' + str(
+                np.around(trunk.trunk_position.y, decimals=1)) + ')'
+            temp_list = [id, type, trunk_base, trunk_state, position, target_position, target_time, order1, order2,
+                         order3, order4, order5, order6, order7, order8]
+            all_list.append(temp_list)
+        else:
+            if trunk.trunk_target_position_list and isinstance(trunk.trunk_target_position_list, BaseStation):
+                id = trunk.trunk_id
+                type = trunk.trunk_type
+                trunk_base = trunk.trunk_base_id
+                trunk_state = trunk.trunk_state
+                position = '(' + str(np.around(trunk.trunk_position.x, decimals=1)) + ',' + str(
+                    np.around(trunk.trunk_position.y, decimals=1)) + ')'
+                target_position = u'空车回车队'
+                target_time = trunk.trunk_target_time_list[0]
+
+                temp_list = [id, type, trunk_base, trunk_state, position, target_position, target_time, order1, order2,
+                             order3, order4, order5, order6, order7, order8]
+                all_list.append(temp_list)
+            elif not trunk.trunk_target_position_list:
+                id = trunk.trunk_id
+                type = trunk.trunk_type
+                trunk_base = trunk.trunk_base_id
+                trunk_state = trunk.trunk_state
+                position = '(' + str(np.around(trunk.trunk_position.x, decimals=1)) + ',' + str(
+                    np.around(trunk.trunk_position.y, decimals=1)) + ')'
+
+                target_position = u'网点' + str(trunk.trunk_future_base_station_id)
+                target_time = trunk.trunk_finish_order_time
+
+                temp_list = [id, type, trunk_base, trunk_state, position, target_position, target_time, order1, order2,
+                             order3, order4, order5, order6, order7, order8]
+                all_list.append(temp_list)
+            else:
+                for index_position in range(len(trunk.trunk_target_position_list) + 2):
+                    if index_position == 0:
+                        id = trunk.trunk_id
+                        type = trunk.trunk_type
+                        trunk_base = trunk.trunk_base_id
+                        trunk_state = trunk.trunk_state
+                        position = '(' + str(np.around(trunk.trunk_position.x, decimals=1)) + ',' + str(
+                            np.around(trunk.trunk_position.y, decimals=1)) + ')'
+                        target_position = ''
+                        target_time = ''
+                        if len(trunk.trunk_car_order_list) > 0:
+                            order1 = trunk.trunk_car_order_list[0].id
+                        if len(trunk.trunk_car_order_list) > 1:
+                            order2 = trunk.trunk_car_order_list[1].id
+                        if len(trunk.trunk_car_order_list) > 2:
+                            order3 = trunk.trunk_car_order_list[2].id
+                        if len(trunk.trunk_car_order_list) > 3:
+                            order4 = trunk.trunk_car_order_list[3].id
+                        if len(trunk.trunk_car_order_list) > 4:
+                            order5 = trunk.trunk_car_order_list[4].id
+                        if len(trunk.trunk_car_order_list) > 5:
+                            order6 = trunk.trunk_car_order_list[5].id
+                        if len(trunk.trunk_car_order_list) > 6:
+                            order7 = trunk.trunk_car_order_list[6].id
+                        if len(trunk.trunk_car_order_list) > 7:
+                            order8 = trunk.trunk_car_order_list[7].id
+                        temp_list = [id, type, trunk_base, trunk_state, position, target_position, target_time, order1,
+                                     order2, order3, order4, order5, order6, order7, order8]
+                        all_list.append(temp_list)
+                    if 0 < index_position < len(trunk.trunk_target_position_list) + 1:
+                        id = ''
+                        type = ''
+                        trunk_base = ''
+                        trunk_state = ''
+                        position = ''
+                        order_list = ['', '', '', '', '', '', '', '']
+                        if isinstance(trunk.trunk_target_position_list[index_position - 1], BaseStation):
+                            target_position = trunk.trunk_target_position_list[index_position - 1].b_id
+                            for order_index, order in enumerate(trunk.trunk_car_order_list):
+                                if order.base == target_position:
+                                    order_list[order_index] = u"装车"
+                        else:
+                            target_position = trunk.trunk_target_position_list[index_position - 1].d_id
+                            for order_index, order in enumerate(trunk.trunk_car_order_list):
+                                if order.destination == target_position:
+                                    order_list[order_index] = u"卸载"
+                        target_time = trunk.trunk_target_time_list[index_position - 1]
+                        temp_list = [id, type, trunk_base, trunk_state, position, target_position, target_time,
+                                     order_list[0],
+                                     order_list[1], order_list[2], order_list[3], order_list[4], order_list[5],
+                                     order_list[6], order_list[7]]
+                        all_list.append(temp_list)
+                    if index_position == (len(trunk.trunk_target_position_list) + 1):
+                        id = ''
+                        type = ''
+                        trunk_base = ''
+                        trunk_state = ''
+                        position = ''
+                        target_position = u"入库" + str(trunk.trunk_future_base_station_id)
+                        target_time = trunk.trunk_finish_order_time
+                        order_list = ['', '', '', '', '', '', '', '']
+                        temp_list = [id, type, trunk_base, trunk_state, position, target_position, target_time,
+                                     order_list[0],
+                                     order_list[1], order_list[2], order_list[3], order_list[4], order_list[5],
+                                     order_list[6], order_list[7]]
+                        all_list.append(temp_list)
+
+        l += all_list
+    writer.write_data('trunk', l)
 
 
 def write_order(writer, day):
