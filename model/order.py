@@ -2,7 +2,7 @@
 from .base.order_id import OrderId
 
 
-All_order = {}
+All_order = []
 
 
 class Order(object):
@@ -28,7 +28,7 @@ class Order(object):
         self.group = group
         self.trunk_id = None
         global All_order
-        All_order[self.id] = self
+        All_order.append(self)
 
     def set_delay_time(self):
         self.delay_time = self.now - self.timestamp

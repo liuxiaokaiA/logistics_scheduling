@@ -1,6 +1,5 @@
 # coding: utf-8
 from global_data import list_base, list_destination, list_trunk, max_day_stay_base
-from data.StatueData import TRUNK_IN_ORDER
 from model.base.utils import is_near
 from statistic.output import set_empty_num
 import random
@@ -203,7 +202,7 @@ def modify_model(gene_data_, trunk_data):
             elif trunk.wait_day < max_day_stay_base and not position_list:
                 continue
 
-        if trunk.trunk_state in (1, 3):
+        if trunk.trunk_state in (0, 3):
             if list_base[trunk.trunk_current_base_station_id] not in position_list:
                 position_list.insert(0, list_base[trunk.trunk_current_base_station_id])
         trunk.add_target_position_list(position_list)
@@ -245,7 +244,7 @@ def trunk_take_orders(trunk, orders):
         dest = list_destination[dest_id]
         position_list.append(dest)
 
-    if trunk.trunk_state in (1, 3):
+    if trunk.trunk_state in (0, 3):
         if list_base[trunk.trunk_current_base_station_id] not in position_list:
             position_list.insert(0, list_base[trunk.trunk_current_base_station_id])
 

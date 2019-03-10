@@ -369,9 +369,8 @@ def write_order(writer, day):
                    u'压板天数', u'滞留天数级别', u'运输车ID']
     writer.write_title('order', order_title)
     day_data = []
-    for id_ in All_order:
-        order = All_order[id_]
-        data = [id_, order.base, order.destination, 1, order.timestamp,
+    for order in All_order:
+        data = [order.id, order.base, order.destination, 1, order.timestamp,
                 order.now, order.delay_time, order.class_of_delay_time]
         if order.trunk_id is None:
             data.append(u'未派单')
