@@ -89,29 +89,28 @@ class Trunk:
         # 10 最终入库时间 ：trunk_finish_order_time
 
     def add_target_position_list(self, position_list_input):
-        # 首先优化路径
-        position_list = self.sort_position_list(position_list_input)
-
         # 处理错误情况
-        if len(position_list) == 0:
+        if len(position_list_input) == 0:
             logging.error("can not go without no position")
             return
-        if isinstance(position_list[-1], BaseStation) and len(position_list) > 1:
-            logging.warning("we suggest the last position should not be BaseStation")
+        # if isinstance(position_list_input[-1], BaseStation) and len(position_list_input) > 1:
+        #     logging.warning("we suggest the last position should not be BaseStation")
 
         # 等待时间置为0
         self.wait_day = 0
 
         #  单独处理卡车召回到起点情况
-        if len(position_list) == 1 and isinstance(position_list[0], BaseStation):
+        if isinstance(position_list_input[-1], BaseStation):
             self.empty_transport = True
             self.trunk_state = TRUNK_ON_ROAD
             distance = self.inquiry_info.inquiry_distance_by_id(b_id_1=self.trunk_current_base_station_id,
                                                                 b_id_2=self.trunk_base_id)
-            self.trunk_future_base_station_id = position_list[-1].b_id
+            self.trunk_future_base_station_id = position_list_input[-1].b_id
             self.trunk_target_time_list = []
             self.trunk_target_time_list.append(distance / self.trunk_speed)
             return
+        # 首先优化路径
+        position_list = self.sort_position_list(position_list_input)
         self.empty_transport = False
         # 处理卡车从起点出发状态量
         if self.trunk_state == TRUNK_IN_ORDER:
