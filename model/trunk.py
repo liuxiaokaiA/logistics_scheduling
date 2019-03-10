@@ -74,7 +74,8 @@ class Trunk:
         self.get_near_base_list()
         # 统计时间
         self.empty_transport = False
-
+        # 最大装载
+        self.max_transport = 0
         # 统计信息
         # 1 板车ID   ： trunk_base_id
         # 2 板车类型 ： trunk_type
@@ -246,6 +247,7 @@ class Trunk:
             logging.error("The trunk can not be dispatch")
 
     def add_order(self, order):
+        self.max_transport += 1
         # 添加单个 order
         if len(self.trunk_car_order_list) == self.trunk_type:
             logging.error("不能再添加车辆，车辆已满")
@@ -254,6 +256,7 @@ class Trunk:
         order.trunk_id = self.trunk_id
 
     def add_order_list(self, order_list):
+        self.max_transport = len(order_list)
         """给予车辆订单list"""
         if len(order_list) > self.trunk_type:
             logging.error("车辆过多，位置不足")
@@ -286,6 +289,7 @@ class Trunk:
                     temp_time_list.append(time - 24)
             # 根据时间序列长度更新状态信息
             if len(temp_time_list) == 0:
+                self.max_transport = 0
                 # 所在base_station更新
                 self.trunk_current_base_station_id = self.trunk_future_base_station_id
                 self.trunk_future_base_station_id = None

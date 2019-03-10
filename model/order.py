@@ -6,9 +6,10 @@ All_order = {}
 
 
 class Order(object):
-    def __init__(self, base, timestamp, now, destination, car_num, group):
+    def __init__(self, base, timestamp, now, destination, car_num, group, day):
         # 编号自动生成
-        self.id = OrderId().id
+
+        self.id = OrderId(day).id
         # 发运部编号
         self.base = base
         # 时间戳
