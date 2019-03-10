@@ -207,8 +207,8 @@ def write_base(writer, day):
 
 def write_trunk(writer, day):
     trunk_title = [u'板车ID', u'板车类型', u'车队编号', u'板车状态', u'当前位置（建模坐标）',
-                   u'目的地编号', u'预计到达时间', u'订单编号1', u'订单编号2', u'订单编号3',
-                   u'订单编号4', u'订单编号5', u'订单编号6', u'订单编号7', u'订单编号8']
+                   u'目的地编号   ', u'预计到达时间    ', u'订单编号1     ', u'订单编号2     ', u'订单编号3     ',
+                   u'订单编号4     ', u'订单编号5     ', u'订单编号6     ', u'订单编号7     ', u'订单编号8     ']
     writer.write_title('trunk', trunk_title)
     l = []
     for index, trunk in enumerate(list_trunk):
@@ -364,7 +364,7 @@ def write_trunk(writer, day):
 
 
 def write_order(writer, day):
-    order_title = [u'订单ID', u'发运部编号', u'目的编号',
+    order_title = [u'订单ID         ', u'发运部编号', u'目的编号',
                    u'压板数量', u'订单时间', u'压板日期',
                    u'压板天数', u'滞留天数级别', u'运输车ID']
     writer.write_title('order', order_title)
