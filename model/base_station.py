@@ -112,6 +112,8 @@ class BaseStation:
                 self.new_orders.add(order)
 
     def get_trunk(self, trunk_type=TRUNK_TYPE_SMALL):
+        if trunk_type not in (TRUNK_TYPE_SMALL,TRUNK_TYPE_MIDDLE,TRUNK_TYPE_BIG):
+            return None
         for id in self.trunk_in_station:
             if trunk_type == TRUNK_TYPE_SMALL and id < trunk_num / 3:
                 return id
@@ -119,8 +121,7 @@ class BaseStation:
                 return id
             elif trunk_type == TRUNK_TYPE_BIG and id >= trunk_num * 2 / 3:
                 return id
-            else:
-                return None
+        return None
 
 
 def get_near_trunk(base, trunk_list, distance=distance_around):
