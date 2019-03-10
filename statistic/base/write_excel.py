@@ -3,6 +3,7 @@ import xlwt
 import logging
 import os
 
+from model.base.utils import model_time_to_date_time
 
 log = logging.getLogger('default')
 
@@ -27,7 +28,7 @@ def set_width(result, worksheet):
 
 class Writer(object):
     def __init__(self, day):
-        self.file_name = 'output/' + str(day) + '.xls'
+        self.file_name = 'output/' + str(model_time_to_date_time(day,0)[0:10]) + '.xls'
         self.whandle = xlwt.Workbook(encoding='utf-8')
         self.rows = {
             'base': 1,
