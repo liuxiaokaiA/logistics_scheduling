@@ -130,7 +130,8 @@ def out_print(day):
     print("当前平均压板时间%f" % average_delay_day)
     if day not in All_statistic:
         All_statistic[day] = []
-    one_day = [day, history_order_num - sum(base_sum_delay_order_list), sum(base_sum_delay_order_list),
+    one_day = [model_time_to_date_time(day, 0)[:10], history_order_num - sum(base_sum_delay_order_list),
+               sum(base_sum_delay_order_list),
                history_order_num, order_delay_low, order_delay_middle, order_delay_high, average_delay_day,
                today_order_num, trunk_empty_rate, trunk_transport_rate, trunk_on_road_num, empty_num,
                trunk_in_order_base, trunk_in_order_destination]
@@ -277,12 +278,15 @@ def write_trunk(writer, day):
                 trunk_state = u"入库途中"
                 position = '(' + str(np.around(trunk.trunk_position.x, decimals=1)) + ',' + str(
                     np.around(trunk.trunk_position.y, decimals=1)) + ')'
-
-                target_position = u'入库网点 : ' + str(trunk.trunk_future_base_station_id)
-
-                target_time = model_time_to_date_time(day,trunk.trunk_finish_order_time)
-                if target_time == 0:
+                if trunk.trunk_finish_order_time == 0:
+                    target_time = ''
+                else:
+                    target_time = model_time_to_date_time(day, trunk.trunk_finish_order_time)
+                if trunk.trunk_finish_order_time == 0:
                     target_time = u'已入库'
+                else:
+                    target_position = u'入库网点 : ' + str(trunk.trunk_future_base_station_id)
+
                 temp_list = [id, type, trunk_base, trunk_state, position, target_position, target_time, order1, order2,
                              order3, order4, order5, order6, order7, order8]
                 all_list.append(temp_list)
@@ -297,7 +301,12 @@ def write_trunk(writer, day):
                         else:
                             type = u'8车位'
                         trunk_base = trunk.trunk_base_id
-                        trunk_state = u'运输中'
+                        if trunk.trunk_state == TRUNK_ON_ROAD_NOT_USE:
+                            trunk_state = u'运输中(提货)'
+                        elif trunk.trunk_state == TRUNK_ON_ROAD and trunk.trunk_car_order_list:
+                            trunk_state = u'运输中(交货)'
+                        else:
+                            trunk_state = u'运输中'
                         position = '(' + str(np.around(trunk.trunk_position.x, decimals=1)) + ',' + str(
                             np.around(trunk.trunk_position.y, decimals=1)) + ')'
                         target_position = ''
@@ -329,16 +338,18 @@ def write_trunk(writer, day):
                         position = ''
                         order_list = ['', '', '', '', '', '', '', '']
                         if isinstance(trunk.trunk_target_position_list[index_position - 1], BaseStation):
-                            target_position = u'提货网点 : '+str(trunk.trunk_target_position_list[index_position - 1].b_id)
+                            target_position = u'提货网点 : ' + str(
+                                trunk.trunk_target_position_list[index_position - 1].b_id)
                             for order_index, order in enumerate(trunk.trunk_car_order_list):
                                 if order.base == trunk.trunk_target_position_list[index_position - 1].b_id:
                                     order_list[order_index] = u"装车"
                         else:
-                            target_position = u'交货4S店 : '+str(trunk.trunk_target_position_list[index_position - 1].d_id)
+                            target_position = u'交货4S店 : ' + str(
+                                trunk.trunk_target_position_list[index_position - 1].d_id)
                             for order_index, order in enumerate(trunk.trunk_car_order_list):
                                 if order.destination == trunk.trunk_target_position_list[index_position - 1].d_id:
                                     order_list[order_index] = u"卸载"
-                        target_time = model_time_to_date_time(day,trunk.trunk_target_time_list[index_position - 1])
+                        target_time = model_time_to_date_time(day, trunk.trunk_target_time_list[index_position - 1])
                         temp_list = [id, type, trunk_base, trunk_state, position, target_position, target_time,
                                      order_list[0],
                                      order_list[1], order_list[2], order_list[3], order_list[4], order_list[5],
@@ -351,7 +362,7 @@ def write_trunk(writer, day):
                         trunk_state = ''
                         position = ''
                         target_position = u"入库网点 : " + str(trunk.trunk_future_base_station_id)
-                        target_time = model_time_to_date_time(day,trunk.trunk_finish_order_time)
+                        target_time = model_time_to_date_time(day, trunk.trunk_finish_order_time)
                         order_list = ['', '', '', '', '', '', '', '']
                         temp_list = [id, type, trunk_base, trunk_state, position, target_position, target_time,
                                      order_list[0],
@@ -370,8 +381,10 @@ def write_order(writer, day):
     writer.write_title('order', order_title)
     day_data = []
     for order in All_order:
-        data = [order.id, order.base, order.destination, 1, order.timestamp,
-                order.now, order.delay_time, order.class_of_delay_time]
+        order_time = order.id[:10]
+        order_now = model_time_to_date_time(day, 0)[:10]
+        data = [order.id, order.base, order.destination, 1, order_time,
+                order_now, order.delay_time, order.class_of_delay_time]
         if order.trunk_id is None:
             data.append(u'未派单')
         else:
