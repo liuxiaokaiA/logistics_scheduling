@@ -1,15 +1,24 @@
 import threading
+
+from model.base.utils import model_time_to_date_time
+
 order_id = 0
 order_group_id = 0
+order_day = 0
 
 
 class OrderId(object):
     _instance_lock = threading.Lock()
 
-    def __init__(self):
+    def __init__(self, day):
+        global order_day
         global order_id
-        order_id += 1
-        self.id = order_id
+        if day != order_day:
+            order_day = day
+            order_id = 0
+        else:
+            order_id += 1
+        self.id = model_time_to_date_time(day, 0)[0:10]+' '+str(order_id).zfill(5)
 
     def __new__(cls, *args, **kwargs):
         if not hasattr(OrderId, "_instance"):

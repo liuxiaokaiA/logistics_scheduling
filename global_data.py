@@ -15,3 +15,5 @@ destination_num = 1000
 gene_bits = 15
 max_day_stay_base = 3
 order_num = 50
+# 模型开始时间 '2019-03-10 16:00:00'
+mode_start_time = 1552204800

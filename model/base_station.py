@@ -107,7 +107,7 @@ class BaseStation:
             car_num = destination_data[destination]
             self.new_orders_num += car_num
             for i in range(car_num):
-                order = Order(self.b_id, timestamp, now, destination, default_car_num, group)
+                order = Order(self.b_id, timestamp, now, destination, default_car_num, group, day)
                 order.set_delay_time()
                 self.new_orders.add(order)
 
