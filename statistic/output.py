@@ -341,8 +341,16 @@ def write_trunk(writer, day):
                         position = ''
                         order_list = ['', '', '', '', '', '', '', '']
                         if isinstance(trunk.trunk_target_position_list[index_position - 1], BaseStation):
-                            target_position = u'提货网点 : ' + str(
-                                trunk.trunk_target_position_list[index_position - 1].b_id)
+                            flag = False
+                            for order in trunk.trunk_car_order_list:
+                                if order.base == trunk.trunk_target_position_list[index_position - 1].b_id:
+                                    flag = True
+                            if flag:
+                                target_position = u'提货网点 : ' + str(
+                                   trunk.trunk_target_position_list[index_position - 1].b_id)
+                            else:
+                                target_position = u'出发网点 : ' + str(
+                                   trunk.trunk_target_position_list[index_position - 1].b_id)
                             for order_index, order in enumerate(trunk.trunk_car_order_list):
                                 if order.base == trunk.trunk_target_position_list[index_position - 1].b_id:
                                     order_list[order_index] = u"装车"
