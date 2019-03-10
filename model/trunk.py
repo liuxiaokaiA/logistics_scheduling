@@ -110,7 +110,7 @@ class Trunk:
             self.trunk_target_time_list.append(distance / self.trunk_speed)
             return
         # 首先优化路径
-        position_list = self.sort_position_list(position_list_input)
+        position_list = position_list_input  # self.sort_position_list(position_list_input)
         self.empty_transport = False
         # 处理卡车从起点出发状态量
         if self.trunk_state == TRUNK_IN_ORDER:
@@ -305,7 +305,6 @@ class Trunk:
                 self.trunk_target_time_list = []
             # 暂时知只处理Base全部在前面的情况
             else:
-
                 if len(temp_time_list) == len(self.trunk_target_time_list):
                     # 一天一个目的地也未到达，只更新时间和位置
                     if len(self.trunk_target_position_list) != 0:
