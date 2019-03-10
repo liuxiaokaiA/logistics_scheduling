@@ -425,6 +425,7 @@ class Trunk:
                     sum_distance += self.inquiry_info.inquiry_distance(current_list[index], current_list[index + 1])
                 if sum_distance < nearest_distance:
                     nearest_list = current_list
+                    nearest_distance = sum_distance
                 current_list.remove(current_list[0])
         elif self.trunk_state == TRUNK_ON_ROAD:
             for current_list in all_list:
@@ -435,4 +436,5 @@ class Trunk:
                     sum_distance += self.inquiry_info.inquiry_distance(current_list[index], current_list[index + 1])
                 if sum_distance < nearest_distance:
                     nearest_list = current_list
+                    nearest_distance = sum_distance
         return nearest_list
