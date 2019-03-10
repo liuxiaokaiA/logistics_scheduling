@@ -182,7 +182,7 @@ def write_base(writer, day):
             elif order.class_of_delay_time == 3:
                 delay_3 += 1
         dispatch_trunk_num = len(base.trunk_in_station) + len(base.trunk_other_in_station)
-        around_base = str(base.near_destination_list)
+        around_base = str(base.near_base_list)
         trunk_id_list_1 = len(get_near_trunk(base, list_trunk))
         trunk_id_list_2 = len(get_near_trunk(base, list_trunk, 500))
         temp_list = [id, position, trunk_num_1, trunk_num_2, trunk_num_3, trunk_num_4, trunk_num_5, order_num, delay_1,
@@ -283,7 +283,10 @@ def write_trunk(writer, day):
                 else:
                     target_time = model_time_to_date_time(day, trunk.trunk_finish_order_time)
                 if trunk.trunk_finish_order_time == 0:
-                    target_time = u'已入库'
+                    if trunk.trunk_position.get_position_distance(list_base[trunk.trunk_base_id].position) < 0.5:
+                        trunk_state = u"本地等计划"
+                    else:
+                        trunk_state = u"异地等计划"
                 else:
                     target_position = u'入库网点 : ' + str(trunk.trunk_future_base_station_id)
 
