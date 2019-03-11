@@ -45,8 +45,8 @@ class BaseStation:
             if (inquiry_info.inquiry_distance_by_id(b_id_1=b_id, d_id_1=i)) < distance_around:
                 self.near_destination_list.append(i)
         for j in range(base_num):
-            if (inquiry_info.inquiry_distance_by_id(b_id_1=b_id, b_id_2=j)) < distance_around and j != b_id:
-                self.near_destination_list.append(j)
+            if (inquiry_info.inquiry_distance_by_id(b_id_1=b_id, b_id_2=j)) < distance_around and j != self.b_id:
+                self.near_base_list.append(j)
         self.new_orders = set()
         self.new_orders_num = 0
         # 统计数据
@@ -63,7 +63,6 @@ class BaseStation:
         # 周围200公里网点 ：self.near_destination_list
         # 200公里可调度车：get_near_trunk（base，trunk_list）
         # 500公里可调度车：get_near_trunk（base，trunk_list，500）
-
 
     def get_position(self):
         """获取网点position"""
