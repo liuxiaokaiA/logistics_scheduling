@@ -3,6 +3,7 @@ from global_data import list_base, list_destination, list_trunk, max_day_stay_ba
 from model.base.utils import is_near
 from statistic.output import set_empty_num
 import random
+import copy
 
 
 def get_empty_trunks(base, count):
@@ -310,7 +311,7 @@ def get_trunk_return():
         # 附近目的地，订单
         dest_order = {}
         # 附近的所有网点,包含本身
-        base_list = base.near_base_list
+        base_list = copy.deepcopy(base.near_base_list)
         if base.b_id not in base_list:
             base_list.append(base.b_id)
         for base_near_id in base_list:
@@ -374,7 +375,7 @@ def get_whole_trunk():
         # 附近目的地，订单
         dest_order = {}
         # 附近的所有网点,包含本身
-        base_list = base.near_base_list
+        base_list = copy.deepcopy(base.near_base_list)
         if base.b_id not in base_list:
             base_list.append(base.b_id)
         for base_near_id in base_list:
