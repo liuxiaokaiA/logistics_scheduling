@@ -21,11 +21,25 @@ class InquiryInfo:
             self.base_position = pd.read_csv('../generate/base_position0315.csv')
             self.shop_position = pd.read_csv('../generate/city_position0315.csv')
             self.distance = pd.read_csv('../generate/distance0315.csv')
+            self.trunk = pd.read_csv("../generate/trunk.csv")
+            self.base_to_index = pd.read_csv("../generate/base_to_index.csv")
+            self.city_to_index = pd.read_csv("../generate/city_to_index.csv")
         except Exception as e:
             print e
             self.base_position = pd.read_csv('generate/base_position0315.csv')
             self.shop_position = pd.read_csv('generate/city_position0315.csv')
             self.distance = pd.read_csv('generate/distance0315.csv')
+            self.trunk = pd.read_csv("generate/trunk.csv")
+            self.base_to_index = pd.read_csv("generate/base_to_index.csv")
+            self.city_to_index = pd.read_csv("generate/city_to_index.csv")
+
+    def inquiry_base_to_index(self, base):
+        try:
+            return (self.base_to_index[self.base_to_index['city'] == base]).index[0]
+
+
+    def inquiry_city_to_index(self, city):
+        return (self.city_to_index[self.city_to_index['city' == city]]).index[0]
 
     def inquiry_base_position(self, base_station):
         from model.base_station import BaseStation
@@ -113,3 +127,12 @@ class InquiryInfo:
                 nearest_distance = current_distance
                 temp_id = i
         return temp_id, nearest_distance
+
+    # fleet, license, current, day, base
+    def inquiry_trunk_info(self, trunk_id):
+        base = self.inquiry_base_to_index(self.trunk.loc[trunk_id]['base'])
+        current_base = self.inquiry_base_to_index(self.trunk.loc[trunk_id]['current'])
+        license = self.inquiry_base_to_index(self.trunk.loc[trunk_id]['license'])
+        day = self.inquiry_base_to_index(self.trunk.loc[trunk_id]['day'])
+        fleet = self.inquiry_base_to_index(self.trunk.loc[trunk_id]['fleet'])
+        return base, current_base, license, day, fleet
