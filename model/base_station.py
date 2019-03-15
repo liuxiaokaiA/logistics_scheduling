@@ -33,6 +33,7 @@ class BaseStation:
         if not isinstance(inquiry_info, InquiryInfo):
             logging.error("Please enter right InquiryInfo")
         self.position = inquiry_info.inquiry_base_position_by_id(b_id)
+        self.name = inquiry_info.inquiry_base_name_by_id(b_id)
         self.near_trunk_list = []
         self.near_destination_list = []
         self.near_base_list = []

@@ -12,8 +12,8 @@
 from math import sqrt
 
 import pandas as pd
-base_data = pd.read_csv('base_position.csv')
-shop_data = pd.read_csv('shop_position.csv')
+base_data = pd.read_csv('base_position0315.csv')
+shop_data = pd.read_csv('city_position0315.csv')
 all_data = pd.concat([base_data, shop_data], axis=0, ignore_index=True)
 all_data_distance = []
 for i in range(len(all_data)):
@@ -25,4 +25,4 @@ for i in range(len(all_data)):
             print(i, j, temp_distance)
     all_data_distance.append(temp_list)
 df = pd.DataFrame(all_data_distance)
-df.to_csv('ditance.csv', index=False)
+df.to_csv('distance0315.csv', index=False)
