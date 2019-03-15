@@ -18,14 +18,14 @@ from global_data import base_num, destination_num
 class InquiryInfo:
     def __init__(self):
         try:
-            self.base_position = pd.read_csv('generate/base_position.csv')
-            self.shop_position = pd.read_csv('generate/shop_position.csv')
-            self.distance = pd.read_csv('generate/ditance.csv')
+            self.base_position = pd.read_csv('../generate/base_position0315.csv')
+            self.shop_position = pd.read_csv('../generate/city_position0315.csv')
+            self.distance = pd.read_csv('../generate/distance0315.csv')
         except Exception as e:
             print e
-            self.base_position = pd.read_csv('../generate/base_position.csv')
-            self.shop_position = pd.read_csv('../generate/shop_position.csv')
-            self.distance = pd.read_csv('../generate/ditance.csv')
+            self.base_position = pd.read_csv('generate/base_position0315.csv')
+            self.shop_position = pd.read_csv('generate/city_position0315.csv')
+            self.distance = pd.read_csv('generate/distance0315.csv')
 
     def inquiry_base_position(self, base_station):
         from model.base_station import BaseStation
@@ -40,6 +40,9 @@ class InquiryInfo:
         position = Position(self.base_position['x'][b_index], self.base_position['y'][b_index])
         return position
 
+    def inquiry_base_name_by_id(self, b_id):
+        return self.base_position['city'][b_id]
+
     def inquiry_destination_position(self, destination):
         from model.destination import Destination
         """用destination来查询4S店坐标"""
@@ -53,6 +56,9 @@ class InquiryInfo:
         position = Position(self.shop_position['x'][d_index], self.shop_position['y'][d_index])
         return position
 
+    def inquiry_destination_name_by_id(self, d_id):
+        return self.shop_position['city'][d_id]
+
     def inquiry_distance(self, place_one, place_two):
         from model.base_station import BaseStation
         from model.destination import Destination
@@ -60,11 +66,11 @@ class InquiryInfo:
         if isinstance(place_one, BaseStation) and isinstance(place_two, BaseStation):
             return self.distance.values[place_one.b_id, place_two.b_id]
         elif isinstance(place_one, BaseStation) and isinstance(place_two, Destination):
-            return self.distance.values[place_one.b_id, place_two.d_id + 40]
+            return self.distance.values[place_one.b_id, place_two.d_id + 60]
         elif isinstance(place_one, Destination) and isinstance(place_two, BaseStation):
-            return self.distance.values[place_one.d_id + 40, place_two.b_id]
+            return self.distance.values[place_one.d_id + 60, place_two.b_id]
         elif isinstance(place_one, Destination) and isinstance(place_two, Destination):
-            return self.distance.values[place_one.d_id + 40, place_two.d_id + 40]
+            return self.distance.values[place_one.d_id + 60, place_two.d_id + 60]
         else:
             logging.error("Please return right place")
 
@@ -91,9 +97,9 @@ class InquiryInfo:
             if b_id_1 > -1 and b_id_2 > -1:
                 return self.distance.values[b_id_1, b_id_2]
             elif b_id_1 > -1 and d_id_1 > -1:
-                return self.distance.values[b_id_1, d_id_1 + 40]
+                return self.distance.values[b_id_1, d_id_1 + 60]
             elif d_id_1 > -1 and d_id_2 > -1:
-                return self.distance.values[d_id_1 + 40, d_id_2 + 40]
+                return self.distance.values[d_id_1 + 60, d_id_2 + 60]
             else:
                 logging.error("inquiry parameter id wrong")
                 return 0

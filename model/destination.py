@@ -23,6 +23,7 @@ class Destination:
             sys.exit(1)
         self.inquiry_info = inquiry_info
         self.position = inquiry_info.inquiry_destination_position_by_id(d_id)
+        self.name = inquiry_info.inquiry_destination_name_by_id(d_id)
         self.near_destination_list = []
         for i in range(destination_num):
             if (inquiry_info.inquiry_distance_by_id(d_id_1=d_id, d_id_2=i)) < distance_around and i != d_id:
