@@ -28,7 +28,7 @@ def read_data(file_name):
     base_dict = {}
     dest_dict = {}
     for rows in range(305):
-        base_name = sht_id.cell(rows, 8).value
+        base_name = sht_id.cell(rows, 10).value
         base_dict[base_name] = rows
         dest_name = sht_id.cell(rows, 0).value
         dest_dict[dest_name] = rows

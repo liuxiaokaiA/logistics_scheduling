@@ -288,12 +288,12 @@ def get_trunk_return():
                     near_order |= dest_order[dest_near_id]
             # 所有顺路order
             near_order = sorted(list(near_order), key=lambda _order: _order.delay_time, reverse=True)
-            base.trunk_other_in_station.remove(trunk.trunk_id)
             del_order = []
             if trunk.trunk_type <= len(near_order):
                 del_order = near_order[:trunk.trunk_type]
             if del_order:
                 trunk_take_orders(trunk, del_order)
+                base.trunk_other_in_station.remove(trunk.trunk_id)
 
             for order_ in del_order:
                 if order_.destination in dest_order:
