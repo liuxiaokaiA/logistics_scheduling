@@ -1,6 +1,7 @@
 # coding: utf-8
 import logging
 
+from model.inquiry_info import InquiryInfo
 from model.trunk import Trunk
 from log import MyLogging
 from read_configure import read_fuc
@@ -19,8 +20,6 @@ def update(day):
 
     trunk_in_station_num_list[:] = []
     trunk_other_in_station_num_list[:] = []
-    for trunk in list_trunk:
-        trunk.trunk_update_day()
     for base in list_base:
         base.create_orders(day)
         base.update_in_station_trunk(list_trunk)
@@ -57,17 +56,15 @@ def compute(day):
     all_scheduling[day] = modify_model(best_gene.gene_data, trunk_data)
 
 
-def output(day):
+def output(day,inquiry_info):
     out_print(day)
-    write_excel(day)
+    write_excel(day,inquiry_info)
 
 
-def init():
+def init(inquiry_info):
     from model.base_station import BaseStation
     from model.destination import Destination
-    from model.inquiry_info import InquiryInfo
 
-    inquiry_info = InquiryInfo()
     for base_index in range(base_num):
         temp_base = BaseStation(base_index, inquiry_info)
         list_base.append(temp_base)
@@ -85,18 +82,19 @@ def init():
 
 
 if __name__ == "__main__":
+    inquiry_info = InquiryInfo()
     MyLogging()
     log = logging.getLogger('debug')
     default_conf = read_fuc('conf/')
     update_global(default_conf)
     log.info('start to init')
-    init()
+    init(inquiry_info)
     log.info('init down.')
-    days = 100
+    days = 1
     for day in range(days):
         log.info('days: %d ' % day)
         update(day)
         log.info('update down, start to compute')
         compute(day)
         log.info('compute down, start to output')
-        output(day)
+        output(day,inquiry_info)

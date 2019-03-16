@@ -39,6 +39,12 @@ class InquiryInfo:
     def inquiry_city_to_index(self, city):
         return (self.city_to_index[self.city_to_index['city' == city]]).index[0]
 
+    def inquiry_index_to_base(self, index):
+        return self.base_to_index.values[index][0]
+
+    def inquiry_index_to_city(self, index):
+        return self.city_to_index.values[index][0]
+
     def inquiry_base_position(self, base_station):
         from model.base_station import BaseStation
         """用base_station来查询网点坐标"""
