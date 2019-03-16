@@ -63,7 +63,9 @@ class Trunk:
         # 此坐标表示未来运输车将去的网点
         self.trunk_future_base_station_id = None
         # 此坐标表示车当前所在网点id
-        self.trunk_current_base_station_id = self.trunk_base_id
+        self.trunk_current_base_station_id = current_base
+        # 此位置用于0315输出当前位置
+        self.current_base_name = inquiry_info.inquiry_index_to_base(current_base)
         # 前一天车坐标
         self.trunk_before_day_position = self.trunk_position
         # 汽车在网点等待时间
