@@ -1,5 +1,6 @@
 # coding: utf-8
 from .base.order_id import OrderId
+from global_data import list_base, list_destination
 
 
 All_order = []
@@ -13,6 +14,7 @@ class Order(object):
         self.id = id_
         # 发运部编号
         self.base = base
+        self.base_name = list_base[base].name
         # 时间戳
         # self.timestamp = timestamp
         # 当前时间
@@ -21,6 +23,7 @@ class Order(object):
         self.delay_time = delay_time
         # 目的地4S点编号
         self.destination = destination
+        self.destination_name = list_destination[destination].name
         # 订单汽车数量（为1）
         self.car_num = car_num
         # 延迟等级
