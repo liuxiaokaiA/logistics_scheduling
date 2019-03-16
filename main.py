@@ -36,8 +36,7 @@ def update(day):
     set_today_order_num(new_order_num)
 
 
-
-def compute(day):
+def compute():
     get_whole_trunk()
     trunk_max_order = get_trunk_max_order()
     data = get_orders_trunk_can_take(trunk_max_order)
@@ -54,12 +53,32 @@ def compute(day):
     best_gene = ga.selectBest()
     best_gene.gene_to_data(ga.gene_bits, ga.order_list)
     log.info('start to modify_model')
-    all_scheduling[day] = modify_model(best_gene.gene_data, trunk_data)
+    modify_model(best_gene.gene_data, trunk_data)
 
 
 def output(day):
     out_print(day)
     write_excel(day)
+
+
+def init_order():
+    import xlrd
+    xls = xlrd.open_workbook(file_name)
+    sht = xls.sheet_by_index(0)
+    id_ = 0
+    data = []
+    for rows in range(1, 1970):
+        base_name = sht.cell(rows, 1).value.encode('utf-8')
+        dest_name = sht.cell(rows, 8).value.encode('utf-8')
+        delay_time = int(sht.cell(rows, 6).value)
+        class_of_delay_time = set_delay_time(delay_time)
+        car_num = int(sht.cell(rows, 9).value)
+        for i in range(car_num):
+            cell = [id_, base_dict[base_name], dest_dict[dest_name], delay_time, class_of_delay_time]
+            data.append(cell)
+            id_ += 1
+
+    return data
 
 
 def init():
@@ -80,6 +99,8 @@ def init():
         temp_trunk = Trunk(trunk_index, inquiry_info)
         list_trunk.append(temp_trunk)
 
+    init_order()
+
 
 if __name__ == "__main__":
     MyLogging()
@@ -90,10 +111,11 @@ if __name__ == "__main__":
     init()
     log.info('init down.')
     days = 100
-    for day in range(days):
-        log.info('days: %d ' % day)
-        update(day)
-        log.info('update down, start to compute')
-        compute(day)
-        log.info('compute down, start to output')
-        output(day)
+    compute()
+    # for day in range(days):
+    #    log.info('days: %d ' % day)
+    #    update(day)
+    #    log.info('update down, start to compute')
+    #    compute(day)
+    #    log.info('compute down, start to output')
+    #    output(day)

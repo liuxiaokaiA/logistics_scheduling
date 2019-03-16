@@ -92,15 +92,20 @@ def get_cost_trunk_on_road(trunk, orders):
 # 起始点去接单
 def get_cost_trunk_in_order(trunk, orders):
     bases = {}
+    is_must = 0
     for order_id in orders:
         order_data[order_id]['is_loading'] += 1
         if order_data[order_id]['is_loading'] > 1:
             print "order_data[order_id]['is_loading'] > 1"
             return VALUE_MAX
         order = order_data[order_id]['object']
+        if order.delay_time > 10:
+            is_must = 1
         if order.base not in bases:
             bases[order.base] = []
         bases[order.base].append(order)
+    if not is_must and len(orders) not in (0, 8):
+        return VALUE_MAX
     cost_ = 0
     car_num = 0
     temp_position = list_base[trunk.trunk_base_id].position
@@ -133,19 +138,22 @@ def get_cost_trunk_in_order(trunk, orders):
 
 # 终点去接单
 def get_cost_trunk_in_order_dest(trunk, orders):
-    cost_ = 0
     trunk_base_id = trunk.trunk_base_id
     trunk_base = list_base[trunk_base_id]
-    cost_ += trunk.trunk_cost_one_road(0, trunk.trunk_position, trunk_base.position)
     bases = {}
+    is_must = 0
     for order_id in orders:
         order_data[order_id]['is_loading'] += 1
         if order_data[order_id]['is_loading'] > 1:
             return VALUE_MAX
         order = order_data[order_id]['object']
+        if order.delay_time > 10:
+            is_must = 1
         if order.base not in bases:
             bases[order.base] = []
         bases[order.base].append(order)
+    if not is_must and len(orders) not in (0, 8):
+        return VALUE_MAX
     car_num = 0
     temp_position = trunk.trunk_position
     return_cost = 0
@@ -171,16 +179,10 @@ def get_cost_trunk_in_order_dest(trunk, orders):
         temp_position = dest.position
         car_num -= len(dests[dest_id])
 
-    # 大于5天停留惩罚成本
-    if trunk.wait_day >= max_day_stay_base:
-        cost_ += trunk_penalty_cost(0) + 1000
     # 运完回去
-    return_cost += trunk.trunk_cost_one_road(0, temp_position, trunk_base.position)
-    if return_cost:
-        cost_ = return_cost - cost_ + trunk_penalty_cost(float(len(orders))/trunk.trunk_type)
-        if trunk.wait_day >= max_day_stay_base:
-            cost_ -= trunk_penalty_cost(0) + 1000
-    return cost_
+    if len(orders) != 0:
+        return_cost += trunk.trunk_cost_one_road(0, temp_position, trunk_base.position)
+    return return_cost
 
 
 def get_order_cost():
@@ -190,8 +192,7 @@ def get_order_cost():
             order = order_data[order_id]['object']
             sum_cost += list_trunk[-1].trunk_cost_one_road(1, list_base[order.base].position,
                                                            list_destination[order.destination].position)
-            if order.class_of_delay_time == 2:
-                sum_cost += trunk_penalty_cost(0.5)+10
+            sum_cost += trunk_penalty_cost(0.2)+order.delay_time * 100
             if order.class_of_delay_time == 3:
                 sum_cost += trunk_penalty_cost(0)+10
         elif order_data[order_id]['is_loading'] == 1:
@@ -254,12 +255,8 @@ def compute_cost(gene, trunk_data):
     # print gene_data
     for trunk_id in gene_data:
         trunk = list_trunk[trunk_id]
-        # 在途可运车
-        if trunk.trunk_state == TRUNK_ON_ROAD:
-            # print 'error, can not be here. TRUNK_ON_ROAD'
-            sum_cost += get_cost_trunk_on_road(trunk, gene_data[trunk_id])
         # 起始等待车
-        elif trunk.trunk_state == TRUNK_IN_ORDER:
+        if trunk.trunk_state == TRUNK_IN_ORDER:
             sum_cost += get_cost_trunk_in_order(trunk, gene_data[trunk_id])
         # 终点等待车
         elif trunk.trunk_state == TRUNK_IN_ORDER_DESTINATION:
@@ -271,14 +268,14 @@ def compute_cost(gene, trunk_data):
 
         if sum_cost >= VALUE_MAX:
             # print 'trunk_id', trunk_id, gene_data[trunk_id]
-            time.sleep(100)
+            # time.sleep(100)
             gene.value = sum_cost
             return
     sum_cost += get_order_cost()
     if sum_cost >= VALUE_MAX:
         gene.value = sum_cost
         # print 'get_order_cost'
-        time.sleep(100)
+        # time.sleep(100)
         return
     # print gene.value
     gene.value = sum_cost
