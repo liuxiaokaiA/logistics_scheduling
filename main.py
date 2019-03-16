@@ -1,10 +1,12 @@
 # coding: utf-8
 import logging
+import json
 
 from model.inquiry_info import InquiryInfo
 from model.trunk import Trunk
 from log import MyLogging
 from read_configure import read_fuc
+from model.order import Order
 from algorithm.ga import update_global, GA
 from algorithm.model_data import get_trunk_max_order, get_orders_trunk_can_take, \
     modify_model, get_whole_trunk, get_orders_list
@@ -24,10 +26,10 @@ def update(day):
         base.create_orders(day)
         base.update_in_station_trunk(list_trunk)
         base.update_near_trunk(list_trunk)
-        for order in base.new_orders:
-            if order.timestamp == day:
-                new_order_num += 1
-            order.update_order(day)
+        # for order in base.new_orders:
+        #     if order.timestamp == day:
+        #         new_order_num += 1
+        #     order.update_order(day)
         trunk_in_station_num_list.append(len(base.trunk_in_station))
         trunk_other_in_station_num_list.append(len(base.trunk_other_in_station))
     add_history_order_num(new_order_num)
@@ -35,8 +37,7 @@ def update(day):
     set_today_order_num(new_order_num)
 
 
-
-def compute(day):
+def compute():
     get_whole_trunk()
     trunk_max_order = get_trunk_max_order()
     data = get_orders_trunk_can_take(trunk_max_order)
@@ -53,12 +54,24 @@ def compute(day):
     best_gene = ga.selectBest()
     best_gene.gene_to_data(ga.gene_bits, ga.order_list)
     log.info('start to modify_model')
-    all_scheduling[day] = modify_model(best_gene.gene_data, trunk_data)
+    modify_model(best_gene.gene_data, trunk_data)
 
 
 def output(day,inquiry_info):
     out_print(day)
     write_excel(day,inquiry_info)
+
+
+def init_order():
+    data = json.load(open('test/orders.txt', 'r'))
+    for order_ in data:
+        id_, base, destination, delay_time, class_of_delay_time = order_
+        new_order = Order(id_, base, destination, delay_time, class_of_delay_time)
+        base_ = list_base[base]
+        base_.new_orders_num += 1
+        base_.new_orders.add(new_order)
+
+    return data
 
 
 def init(inquiry_info):
@@ -80,6 +93,8 @@ def init(inquiry_info):
         base.update_in_station_trunk(list_trunk)
         base.update_near_trunk(list_trunk)
 
+    init_order()
+
 
 if __name__ == "__main__":
     inquiry_info = InquiryInfo()
@@ -95,6 +110,6 @@ if __name__ == "__main__":
         log.info('days: %d ' % day)
         update(day)
         log.info('update down, start to compute')
-        compute(day)
+        compute()
         log.info('compute down, start to output')
         output(day,inquiry_info)
