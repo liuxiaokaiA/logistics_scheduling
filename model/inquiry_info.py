@@ -37,7 +37,7 @@ class InquiryInfo:
         return (self.base_to_index[self.base_to_index['city'] == base]).index[0]
 
     def inquiry_city_to_index(self, city):
-        return (self.city_to_index[self.city_to_index['city' == city]]).index[0]
+        return (self.city_to_index[self.city_to_index['city'] == city]).index[0]
 
     def inquiry_index_to_base(self, index):
         return self.base_to_index.values[index][0]
