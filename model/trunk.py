@@ -30,24 +30,26 @@ class Trunk:
 
         # 车辆编号
         self.trunk_id = trunk_id
-        # 车辆类型,数字表示运载量
-        if self.trunk_id < trunk_num / 3:
-            self.trunk_type = TRUNK_TYPE_SMALL
-        elif self.trunk_id < trunk_num * 2 / 3:
-            self.trunk_type = TRUNK_TYPE_MIDDLE
-        else:
-            self.trunk_type = TRUNK_TYPE_BIG
 
+        self.trunk_type = TRUNK_TYPE_BIG
         # 车类归属网点
-        self.trunk_base_id = trunk_id % base_num
+        base, current_base, license, day, fleet = inquiry_info.inquiry_trunk_info(trunk_id)
+        self.trunk_base_id = base
+        self.fleet = fleet
+        self.license = license
+
         # 车辆状态
-        self.trunk_state = TRUNK_IN_ORDER
+        if base == current_base:
+            self.trunk_state = TRUNK_IN_ORDER
+        else:
+            self.trunk_state = TRUNK_IN_ORDER_DESTINATION
         if not isinstance(inquiry_info, InquiryInfo):
             logging.error("Please enter right InquiryInfo")
         # 辅助查询类
         self.inquiry_info = inquiry_info
         # 车辆位置
-        self.trunk_position = inquiry_info.inquiry_base_position_by_id(self.trunk_base_id)
+        self.trunk_position = inquiry_info.inquiry_base_position_by_id(current_base)
+
         # 车辆目的地序列，由所加订单确定
         self.trunk_target_position_list = []
         # 车辆到达目的地序列时间
@@ -65,10 +67,9 @@ class Trunk:
         # 前一天车坐标
         self.trunk_before_day_position = self.trunk_position
         # 汽车在网点等待时间
-        self.wait_day = 0
+        self.wait_day = day
         # 汽车因为各种原因等待时间
         self.sleep_day = 0
-
         # 附近网点
         self.near_base_list = []
         self.get_near_base_list()
@@ -87,6 +88,9 @@ class Trunk:
         # 8 订单情况：trunk_car_order_list
         # 9 最终入库：trunk_future_base_station_id
         # 10 最终入库时间 ：trunk_finish_order_time
+
+    def trunk_init(self):
+        pass
 
     def add_target_position_list(self, position_list_input):
         # 处理错误情况

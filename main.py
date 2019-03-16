@@ -79,6 +79,9 @@ def init():
     for trunk_index in range(trunk_num):
         temp_trunk = Trunk(trunk_index, inquiry_info)
         list_trunk.append(temp_trunk)
+    for base in list_base:
+        base.update_in_station_trunk(list_trunk)
+        base.update_near_trunk(list_trunk)
 
 
 if __name__ == "__main__":
