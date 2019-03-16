@@ -415,24 +415,37 @@ class Trunk:
         all_list = []
         for temp1 in permutations(destination_list):
             if base_list:
-                for temp2 in permutations(base_list):
-                    all_list.append(list(temp2 + temp1))
+                for temp2 in permutations(base_list[1:]):
+                    all_list.append(base_list[0:1]+list(temp2 + temp1))
             else:
                 all_list.append(list(temp1))
         nearest_list = []
         nearest_distance = 9999999
 
-        if self.trunk_state in (TRUNK_IN_ORDER, TRUNK_IN_ORDER_DESTINATION):
+        if self.trunk_state == TRUNK_IN_ORDER:
             for current_list in all_list:
                 last_position, last_distance = self.inquiry_info.inquiry_nearest_base_station(current_list[-1].d_id)
                 sum_distance = last_distance
-                current_list.insert(0, list_base[self.trunk_current_base_station_id])
+                # current_list.insert(0, list_base[self.trunk_current_base_station_id])
                 for index in range(len(current_list) - 1):
                     sum_distance += self.inquiry_info.inquiry_distance(current_list[index], current_list[index + 1])
                 if sum_distance < nearest_distance:
                     nearest_list = current_list
                     nearest_distance = sum_distance
-                current_list.remove(current_list[0])
+                # current_list.remove(current_list[0])
+        elif self.trunk_state == TRUNK_IN_ORDER_DESTINATION:
+            for current_list in all_list:
+                last_distance = self.inquiry_info.inquiry_distance_by_id(b_id_1=self.trunk_base_id,
+                                                                         d_id_1=current_list[-1].d_id)
+                sum_distance = last_distance
+                # current_list.insert(0, list_base[self.trunk_current_base_station_id])
+                for index in range(len(current_list) - 1):
+                    sum_distance += self.inquiry_info.inquiry_distance(current_list[index], current_list[index + 1])
+                if sum_distance < nearest_distance:
+                    nearest_list = current_list
+                    nearest_distance = sum_distance
+                # current_list.remove(current_list[0])
+
         elif self.trunk_state == TRUNK_ON_ROAD:
             for current_list in all_list:
                 last_position, last_distance = self.inquiry_info.inquiry_nearest_base_station(current_list[-1].d_id)
