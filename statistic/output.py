@@ -112,7 +112,8 @@ def out_print(day):
         base_sum_delay_order = 0
         for order in base.new_orders:
             base_sum_delay_order += 1
-            delay_time = day - order.timestamp
+            # delay_time = day - order.timestamp
+            delay_time = order.delay_time
             sum_delay_day += delay_time
             if delay_time <= max_day_stay_base:
                 order_delay_low += 1
@@ -354,15 +355,14 @@ def write_trunk(writer, day,inquiry_info):
 
 def write_order(writer, day):
     order_title = [u'订单ID         ', u'发运部编号', u'目的编号',
-                   u'压板数量', u'订单时间', u'压板日期',
-                   u'压板天数', u'滞留天数级别', u'运输车ID']
+                   u'压板数量', u'压板天数', u'滞留天数级别', u'运输车ID']
     writer.write_title('order', order_title)
     day_data = []
     for order in All_order:
-        order_time = order.id[:10]
+        order_time = order.id
         order_now = model_time_to_date_time(day, 0)[:10]
-        data = [order.id, order.base, order.destination, 1, order_time,
-                order_now, order.delay_time, order.class_of_delay_time]
+        data = [order.id, order.base, order.destination, 1,
+                order.delay_time, order.class_of_delay_time]
         if order.trunk_id is None:
             data.append(u'未派单')
         else:
@@ -389,7 +389,7 @@ def write_statistic(writer, day):
 def write_excel(day, inquiry_info):
     writer = Writer(day)
     write_base(writer, day)
-    write_trunk(writer, day,inquiry_info)
+    write_trunk(writer, day, inquiry_info)
     write_order(writer, day)
     write_statistic(writer, day)
 

@@ -1,10 +1,12 @@
 # coding: utf-8
 import logging
+import json
 
 from model.inquiry_info import InquiryInfo
 from model.trunk import Trunk
 from log import MyLogging
 from read_configure import read_fuc
+from model.order import Order
 from algorithm.ga import update_global, GA
 from algorithm.model_data import get_trunk_max_order, get_orders_trunk_can_take, \
     modify_model, get_whole_trunk, get_orders_list
@@ -24,10 +26,10 @@ def update(day):
         base.create_orders(day)
         base.update_in_station_trunk(list_trunk)
         base.update_near_trunk(list_trunk)
-        for order in base.new_orders:
-            if order.timestamp == day:
-                new_order_num += 1
-            order.update_order(day)
+        # for order in base.new_orders:
+        #     if order.timestamp == day:
+        #         new_order_num += 1
+        #     order.update_order(day)
         trunk_in_station_num_list.append(len(base.trunk_in_station))
         trunk_other_in_station_num_list.append(len(base.trunk_other_in_station))
     add_history_order_num(new_order_num)
@@ -61,21 +63,13 @@ def output(day,inquiry_info):
 
 
 def init_order():
-    import xlrd
-    xls = xlrd.open_workbook(file_name)
-    sht = xls.sheet_by_index(0)
-    id_ = 0
-    data = []
-    for rows in range(1, 1970):
-        base_name = sht.cell(rows, 1).value.encode('utf-8')
-        dest_name = sht.cell(rows, 8).value.encode('utf-8')
-        delay_time = int(sht.cell(rows, 6).value)
-        class_of_delay_time = set_delay_time(delay_time)
-        car_num = int(sht.cell(rows, 9).value)
-        for i in range(car_num):
-            cell = [id_, base_dict[base_name], dest_dict[dest_name], delay_time, class_of_delay_time]
-            data.append(cell)
-            id_ += 1
+    data = json.load(open('test/orders.txt', 'r'))
+    for order_ in data:
+        id_, base, destination, delay_time, class_of_delay_time = order_
+        new_order = Order(id_, base, destination, delay_time, class_of_delay_time)
+        base_ = list_base[base]
+        base_.new_orders_num += 1
+        base_.new_orders.add(new_order)
 
     return data
 

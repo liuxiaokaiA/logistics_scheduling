@@ -11,6 +11,8 @@ def get_empty_trunks(base, count):
         trunk = base.get_trunk(8)
         if trunk is not None:
             trunks.append(trunk)
+        else:
+            break
         if len(trunks) == count:
             break
     return trunks
@@ -171,7 +173,10 @@ def modify_model(gene_data_, trunk_data):
         if trunk.trunk_state == 0:
             list_base[trunk.trunk_base_id].trunk_in_station.remove(trunk.trunk_id)
         elif trunk.trunk_state == 3:
-            list_base[trunk.trunk_base_id].trunk_other_in_station.remove(trunk.trunk_id)
+            pass
+            # 一次计算，否则不能注释掉
+            # print trunk.trunk_id, trunk.trunk_current_base_station_id
+            # list_base[trunk.trunk_current_base_station_id].trunk_other_in_station.remove(trunk.trunk_id)
         trunk.add_target_position_list(position_list)
 
     print 'empty trunk return.number : ', empty
@@ -268,8 +273,8 @@ def get_trunk_return():
         for dest in dest_order:
             print_dest[dest] = [order_.id for order_ in dest_order[dest]]
 
-        other_t = [list_base[id_] for id_ in base.trunk_other_in_station]
-        return_trunks = [id_ for id_ in sorted(other_t, key=lambda trunk_: trunk_.wait_day, reverse=True)]
+        other_t = [list_trunk[id_] for id_ in base.trunk_other_in_station]
+        return_trunks = [trunk.trunk_id for trunk in sorted(other_t, key=lambda trunk_: trunk_.wait_day, reverse=True)]
         for trunk_id in return_trunks:
             near_order = set()
             trunk = list_trunk[trunk_id]
