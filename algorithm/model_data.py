@@ -293,7 +293,7 @@ def get_trunk_return():
                 del_order = near_order[:trunk.trunk_type]
             if del_order:
                 trunk_take_orders(trunk, del_order)
-                base.   .remove(trunk.trunk_id)
+                base.trunk_other_in_station.remove(trunk.trunk_id)
 
             for order_ in del_order:
                 if order_.destination in dest_order:
@@ -307,15 +307,15 @@ def get_whole_trunk():
 
     # 一个网点的整订单往外派
     print '一个网点的整订单往外派'
-    for base in list_base:
-        base_order = {}
-        for order in base.new_orders:
-            if order.destination not in base_order:
-                base_order[order.destination] = []
-            base_order[order.destination].append(order)
-        for destid in base_order:
-            orders = sorted(base_order[destid], key=lambda _order: _order.delay_time, reverse=True)
-            get_trunk_from_base(base, orders)
+    # for base in list_base:
+    #     base_order = {}
+    #     for order in base.new_orders:
+    #         if order.destination not in base_order:
+    #             base_order[order.destination] = []
+    #         base_order[order.destination].append(order)
+    #     for destid in base_order:
+    #         orders = sorted(base_order[destid], key=lambda _order: _order.delay_time, reverse=True)
+    #         get_trunk_from_base(base, orders)
 
     # 周围网点，同路线的整订单外派
     print '周围网点，同路线的整订单外派'
