@@ -32,14 +32,14 @@ def get_trunk_max_order():
 
     # 行驶状态先不考虑调度
     # 到达状态可调度
-    for trunk in list_trunk:
-        # 不在自己本身网点的状态和行驶状态
-        if trunk.trunk_state not in (3, ):
-            continue
-        max_order = trunk.trunk_type - len(trunk.trunk_car_order_list)
-        if max_order and trunk.trunk_id not in trunk_max_order:
-            trunk_max_order[trunk.trunk_id] = max_order - len(trunk.trunk_car_order_list)
-
+    # for trunk in list_trunk:
+    #     # 不在自己本身网点的状态和行驶状态
+    #     if trunk.trunk_state not in (3, ):
+    #         continue
+    #     max_order = trunk.trunk_type - len(trunk.trunk_car_order_list)
+    #     if max_order and trunk.trunk_id not in trunk_max_order:
+    #         trunk_max_order[trunk.trunk_id] = max_order - len(trunk.trunk_car_order_list)
+    # print trunk_max_order
     return trunk_max_order
 
 
@@ -122,6 +122,7 @@ def modify_model(gene_data_, trunk_data):
     empty = 0
     print gene_data
     for trunk_id in gene_data:
+        print trunk_id, gene_data[trunk_id]
         trunk = list_trunk[trunk_id]
         orders = gene_data[trunk_id]
         is_must = 0
@@ -168,16 +169,17 @@ def modify_model(gene_data_, trunk_data):
             dest = list_destination[dest_id]
             position_list.append(dest)
 
-        if trunk.trunk_state in (0, 3):
+        if trunk.trunk_state in (0, ):
             if list_base[trunk.trunk_current_base_station_id] not in position_list:
                 position_list.insert(0, list_base[trunk.trunk_current_base_station_id])
         if trunk.trunk_state == 0:
             list_base[trunk.trunk_base_id].trunk_in_station.remove(trunk.trunk_id)
-        elif trunk.trunk_state == 3:
-            pass
+        # elif trunk.trunk_state == 3:
+        #     pass
             # 一次计算，否则不能注释掉
             # print trunk.trunk_id, trunk.trunk_current_base_station_id
             # list_base[trunk.trunk_current_base_station_id].trunk_other_in_station.remove(trunk.trunk_id)
+        print len(position_list)
         trunk.add_target_position_list(position_list)
 
     print 'empty trunk return.number : ', empty

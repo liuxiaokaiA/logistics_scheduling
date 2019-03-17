@@ -49,10 +49,10 @@ def read_trunk(file_name):
     return data
 
 if __name__ == '__main__':
-    read_file = '2019-02-19.xls'
+    read_file = '../output/2019-02-19.xls'
     data, level_data = read_data(read_file)
     for item in data:
         print item, data[item]
     print level_data
-    # read_trunk(read_file)  # 828
+    read_trunk(read_file)  # 828
     # json.dump(data, open('test.txt', 'w'), indent=2)
