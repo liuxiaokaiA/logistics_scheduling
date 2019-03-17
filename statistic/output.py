@@ -3,7 +3,7 @@ import logging
 
 from data.StatueData import TRUNK_ON_ROAD, TRUNK_ON_ROAD_NOT_USE, TRUNK_IN_ORDER, TRUNK_IN_ORDER_DESTINATION, \
     TRUNK_TYPE_SMALL, TRUNK_TYPE_MIDDLE
-from global_data import list_base, list_trunk, max_day_stay_base, base_num, trunk_num
+from global_data import list_base, list_trunk, list_destination, max_day_stay_base, base_num, trunk_num
 from base.write_excel import Writer
 from model.base.utils import model_time_to_date_time
 from model.base_station import get_near_trunk, BaseStation
@@ -124,8 +124,8 @@ def out_print(day):
         base_sum_delay_order_list.append(base_sum_delay_order)
         base.update_in_station_trunk(list_trunk)
         base_trunk_in_station_list.append(len(base.trunk_in_station))
-        print("网点%d : 剩余未运订单数 :%d 本网点等计划车数目%d"
-              % (base.b_id, base_sum_delay_order_list[base.b_id], base_trunk_in_station_list[base.b_id]))
+        print("网点%d %s: 剩余未运订单数 :%d 本网点等计划车数目%d"
+              % (base.b_id, base.name, base_sum_delay_order_list[base.b_id], base_trunk_in_station_list[base.b_id]))
 
     average_delay_day = (sum_delay_day * 1.0) / (order_delay_low + order_delay_middle + order_delay_high)
     print("历史订单总数为    ：%d" % history_order_num)
@@ -162,7 +162,7 @@ def out_print(day):
 
 
 def write_base(writer, day):
-    base_title = [u'网点名称', u'地理位置（建模坐标）', u'未发车辆（本地）', u'未发车辆（外地）', u'今天发车（本地）',
+    base_title = [u'网点ID', u'网点名称', u'地理位置（建模坐标）', u'未发车辆（本地）', u'未发车辆（外地）', u'今天发车（本地）',
                   u'今天发车（外地）', u'未归车辆（本地）', u'今日订单', u'压板订单（1-5）', u'压板订单（5-10）',
                   u'压板订单（10-?）', u'网点可调度车', u'周边200公里网点', u'周边200公里可调用车数量', u'周边500公里可调度用车数量']
     writer.write_title('base', base_title)
@@ -171,6 +171,7 @@ def write_base(writer, day):
     l = []
     for index, base in enumerate(list_base):
         id = base.b_id
+        name = base.name
         position = '(' + str(np.around(base.position.x, decimals=1)) + ',' + str(
             np.around(base.position.y, decimals=1)) + ')'
         trunk_num_1 = len(base.trunk_in_station)
@@ -193,7 +194,7 @@ def write_base(writer, day):
         around_base = str(base.near_base_list)
         trunk_id_list_1 = len(get_near_trunk(base, list_trunk))
         trunk_id_list_2 = len(get_near_trunk(base, list_trunk, 500))
-        temp_list = [id, position, trunk_num_1, trunk_num_2, trunk_num_3, trunk_num_4, trunk_num_5, order_num, delay_1,
+        temp_list = [id, name, position, trunk_num_1, trunk_num_2, trunk_num_3, trunk_num_4, trunk_num_5, order_num, delay_1,
                      delay_2, delay_3, dispatch_trunk_num, around_base, trunk_id_list_1, trunk_id_list_2]
         l.append(temp_list)
         # print temp_list
@@ -361,12 +362,12 @@ def write_order(writer, day):
     for order in All_order:
         order_time = order.id
         order_now = model_time_to_date_time(day, 0)[:10]
-        data = [order.id, order.base, order.destination, 1,
+        data = [order.id, list_base[order.base].name, list_destination[order.destination].name, 1,
                 order.delay_time, order.class_of_delay_time]
         if order.trunk_id is None:
             data.append(u'未派单')
         else:
-            data.append(order.trunk_id)
+            data.append(list_trunk[order.trunk_id].license)
         day_data.append(data)
     writer.write_data('order', day_data)
 
@@ -391,6 +392,6 @@ def write_excel(day, inquiry_info):
     write_base(writer, day)
     write_trunk(writer, day, inquiry_info)
     write_order(writer, day)
-    write_statistic(writer, day)
+    # write_statistic(writer, day)
 
     writer.save()

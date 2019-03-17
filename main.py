@@ -49,12 +49,12 @@ def compute():
     ga = GA()
     log.info('start to compute')
     # ga.GA_main(data, trunk_max_order)
-    # ga.GA_main2(trunk_data, order_list)
-    # log.info('ga down.start to get best gene')
-    # best_gene = ga.selectBest()
-    # best_gene.gene_to_data(ga.gene_bits, ga.order_list)
-    # log.info('start to modify_model')
-    # modify_model(best_gene.gene_data, trunk_data)
+    ga.GA_main2(trunk_data, order_list)
+    log.info('ga down.start to get best gene')
+    best_gene = ga.selectBest()
+    best_gene.gene_to_data(ga.gene_bits, ga.order_list)
+    log.info('start to modify_model')
+    modify_model(best_gene.gene_data, trunk_data)
 
 
 def output(day,inquiry_info):
