@@ -120,9 +120,7 @@ def modify_model(gene_data_, trunk_data):
         for order in base.new_orders:
             all_order[order.id] = order
     empty = 0
-    print gene_data
     for trunk_id in gene_data:
-        print trunk_id, gene_data[trunk_id]
         trunk = list_trunk[trunk_id]
         orders = gene_data[trunk_id]
         is_must = 0
@@ -179,7 +177,9 @@ def modify_model(gene_data_, trunk_data):
             # 一次计算，否则不能注释掉
             # print trunk.trunk_id, trunk.trunk_current_base_station_id
             # list_base[trunk.trunk_current_base_station_id].trunk_other_in_station.remove(trunk.trunk_id)
-        print len(position_list)
+        if len(position_list) > 5:
+            print trunk_id, gene_data[trunk_id]
+            print len(position_list)
         trunk.add_target_position_list(position_list)
 
     print 'empty trunk return.number : ', empty
