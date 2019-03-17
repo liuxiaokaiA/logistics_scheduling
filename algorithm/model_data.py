@@ -32,13 +32,13 @@ def get_trunk_max_order():
 
     # 行驶状态先不考虑调度
     # 到达状态可调度
-    # for trunk in list_trunk:
-    #     # 不在自己本身网点的状态和行驶状态
-    #     if trunk.trunk_state not in (3, ):
-    #         continue
-    #     max_order = trunk.trunk_type - len(trunk.trunk_car_order_list)
-    #     if max_order and trunk.trunk_id not in trunk_max_order:
-    #         trunk_max_order[trunk.trunk_id] = max_order - len(trunk.trunk_car_order_list)
+    for trunk in list_trunk:
+        # 不在自己本身网点的状态和行驶状态
+        if trunk.trunk_state not in (3, ):
+            continue
+        max_order = trunk.trunk_type - len(trunk.trunk_car_order_list)
+        if max_order and trunk.trunk_id not in trunk_max_order:
+            trunk_max_order[trunk.trunk_id] = max_order - len(trunk.trunk_car_order_list)
 
     return trunk_max_order
 
@@ -120,6 +120,7 @@ def modify_model(gene_data_, trunk_data):
         for order in base.new_orders:
             all_order[order.id] = order
     empty = 0
+    print gene_data
     for trunk_id in gene_data:
         trunk = list_trunk[trunk_id]
         orders = gene_data[trunk_id]
