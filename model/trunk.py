@@ -425,7 +425,7 @@ class Trunk:
 
         if self.trunk_state == TRUNK_IN_ORDER:
             for current_index, current_list in enumerate(all_list):
-                print current_index
+                # print current_index
                 last_position, last_distance = self.inquiry_info.inquiry_nearest_base_station(current_list[-1].d_id)
                 sum_distance = last_distance
                 # current_list.insert(0, list_base[self.trunk_current_base_station_id])
@@ -439,7 +439,7 @@ class Trunk:
                 # current_list.remove(current_list[0])
         elif self.trunk_state == TRUNK_IN_ORDER_DESTINATION:
             for current_index, current_list in enumerate(all_list):
-                print current_index
+                # print current_index
                 last_distance = self.inquiry_info.inquiry_distance_by_id(b_id_1=self.trunk_base_id,
                                                                          d_id_1=current_list[-1].d_id)
                 sum_distance = last_distance
