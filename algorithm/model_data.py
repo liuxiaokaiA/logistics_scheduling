@@ -25,7 +25,7 @@ def get_trunk_max_order():
         trunks = get_empty_trunks(base, (order_num/8)+1)
         for trunk_id in trunks:
             trunk = list_trunk[trunk_id]
-            if trunk.trunk_state in (1, 2, 4):
+            if trunk.trunk_state in (1, 2, 3, 4):
                 continue
             max_order = trunk.trunk_type
             trunk_max_order[trunk.trunk_id] = max_order
@@ -293,7 +293,7 @@ def get_trunk_return():
                 del_order = near_order[:trunk.trunk_type]
             if del_order:
                 trunk_take_orders(trunk, del_order)
-                base.trunk_other_in_station.remove(trunk.trunk_id)
+                base.   .remove(trunk.trunk_id)
 
             for order_ in del_order:
                 if order_.destination in dest_order:
