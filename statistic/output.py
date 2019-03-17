@@ -163,8 +163,8 @@ def out_print(day):
 
 def write_base(writer, day):
     base_title = [u'网点ID', u'网点名称', u'地理位置（建模坐标）', u'未发车辆（本地）', u'未发车辆（外地）', u'今天发车（本地）',
-                  u'今天发车（外地）', u'未归车辆（本地）', u'今日订单', u'压板订单（1-5）', u'压板订单（5-10）',
-                  u'压板订单（10-?）', u'网点可调度车', u'周边200公里网点', u'周边200公里可调用车数量', u'周边500公里可调度用车数量']
+                  u'今天发车（外地）', u'压板订单（1-5）', u'压板订单（5-10）',
+                  u'压板订单（10-?）', u'网点可调度车', u'周边200公里网点', u'周边200公里可调用车数量']
     writer.write_title('base', base_title)
     global trunk_in_station_num_list
     global trunk_other_in_station_num_list
@@ -194,8 +194,8 @@ def write_base(writer, day):
         around_base = str(base.near_base_list)
         trunk_id_list_1 = len(get_near_trunk(base, list_trunk))
         trunk_id_list_2 = len(get_near_trunk(base, list_trunk, 500))
-        temp_list = [id, name, position, trunk_num_1, trunk_num_2, trunk_num_3, trunk_num_4, trunk_num_5, order_num, delay_1,
-                     delay_2, delay_3, dispatch_trunk_num, around_base, trunk_id_list_1, trunk_id_list_2]
+        temp_list = [id, name, position, trunk_num_1, trunk_num_2, trunk_num_3, trunk_num_4, delay_1,
+                     delay_2, delay_3, dispatch_trunk_num, around_base, trunk_id_list_1]
         l.append(temp_list)
         # print temp_list
 
@@ -373,18 +373,16 @@ def write_order(writer, day):
 
 
 def write_statistic(writer, day):
-    statistic_title = [u'日期', u'已运载订单数', u'未运载订单数', u'历史总订单数',
-                       u'压板1-5订单数', u'压板5-10订单数', u'压板10天以上订单数',
-                       u'平均压板天数', u'当日产生订单', u'空车率',
-                       u'搭载率', u'重驶车数量', u'空驶车数量',
-                       u'本地等计划车数量', u'异地等计划车数量']
+    statistic_title = [u'         ', u'等计划', u'运输中(提货)', u'总计',
+                       u'', u'', u'压板订单（1-5）', u'压板订单（5-10）',
+                       u'压板订单（10-?）', u'总计']
     writer.write_title('statistic', statistic_title)
-    day_data = []
-    for day_ in All_statistic:
-        data = All_statistic[day_]
-        day_data.append(data)
-        # print data
-    writer.write_data('statistic', day_data)
+    # day_data = []
+    # for day_ in All_statistic:
+    #     data = All_statistic[day_]
+    #     day_data.append(data)
+    #     # print data
+    # writer.write_data('statistic', day_data)
 
 
 def write_excel(day, inquiry_info):
@@ -392,6 +390,6 @@ def write_excel(day, inquiry_info):
     write_base(writer, day)
     write_trunk(writer, day, inquiry_info)
     write_order(writer, day)
-    # write_statistic(writer, day)
+    write_statistic(writer, day)
 
     writer.save()

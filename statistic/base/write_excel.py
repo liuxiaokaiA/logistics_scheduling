@@ -34,13 +34,13 @@ class Writer(object):
             'base': 1,
             'trunk': 1,
             'order': 1,
-            # 'statistic': 1,
+            'statistic': 1,
         }
         self.worksheet = {
             'base': self.whandle.add_sheet(u'网点信息'),
             'trunk': self.whandle.add_sheet(u'车辆信息'),
             'order': self.whandle.add_sheet(u'订单信息'),
-            # 'statistic': self.whandle.add_sheet(u'指标统计'),
+            'statistic': self.whandle.add_sheet(u'总计'),
         }
 
     def write_data(self, name, data):
