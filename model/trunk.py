@@ -443,7 +443,7 @@ class Trunk:
             for current_index, current_list in enumerate(all_list):
                 if current_index > 10000:
                     break
-                sum_distance = self.calculate_cost(current_list, self.trunk_base_id`)
+                sum_distance = self.calculate_cost(current_list, self.trunk_base_id)
                 if sum_distance < nearest_distance:
                     nearest_list = current_list
                     nearest_distance = sum_distance
