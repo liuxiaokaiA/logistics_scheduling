@@ -13,9 +13,12 @@ import pandas as pd
 import logging
 from data.position import Position
 from global_data import base_num, destination_num
+import threading
 
 
 class InquiryInfo:
+    _instance_lock = threading.Lock()
+
     def __init__(self):
         try:
             self.base_position = pd.read_csv('../generate/base_position0315.csv')
@@ -25,13 +28,20 @@ class InquiryInfo:
             self.base_to_index = pd.read_csv("../generate/base_to_index.csv")
             self.city_to_index = pd.read_csv("../generate/city_to_index.csv")
         except Exception as e:
-            print e
+            # print e
             self.base_position = pd.read_csv('generate/base_position0315.csv')
             self.shop_position = pd.read_csv('generate/city_position0315.csv')
             self.distance = pd.read_csv('generate/distance0315.csv')
             self.trunk = pd.read_csv("generate/trunk.csv")
             self.base_to_index = pd.read_csv("generate/base_to_index.csv")
             self.city_to_index = pd.read_csv("generate/city_to_index.csv")
+
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(InquiryInfo, "_instance"):
+            with InquiryInfo._instance_lock:
+                if not hasattr(InquiryInfo, "_instance"):
+                    InquiryInfo._instance = object.__new__(cls)
+        return InquiryInfo._instance
 
     def inquiry_base_to_index(self, base):
         return (self.base_to_index[self.base_to_index['city'] == base]).index[0]

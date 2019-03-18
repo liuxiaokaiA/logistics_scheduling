@@ -64,13 +64,18 @@ def output(day,inquiry_info):
 
 def init_order():
     data = json.load(open('test/orders.txt', 'r'))
+    inquriry_info = InquiryInfo()
     with open('test/orders_check.txt', 'w') as w:
         for order_ in data:
             id_, base, destination, delay_time, class_of_delay_time = order_
             new_order = Order(id_, base, destination, delay_time, class_of_delay_time)
             base_ = list_base[base]
-            base_.new_orders_num += 1
+            dest_ = inquriry_info.inquiry_distance(list_destination[destination], list_base[base])
+            if dest_ < 50:
+                new_order.not_to_send = True
+                continue
             base_.new_orders.add(new_order)
+            base_.new_orders_num += 1
             w.write(new_order.base_name+', '+new_order.destination_name+', '+str(delay_time)+'\n')
 
     return data
