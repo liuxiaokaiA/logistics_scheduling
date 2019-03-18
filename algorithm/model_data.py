@@ -2,6 +2,7 @@
 from global_data import list_base, list_destination, list_trunk, max_day_stay_base
 from model.base.utils import is_near
 from statistic.output import set_empty_num
+from model.inquiry_info import InquiryInfo
 import copy
 
 
@@ -22,7 +23,7 @@ def get_trunk_max_order():
     trunk_max_order = {}
     for base in list_base:
         order_num = len(base.new_orders)
-        trunks = get_empty_trunks(base, (order_num/8)+1)
+        trunks = get_empty_trunks(base, (order_num/8)+5)
         for trunk_id in trunks:
             trunk = list_trunk[trunk_id]
             if trunk.trunk_state in (1, 2, 3, 4):
@@ -85,7 +86,7 @@ def get_orders_trunk_can_take(trunk_max_order):
                         continue
         # 大于10天，1000公里内的运
         for order in order_must_take:
-            if is_near(trunk.trunk_position, list_base[order.base].position, 1000):
+            if is_near(trunk.trunk_position, list_base[order.base].position, 500):
                 data[trunk_id].append(order.id)
     return data
 
@@ -120,9 +121,7 @@ def modify_model(gene_data_, trunk_data):
         for order in base.new_orders:
             all_order[order.id] = order
     empty = 0
-    print gene_data
     for trunk_id in gene_data:
-        print trunk_id, gene_data[trunk_id]
         trunk = list_trunk[trunk_id]
         orders = gene_data[trunk_id]
         is_must = 0
@@ -170,8 +169,9 @@ def modify_model(gene_data_, trunk_data):
             position_list.append(dest)
 
         if trunk.trunk_state in (0, ):
-            if list_base[trunk.trunk_current_base_station_id] not in position_list:
-                position_list.insert(0, list_base[trunk.trunk_current_base_station_id])
+            if list_base[trunk.trunk_current_base_station_id] in position_list:
+                position_list.remove(list_base[trunk.trunk_current_base_station_id])
+            position_list.insert(0, list_base[trunk.trunk_current_base_station_id])
         if trunk.trunk_state == 0:
             list_base[trunk.trunk_base_id].trunk_in_station.remove(trunk.trunk_id)
         # elif trunk.trunk_state == 3:
@@ -179,7 +179,9 @@ def modify_model(gene_data_, trunk_data):
             # 一次计算，否则不能注释掉
             # print trunk.trunk_id, trunk.trunk_current_base_station_id
             # list_base[trunk.trunk_current_base_station_id].trunk_other_in_station.remove(trunk.trunk_id)
-        print len(position_list)
+        if len(position_list) > 9:
+            print trunk_id, gene_data[trunk_id]
+            print len(position_list)
         trunk.add_target_position_list(position_list)
 
     print 'empty trunk return.number : ', empty
@@ -220,8 +222,9 @@ def trunk_take_orders(trunk, orders):
         position_list.append(dest)
 
     if trunk.trunk_state in (0, 3):
-        if list_base[trunk.trunk_current_base_station_id] not in position_list:
-            position_list.insert(0, list_base[trunk.trunk_current_base_station_id])
+        if list_base[trunk.trunk_current_base_station_id] in position_list:
+            position_list.remove(list_base[trunk.trunk_current_base_station_id])
+        position_list.insert(0, list_base[trunk.trunk_current_base_station_id])
 
     trunk.add_target_position_list(position_list)
 

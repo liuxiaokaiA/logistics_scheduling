@@ -29,6 +29,7 @@ class Order(object):
         # 延迟等级
         self.class_of_delay_time = class_of_delay_time
         self.trunk_id = None
+        self.not_to_send = False
         global All_order
         All_order.append(self)
 

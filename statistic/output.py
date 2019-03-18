@@ -28,6 +28,18 @@ trunk_other_in_station_num_list = []
 trunk_transport_car_new = 0
 
 
+other_wait = 0
+other_run = 0
+local_wait = 0
+local_run = 0
+wait_1 = 0
+wait_2 = 0
+wait_3 = 0
+orders_1 = 0
+orders_2 = 0
+orders_3 = 0
+
+
 def add_history_order_num(num):
     global history_order_num
     history_order_num += num
@@ -196,6 +208,15 @@ def write_base(writer, day):
         trunk_id_list_2 = len(get_near_trunk(base, list_trunk, 500))
         temp_list = [id, name, position, trunk_num_1, trunk_num_2, trunk_num_3, trunk_num_4, delay_1,
                      delay_2, delay_3, dispatch_trunk_num, around_base, trunk_id_list_1]
+        global other_wait, other_run, local_wait, local_run
+        other_wait += trunk_num_2
+        other_run += trunk_num_4
+        local_wait += trunk_num_1
+        local_run += trunk_num_3
+        global wait_1, wait_2, wait_3
+        wait_1 += delay_1
+        wait_2 += delay_2
+        wait_3 += delay_3
         l.append(temp_list)
         # print temp_list
 
@@ -359,7 +380,10 @@ def write_order(writer, day):
                    u'压板数量', u'压板天数', u'滞留天数级别', u'运输车ID']
     writer.write_title('order', order_title)
     day_data = []
+    global orders_1, orders_2, orders_3
     for order in All_order:
+        if order.not_to_send:
+            continue
         order_time = order.id
         order_now = model_time_to_date_time(day, 0)[:10]
         data = [order.id, list_base[order.base].name, list_destination[order.destination].name, 1,
@@ -368,6 +392,12 @@ def write_order(writer, day):
             data.append(u'未派单')
         else:
             data.append(list_trunk[order.trunk_id].license)
+        if order.class_of_delay_time == 1:
+            orders_1 += 1
+        elif order.class_of_delay_time == 2:
+            orders_2 += 1
+        elif order.class_of_delay_time == 3:
+            orders_3 += 1
         day_data.append(data)
     writer.write_data('order', day_data)
 
@@ -377,6 +407,18 @@ def write_statistic(writer, day):
                        u'', u'', u'压板订单（1-5）', u'压板订单（5-10）',
                        u'压板订单（10-?）', u'总计']
     writer.write_title('statistic', statistic_title)
+    global other_wait, other_run, local_wait, local_run
+    global wait_1, wait_2, wait_3
+    content = [[u'异地', other_wait, other_run, other_wait + other_run, '',
+                u'总订单', orders_1, orders_2, orders_3, orders_1 + orders_2 + orders_3],
+               [u'本地', local_wait, local_run, local_run + local_wait, '',
+                u'未派单', wait_1, wait_2, wait_3, wait_1 + wait_2 + wait_3],
+               [u'总计', other_wait + local_wait, other_run + local_run,
+                other_wait + other_run + local_run + local_wait, '',
+                u'今日派单', orders_1 - wait_1, orders_2 - wait_2, orders_3 - wait_3,
+                orders_1 + orders_2 + orders_3 - (wait_1 + wait_2 + wait_3)]]
+    writer.write_data('statistic', content)
+
     # day_data = []
     # for day_ in All_statistic:
     #     data = All_statistic[day_]

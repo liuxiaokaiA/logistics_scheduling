@@ -117,6 +117,8 @@ class Trunk:
             self.trunk_target_time_list.append(distance / self.trunk_speed)
             return
         # 首先优化路径
+        if len(position_list_input) > 11:
+            print self.trunk_id, len(position_list_input)
         position_list = self.sort_position_list(position_list_input)
         self.empty_transport = False
         # 处理卡车从起点出发状态量
@@ -404,7 +406,6 @@ class Trunk:
             self.trunk_car_order_list.remove(order)
 
     def sort_position_list(self, position_list):
-
         if len(position_list) == 1:
             return position_list
         base_list = []
