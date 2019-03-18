@@ -412,9 +412,10 @@ class Trunk:
         destination_list = []
         all_list = []
 
-        if len(position_list < 7):
+        if len(position_list) < 8:
             for temp_list in permutations(position_list[1:]):
-                all_list.append(position_list[0:1] + list(temp_list))
+                if isinstance(list(temp_list)[-1], Destination):
+                    all_list.append(position_list[0:1] + list(temp_list))
         else:
             for index in range(len(position_list)):
                 if isinstance(position_list[index], Destination):
@@ -480,6 +481,6 @@ class Trunk:
                         temp_order_list.remove(order)
                 if not order_in_temp_order_list:
                     return sys.maxint
-        cost += self.inquiry_info.inquiry_distance(position_list[-1], list_base(last_position_id)) * self.trunk_cost(
+        cost += self.inquiry_info.inquiry_distance(position_list[-1], list_base[last_position_id]) * self.trunk_cost(
             len(temp_order_list))
         return cost
