@@ -9,6 +9,7 @@
 ------------      -------    --------    -----------
 2019-03-01 11:02   liuhao      1.0         None
 """
+import copy
 import random
 from cmath import sqrt
 from itertools import permutations
@@ -404,50 +405,44 @@ class Trunk:
 
     def sort_position_list(self, position_list):
 
-        if len(position_list) == 1 or len(position_list)>7:
+        if len(position_list) == 1:
             return position_list
         base_list = []
         destination_list = []
-        for index in range(len(position_list)):
-            if isinstance(position_list[index], Destination):
-                base_list = position_list[0:index]
-                destination_list = position_list[index:]
-                break
         all_list = []
-        for temp1 in permutations(destination_list):
-            if base_list:
-                for temp2 in permutations(base_list[1:]):
-                    all_list.append(base_list[0:1]+list(temp2 + temp1))
-            else:
-                all_list.append(list(temp1))
+
+        if len(position_list < 7):
+            for temp_list in permutations(position_list[1:]):
+                all_list.append(position_list[0:1] + list(temp_list))
+        else:
+            for index in range(len(position_list)):
+                if isinstance(position_list[index], Destination):
+                    base_list = position_list[0:index]
+                    destination_list = position_list[index:]
+                    break
+            for temp1 in permutations(destination_list):
+                if base_list:
+                    for temp2 in permutations(base_list[1:]):
+                        all_list.append(base_list[0:1] + list(temp2 + temp1))
+                else:
+                    all_list.append(list(temp1))
         nearest_list = []
-        nearest_distance = 9999999
+        nearest_distance = sys.maxint
 
         if self.trunk_state == TRUNK_IN_ORDER:
             for current_index, current_list in enumerate(all_list):
-                # print current_index
-                last_position, last_distance = self.inquiry_info.inquiry_nearest_base_station(current_list[-1].d_id)
-                sum_distance = last_distance
-                # current_list.insert(0, list_base[self.trunk_current_base_station_id])
-                for index in range(len(current_list) - 1):
-                    sum_distance += self.inquiry_info.inquiry_distance(current_list[index], current_list[index + 1])
-                    if sum_distance > nearest_distance:
-                        break
+                if current_index > 10000:
+                    break
+                last_position_id, last_distance = self.inquiry_info.inquiry_nearest_base_station(current_list[-1].d_id)
+                sum_distance = self.calculate_cost(current_list, last_position_id)
                 if sum_distance < nearest_distance:
                     nearest_list = current_list
                     nearest_distance = sum_distance
-                # current_list.remove(current_list[0])
         elif self.trunk_state == TRUNK_IN_ORDER_DESTINATION:
             for current_index, current_list in enumerate(all_list):
-                # print current_index
-                last_distance = self.inquiry_info.inquiry_distance_by_id(b_id_1=self.trunk_base_id,
-                                                                         d_id_1=current_list[-1].d_id)
-                sum_distance = last_distance
-                # current_list.insert(0, list_base[self.trunk_current_base_station_id])
-                for index in range(len(current_list) - 1):
-                    sum_distance += self.inquiry_info.inquiry_distance(current_list[index], current_list[index + 1])
-                    if sum_distance > nearest_distance:
-                        break
+                if current_index > 10000:
+                    break
+                sum_distance = self.calculate_cost(current_list, self.trunk_base_id`)
                 if sum_distance < nearest_distance:
                     nearest_list = current_list
                     nearest_distance = sum_distance
@@ -464,3 +459,26 @@ class Trunk:
                     nearest_list = current_list
                     nearest_distance = sum_distance
         return nearest_list
+
+    def calculate_cost(self, position_list, last_position_id):
+        temp_order_list = []
+        cost = 0
+        for index, position in enumerate(position_list):
+            if index > 0:
+                cost += self.inquiry_info.inquiry_distance(position_list[index - 1], position) * self.trunk_cost(
+                    len(temp_order_list))
+            if isinstance(position, BaseStation):
+                for order in self.trunk_car_order_list:
+                    if order.base == position.b_id:
+                        temp_order_list.append(order)
+            else:
+                order_in_temp_order_list = False
+                for order in temp_order_list:
+                    if order.destination == position.d_id:
+                        order_in_temp_order_list = True
+                        temp_order_list.remove(order)
+                if not order_in_temp_order_list:
+                    return sys.maxint
+        cost += self.inquiry_info.inquiry_distance(position_list[-1], list_base(last_position_id)) * self.trunk_cost(
+            len(temp_order_list))
+        return cost
