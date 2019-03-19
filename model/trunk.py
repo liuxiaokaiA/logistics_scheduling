@@ -412,7 +412,7 @@ class Trunk:
         destination_list = []
         all_list = []
 
-        if len(position_list) < 8:
+        if len(position_list) < 11:
             for temp_list in permutations(position_list[1:]):
                 if isinstance(list(temp_list)[-1], Destination):
                     all_list.append(position_list[0:1] + list(temp_list))
@@ -433,7 +433,7 @@ class Trunk:
 
         if self.trunk_state == TRUNK_IN_ORDER:
             for current_index, current_list in enumerate(all_list):
-                if current_index > 10000:
+                if current_index < 10000:
                     break
                 last_position_id, last_distance = self.inquiry_info.inquiry_nearest_base_station(current_list[-1].d_id)
                 sum_distance = self.calculate_cost(current_list, last_position_id)
@@ -442,9 +442,9 @@ class Trunk:
                     nearest_distance = sum_distance
         elif self.trunk_state == TRUNK_IN_ORDER_DESTINATION:
             for current_index, current_list in enumerate(all_list):
+                sum_distance = self.calculate_cost(current_list, self.trunk_base_id)
                 if current_index > 10000:
                     break
-                sum_distance = self.calculate_cost(current_list, self.trunk_base_id)
                 if sum_distance < nearest_distance:
                     nearest_list = current_list
                     nearest_distance = sum_distance
@@ -462,13 +462,15 @@ class Trunk:
                     nearest_distance = sum_distance
         return nearest_list
 
-    def calculate_cost(self, position_list, last_position_id):
+    def calculate_cost(self, position_list, last_position_id, current_low_cost=sys.maxint):
         temp_order_list = []
         cost = 0
         for index, position in enumerate(position_list):
             if index > 0:
                 cost += self.inquiry_info.inquiry_distance(position_list[index - 1], position) * self.trunk_cost(
                     len(temp_order_list))
+                if cost > current_low_cost:
+                    return sys.maxint
             if isinstance(position, BaseStation):
                 for order in self.trunk_car_order_list:
                     if order.base == position.b_id:
