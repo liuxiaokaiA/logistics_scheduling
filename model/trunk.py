@@ -17,7 +17,7 @@ from itertools import permutations
 from data.StatueData import TRUNK_IN_ORDER, TRUNK_TYPE_BIG, TRUNK_TYPE_MIDDLE, TRUNK_TYPE_SMALL, TRUNK_ON_ROAD, \
     TRUNK_IN_ORDER_DESTINATION, TRUNK_NOT_USE, TRUNK_ON_ROAD_NOT_USE
 from data.position import Position
-from global_data import trunk_num, base_num, distance_around, list_base
+from global_data import trunk_num, base_num, distance_around, list_base, list_destination
 from model.base_station import BaseStation
 from model.destination import Destination
 from model.inquiry_info import InquiryInfo
@@ -80,6 +80,7 @@ class Trunk:
         self.empty_transport = False
         # 最大装载
         self.max_transport = 0
+
         # 统计信息
         # 1 板车ID   ： trunk_base_id
         # 2 板车类型 ： trunk_type
@@ -130,6 +131,8 @@ class Trunk:
                 self.trunk_state = TRUNK_ON_ROAD
             # 目的地序列更新
             self.trunk_target_position_list = position_list
+            # 加订单
+            # self.add_on_way_order()
             # 车辆到底目的地时间更新
             self.trunk_target_time_list = []
             for index in range(len(self.trunk_target_position_list)):
@@ -199,10 +202,16 @@ class Trunk:
             elif isinstance(self.trunk_target_position_list[-1], Destination):
                 # 当前base_station 更新
                 self.trunk_current_base_station_id = None
-                # 未来入库 base_station 为距离最后4S店最近的base_station
-                self.trunk_future_base_station_id = self.trunk_base_id
                 last_distance = self.inquiry_info.inquiry_distance_by_id(b_id_1=self.trunk_base_id,
                                                                          d_id_1=position_list[-1].d_id)
+                if last_distance < 300:
+                    # 未来入库 base_station 为车队的base_station
+                    self.trunk_future_base_station_id = self.trunk_base_id
+                else:
+                    # 未来入库 base_station 为最近的base_station
+                    self.trunk_future_base_station_id, last_distance = self.inquiry_info.inquiry_nearest_base_station(
+                        position_list[-1].d_id)
+
                 # 计算进入最后网点等待时间
                 last_road_time = last_distance / self.trunk_speed
                 # 时间序列添加
@@ -412,7 +421,7 @@ class Trunk:
         destination_list = []
         all_list = []
 
-        if len(position_list) < 8:
+        if len(position_list) < 11:
             for temp_list in permutations(position_list[1:]):
                 if isinstance(list(temp_list)[-1], Destination):
                     all_list.append(position_list[0:1] + list(temp_list))
@@ -442,9 +451,9 @@ class Trunk:
                     nearest_distance = sum_distance
         elif self.trunk_state == TRUNK_IN_ORDER_DESTINATION:
             for current_index, current_list in enumerate(all_list):
+                sum_distance = self.calculate_cost(current_list, self.trunk_base_id)
                 if current_index > 10000:
                     break
-                sum_distance = self.calculate_cost(current_list, self.trunk_base_id)
                 if sum_distance < nearest_distance:
                     nearest_list = current_list
                     nearest_distance = sum_distance
@@ -462,13 +471,18 @@ class Trunk:
                     nearest_distance = sum_distance
         return nearest_list
 
-    def calculate_cost(self, position_list, last_position_id):
+    def calculate_cost(self, position_list, last_position_id, current_low_cost=sys.maxint):
+        if not position_list:
+            print "position_list is null"
+            return
         temp_order_list = []
         cost = 0
         for index, position in enumerate(position_list):
             if index > 0:
                 cost += self.inquiry_info.inquiry_distance(position_list[index - 1], position) * self.trunk_cost(
                     len(temp_order_list))
+                # if cost > current_low_cost:
+                #     return sys.maxint
             if isinstance(position, BaseStation):
                 for order in self.trunk_car_order_list:
                     if order.base == position.b_id:
@@ -481,6 +495,61 @@ class Trunk:
                         temp_order_list.remove(order)
                 if not order_in_temp_order_list:
                     return sys.maxint
-        cost += self.inquiry_info.inquiry_distance(position_list[-1], list_base[last_position_id]) * self.trunk_cost(
-            len(temp_order_list))
+        cost += self.inquiry_info.inquiry_distance(position_list[-1], list_base[last_position_id]) * self.trunk_cost(len(temp_order_list))
         return cost
+
+    def add_on_way_order(self):
+        current_position_order_list = []
+        current_position_order = []
+
+        for index, position in enumerate(reversed(self.trunk_target_position_list)):
+            if index > 0 and isinstance(position, BaseStation):
+                city_name = self.inquiry_info.inquiry_index_to_city(position.b_id)
+                try:
+                    destination = self.inquiry_info.inquiry_city_to_index(city_name)
+                except:
+                    destination = None
+                if destination:
+                    self.trunk_target_position_list.insert(index, list_destination[destination])
+
+        for position in self.trunk_target_position_list:
+            for order in self.trunk_car_order_list:
+                if isinstance(position, Destination) and order.destination == position.d_id:
+                    current_position_order.remove(order)
+                elif isinstance(position, BaseStation) and order.base == position.b_id:
+                    current_position_order.append(order)
+            current_position_order_list.append(current_position_order)
+        self.back_add_order(0, len(self.trunk_target_position_list)-1, current_position_order_list)
+
+    def back_add_order(self, start, end, current_position_order_list):
+        if start == end:
+            return
+        elif isinstance(self.trunk_target_position_list[end], BaseStation):
+            self.back_add_order(start, end - 1, current_position_order_list)
+        elif isinstance(self.trunk_target_position_list[start], Destination):
+            self.back_add_order(start + 1, end, current_position_order_list)
+
+        start_position = -1
+        end_position = -1
+        for index, order_list in enumerate(current_position_order_list):
+            if len(order_list) < 8 and start_position == -1:
+                start_position = index
+                end_position = -1
+            if len(order_list) == 8 and end_position == -1 and start_position != -1:
+                end_position = index
+                self.back_add_order(start_position, end_position, current_position_order_list)
+                end_position = -1
+                start_position = -1
+
+        for index in range(end - start):
+            Flag = False
+            if isinstance(self.trunk_target_position_list[start + index], BaseStation):
+                for order in self.trunk_target_position_list[start + index].new_orders:
+                    if order.destination == self.trunk_target_position_list[end].d_id and len(
+                            current_position_order_list[end] < 8):
+                        Flag = True
+                        for i in range(end - start - index - 1):
+                            current_position_order_list[start + index + i].append(order)
+                        break
+            if Flag:
+                break
