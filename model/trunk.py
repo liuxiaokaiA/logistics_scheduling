@@ -80,6 +80,8 @@ class Trunk:
         self.empty_transport = False
         # 最大装载
         self.max_transport = 0
+        # 当前板车每个网点信息
+        self.position_order_list = []
 
         # 统计信息
         # 1 板车ID   ： trunk_base_id
@@ -131,7 +133,6 @@ class Trunk:
                 self.trunk_state = TRUNK_ON_ROAD
             # 目的地序列更新
             self.trunk_target_position_list = position_list
-            # 加订单
             # self.add_on_way_order()
             # 车辆到底目的地时间更新
             self.trunk_target_time_list = []
@@ -176,6 +177,7 @@ class Trunk:
                 self.trunk_state = TRUNK_ON_ROAD
             # 目的地序列更新
             self.trunk_target_position_list = position_list
+            # self.add_on_way_order()
             # 车辆到底目的地时间更新
             self.trunk_target_time_list = []
             for index in range(len(self.trunk_target_position_list)):
@@ -266,8 +268,8 @@ class Trunk:
     def add_order(self, order):
         self.max_transport += 1
         # 添加单个 order
-        if len(self.trunk_car_order_list) == self.trunk_type:
-            logging.error("不能再添加车辆，车辆已满")
+        # if len(self.trunk_car_order_list) == self.trunk_type:
+        #     logging.error("不能再添加车辆，车辆已满")
         # 目的地序列增加
         self.trunk_car_order_list.append(order)
         order.trunk_id = self.trunk_id
@@ -495,61 +497,110 @@ class Trunk:
                         temp_order_list.remove(order)
                 if not order_in_temp_order_list:
                     return sys.maxint
-        cost += self.inquiry_info.inquiry_distance(position_list[-1], list_base[last_position_id]) * self.trunk_cost(len(temp_order_list))
+        cost += self.inquiry_info.inquiry_distance(position_list[-1], list_base[last_position_id]) * self.trunk_cost(
+            len(temp_order_list))
         return cost
 
     def add_on_way_order(self):
-        current_position_order_list = []
-        current_position_order = []
+        self.position_list_update()
+        self.position_order_list_update()
+        self.back_add_order(0, len(self.trunk_target_position_list) - 1)
+        self.remove_no_use_position()
 
-        for index, position in enumerate(reversed(self.trunk_target_position_list)):
-            if index > 0 and isinstance(position, BaseStation):
-                city_name = self.inquiry_info.inquiry_index_to_city(position.b_id)
-                try:
-                    destination = self.inquiry_info.inquiry_city_to_index(city_name)
-                except:
-                    destination = None
-                if destination:
+    def position_list_update(self):
+        index = 0
+        while index < len(self.trunk_target_position_list) - 1:
+            if index > 0 and isinstance(self.trunk_target_position_list[index], BaseStation):
+                city_name = self.inquiry_info.inquiry_index_to_base(self.trunk_target_position_list[index].b_id)
+                destination = self.inquiry_info.inquiry_city_to_index(city_name)
+                if destination is not None:
                     self.trunk_target_position_list.insert(index, list_destination[destination])
+                    self.trunk_target_time_list.insert(index, self.trunk_target_time_list[index])
+                    index += 2
+                else:
+                    index += 1
+            elif isinstance(self.trunk_target_position_list[index], Destination):
+                city_name = self.inquiry_info.inquiry_index_to_city(self.trunk_target_position_list[index].d_id)
+                base = self.inquiry_info.inquiry_base_to_index(city_name)
+                if base is not None:
+                    self.trunk_target_position_list.insert(index + 1, list_base[base])
+                    self.trunk_target_time_list.insert(index, self.trunk_target_time_list[index])
+                    index += 2
+                else:
+                    index += 1
 
-        for position in self.trunk_target_position_list:
+            else:
+                index += 1
+
+    def position_order_list_update(self):
+        current_position_order = []
+        temp_position_order_list = []
+        for index, position in enumerate(self.trunk_target_position_list):
             for order in self.trunk_car_order_list:
-                if isinstance(position, Destination) and order.destination == position.d_id:
+                if isinstance(position,
+                              Destination) and order.destination == position.d_id and order in current_position_order:
                     current_position_order.remove(order)
                 elif isinstance(position, BaseStation) and order.base == position.b_id:
                     current_position_order.append(order)
-            current_position_order_list.append(current_position_order)
-        self.back_add_order(0, len(self.trunk_target_position_list)-1, current_position_order_list)
+            temp_position_order_list.append(copy.deepcopy(current_position_order))
+        self.position_order_list = []
+        self.position_order_list = temp_position_order_list
 
-    def back_add_order(self, start, end, current_position_order_list):
-        if start == end:
+    def back_add_order(self, start, end):
+        if start >= end:
             return
         elif isinstance(self.trunk_target_position_list[end], BaseStation):
-            self.back_add_order(start, end - 1, current_position_order_list)
+            self.back_add_order(start, end - 1)
         elif isinstance(self.trunk_target_position_list[start], Destination):
-            self.back_add_order(start + 1, end, current_position_order_list)
-
+            self.back_add_order(start + 1, end)
+        startList = []
+        endList = []
         start_position = -1
-        end_position = -1
-        for index, order_list in enumerate(current_position_order_list):
+        for index, order_list in enumerate(self.position_order_list):
             if len(order_list) < 8 and start_position == -1:
                 start_position = index
-                end_position = -1
-            if len(order_list) == 8 and end_position == -1 and start_position != -1:
-                end_position = index
-                self.back_add_order(start_position, end_position, current_position_order_list)
-                end_position = -1
+                startList.append(index)
+            elif (len(order_list) == 8 and start_position != -1) or (
+                    index == len(self.position_order_list) - 1 and start_position != -1 and index - 1 > start_position):
+                endList.append(index - 1)
                 start_position = -1
+        if len(startList) != len(endList):
+            startList.remove(startList[-1])
+        for index, start_data in enumerate(startList):
+            if self.add_one_order_on_way(start_data, endList[index]):
+                self.back_add_order(start_data, endList[index])
+            else:
+                endList[index] -= 1
+                if start_data >= endList[index]:
+                    return
+                self.add_one_order_on_way(start_data, endList[index])
 
+    def add_one_order_on_way(self, start, end):
+        if start >= end:
+            return False
+        if isinstance(self.trunk_target_position_list[end], BaseStation):
+            return False
         for index in range(end - start):
-            Flag = False
             if isinstance(self.trunk_target_position_list[start + index], BaseStation):
                 for order in self.trunk_target_position_list[start + index].new_orders:
-                    if order.destination == self.trunk_target_position_list[end].d_id and len(
-                            current_position_order_list[end] < 8):
-                        Flag = True
-                        for i in range(end - start - index - 1):
-                            current_position_order_list[start + index + i].append(order)
-                        break
-            if Flag:
-                break
+                    if order.destination == self.trunk_target_position_list[end].d_id:
+                        self.trunk_target_position_list[start + index].new_orders.remove(order)
+                        self.add_order(order)
+                        self.position_order_list_update()
+                        return True
+        return False
+
+    def remove_no_use_position(self):
+        for index, position in enumerate(self.trunk_target_position_list):
+            if index == 0:
+                continue
+            Flag = False
+            for order in self.trunk_car_order_list:
+                if isinstance(position, BaseStation) and position.b_id == order.base:
+                    Flag = True
+                elif isinstance(position, Destination) and position.d_id == order.destination:
+                    Flag = True
+            if not Flag:
+                self.trunk_target_position_list.remove(position)
+                self.trunk_target_time_list.remove(self.trunk_target_time_list[index])
+
