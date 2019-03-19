@@ -442,7 +442,7 @@ class Trunk:
 
         if self.trunk_state == TRUNK_IN_ORDER:
             for current_index, current_list in enumerate(all_list):
-                if current_index < 10000:
+                if current_index > 10000:
                     break
                 last_position_id, last_distance = self.inquiry_info.inquiry_nearest_base_station(current_list[-1].d_id)
                 sum_distance = self.calculate_cost(current_list, last_position_id)
@@ -472,14 +472,17 @@ class Trunk:
         return nearest_list
 
     def calculate_cost(self, position_list, last_position_id, current_low_cost=sys.maxint):
+        if not position_list:
+            print "position_list is null"
+            return
         temp_order_list = []
         cost = 0
         for index, position in enumerate(position_list):
             if index > 0:
                 cost += self.inquiry_info.inquiry_distance(position_list[index - 1], position) * self.trunk_cost(
                     len(temp_order_list))
-                if cost > current_low_cost:
-                    return sys.maxint
+                # if cost > current_low_cost:
+                #     return sys.maxint
             if isinstance(position, BaseStation):
                 for order in self.trunk_car_order_list:
                     if order.base == position.b_id:
@@ -492,8 +495,7 @@ class Trunk:
                         temp_order_list.remove(order)
                 if not order_in_temp_order_list:
                     return sys.maxint
-        cost += self.inquiry_info.inquiry_distance(position_list[-1], list_base[last_position_id]) * self.trunk_cost(
-            len(temp_order_list))
+        cost += self.inquiry_info.inquiry_distance(position_list[-1], list_base[last_position_id]) * self.trunk_cost(len(temp_order_list))
         return cost
 
     def add_on_way_order(self):
