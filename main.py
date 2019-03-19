@@ -49,7 +49,7 @@ def compute():
     ga = GA()
     log.info('start to compute')
     # ga.GA_main(data, trunk_max_order)
-    ga.GA_main2(trunk_data, order_list)
+    ga.GA_main2(trunk_data, order_list, data)
     log.info('ga down.start to get best gene')
     best_gene = ga.selectBest()
     best_gene.gene_to_data(ga.gene_bits, ga.order_list)

@@ -9,7 +9,7 @@ log = logging.getLogger('default')
 
 VALUE_MAX = 1000000000
 order_data = {}
-base_penalty = 8000
+base_penalty = 10000
 
 '''
 order_data = {
@@ -90,16 +90,17 @@ def get_cost_trunk_on_road(trunk, orders):
 
 
 # 起始点去接单
-def get_cost_trunk_in_order(trunk, orders):
+def get_cost_trunk_in_order(trunk, orders, trunk_orders):
     bases = {}
     is_must = 0
     for order_id in orders:
+        if order_id not in trunk_orders[trunk.trunk_id]:
+            return VALUE_MAX
         order_data[order_id]['is_loading'] += 1
         if order_data[order_id]['is_loading'] > 1:
-            print "order_data[order_id]['is_loading'] > 1"
             return VALUE_MAX
         order = order_data[order_id]['object']
-        if order.delay_time >= 10:
+        if order.delay_time > 10:
             is_must = 1
         if order.base not in bases:
             bases[order.base] = []
@@ -180,8 +181,8 @@ def get_cost_trunk_in_order_dest(trunk, orders):
         car_num -= len(dests[dest_id])
 
     # 运完回去
-    if len(orders) != 0:
-        return_cost += trunk.trunk_cost_one_road(0, temp_position, trunk_base.position)
+    # if len(orders) != 0:
+    #     return_cost += trunk.trunk_cost_one_road(0, temp_position, trunk_base.position)
     return return_cost
 
 
@@ -191,9 +192,9 @@ def get_order_cost():
         if order_data[order_id]['is_loading'] == 0:
             order = order_data[order_id]['object']
             sum_cost += list_trunk[-1].trunk_cost_one_road(1, list_base[order.base].position,
-                                                           list_destination[order.destination].position)
-            sum_cost += trunk_penalty_cost(0.1)+order.delay_time * 10
-            if order.delay_time >= 10:
+                                                           list_destination[order.destination].position) / 5
+            # sum_cost += trunk_penalty_cost(0.1)+order.delay_time * 10
+            if order.delay_time > 10:
                 sum_cost += trunk_penalty_cost(0)+10
         elif order_data[order_id]['is_loading'] == 1:
             continue
@@ -243,7 +244,7 @@ def change_gene_data(gene_data, trunk_data):
     return gene_data_
 
 
-def compute_cost(gene, trunk_data):
+def compute_cost(gene, trunk_data, trunk_orders):
     get_order_data()
     # trunk: [order]
     gene_data_ = gene.gene_data
@@ -257,11 +258,12 @@ def compute_cost(gene, trunk_data):
         trunk = list_trunk[trunk_id]
         # 起始等待车
         if trunk.trunk_state == TRUNK_IN_ORDER:
-            sum_cost += get_cost_trunk_in_order(trunk, gene_data[trunk_id])
+            sum_cost += get_cost_trunk_in_order(trunk, gene_data[trunk_id], trunk_orders)
         # 终点等待车
         elif trunk.trunk_state == TRUNK_IN_ORDER_DESTINATION:
             # print 'error, can not be here. TRUNK_IN_ORDER_DESTINATION'
-            sum_cost += get_cost_trunk_in_order_dest(trunk, gene_data[trunk_id])
+            # sum_cost += get_cost_trunk_in_order_dest(trunk, gene_data[trunk_id])
+            sum_cost += get_cost_trunk_in_order(trunk, gene_data[trunk_id])
         else:
             print 'error, can not be here, other statuse'
             sum_cost += VALUE_MAX

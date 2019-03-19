@@ -6,27 +6,14 @@ from model.inquiry_info import InquiryInfo
 import copy
 
 
-def get_empty_trunks(base, count):
-    trunks = []
-    while 1:
-        trunk = base.get_trunk(8)
-        if trunk is not None:
-            trunks.append(trunk)
-        else:
-            break
-        if len(trunks) == count:
-            break
-    return trunks
-
-
 def get_trunk_max_order():
     trunk_max_order = {}
     for base in list_base:
         order_num = len(base.new_orders)
-        trunks = get_empty_trunks(base, (order_num/8)+5)
+        trunks = base.get_trunk((order_num/8)+2)
         for trunk_id in trunks:
             trunk = list_trunk[trunk_id]
-            if trunk.trunk_state in (1, 2, 3, 4):
+            if trunk.trunk_state in (1, 2, 4):
                 continue
             max_order = trunk.trunk_type
             trunk_max_order[trunk.trunk_id] = max_order
@@ -79,11 +66,11 @@ def get_orders_trunk_can_take(trunk_max_order):
             for order in base.new_orders:
                 # print 'order: %d' % order.id
                 # 1-5天不着急，顺路才运
-                if order.class_of_delay_time in (1, 2):
-                    if trunk.trunk_future_base_station_id is None:
-                        if order.destination in list_base[trunk.trunk_base_id].near_destination_list:
-                            data[trunk_id].append(order.id)
-                        continue
+                # if order.class_of_delay_time in (1, 2):
+                #     if trunk.trunk_future_base_station_id is None:
+                #         if order.destination in list_base[trunk.trunk_base_id].near_destination_list:
+                data[trunk_id].append(order.id)
+                        # continue
         # 大于10天，1000公里内的运
         for order in order_must_take:
             if is_near(trunk.trunk_position, list_base[order.base].position, 500):
@@ -233,13 +220,12 @@ def trunk_take_orders(trunk, orders):
 def get_trunk_to_work(base, type_, all_orders, is_log):
     if is_log:
         print type_
-    trunk_id = base.get_trunk(type_)
+    trunk_id = base.get_trunk_to_use()
     if trunk_id is None:
         if is_log:
             print 'trunk is none. base:', base.b_id
         return False
     trunk = list_trunk[trunk_id]
-    list_base[trunk.trunk_base_id].trunk_in_station.remove(trunk.trunk_id)
     if type_ < len(all_orders):
         orders = all_orders[:type_]
         trunk_take_orders(trunk, orders)

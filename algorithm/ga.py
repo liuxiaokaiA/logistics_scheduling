@@ -86,6 +86,7 @@ class GA:
         self.trunk_list = []
         self.trunk_data = {}
         self.gene_bits = 15
+        self.trunk_orders = None
 
     def init_order(self, data, max_order):
         # order = { trunk: order}
@@ -202,7 +203,7 @@ class GA:
 
     def evaluate_gene(self, gene):
         gene.gene_to_data(self.gene_bits, self.order_list)
-        compute_cost(gene, self.trunk_data)
+        compute_cost(gene, self.trunk_data, self.trunk_orders)
         # print gene.value
         return gene.value
 
@@ -357,7 +358,8 @@ class GA:
                 break
             times += 1
 
-    def GA_main2(self, trunk_data, order_list):
+    def GA_main2(self, trunk_data, order_list, data):
+        self.trunk_orders = data
         self.init_order2(trunk_data, order_list)
         times = 1
         while 1:

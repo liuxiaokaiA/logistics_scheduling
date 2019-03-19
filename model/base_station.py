@@ -112,9 +112,32 @@ class BaseStation:
                 # self.new_orders.add(order)
                 pass
 
-    def get_trunk(self, trunk_type=TRUNK_TYPE_SMALL):
+    def get_trunk(self, count):
+        trunks = []
         if self.trunk_in_station:
-            return self.trunk_in_station[0]
+            if count > len(self.trunk_in_station):
+                trunks = self.trunk_in_station
+                count -= len(self.trunk_in_station)
+            else:
+                trunks = self.trunk_in_station[:count]
+                count = 0
+        if count and self.trunk_other_in_station:
+            if count > len(self.trunk_other_in_station):
+                trunks += self.trunk_other_in_station
+                count -= len(self.trunk_other_in_station)
+            else:
+                trunks += self.trunk_other_in_station[:count]
+        return trunks
+
+    def get_trunk_to_use(self):
+        if self.trunk_in_station:
+            trunk_ = self.trunk_in_station[0]
+            self.trunk_in_station = self.trunk_in_station[1:]
+            return trunk_
+        elif self.trunk_other_in_station:
+            trunk_ = self.trunk_other_in_station[0]
+            self.trunk_other_in_station = self.trunk_other_in_station[1:]
+            return trunk_
         return None
 
 
