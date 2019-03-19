@@ -192,7 +192,7 @@ def get_order_cost():
         if order_data[order_id]['is_loading'] == 0:
             order = order_data[order_id]['object']
             sum_cost += list_trunk[-1].trunk_cost_one_road(1, list_base[order.base].position,
-                                                           list_destination[order.destination].position) / 5
+                                                           list_destination[order.destination].position) / 7
             # sum_cost += trunk_penalty_cost(0.1)+order.delay_time * 10
             if order.delay_time > 10:
                 sum_cost += trunk_penalty_cost(0)+10
