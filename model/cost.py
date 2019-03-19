@@ -9,7 +9,7 @@ log = logging.getLogger('default')
 
 VALUE_MAX = 1000000000
 order_data = {}
-base_penalty = 6000
+base_penalty = 8000
 
 '''
 order_data = {
@@ -99,7 +99,7 @@ def get_cost_trunk_in_order(trunk, orders):
             print "order_data[order_id]['is_loading'] > 1"
             return VALUE_MAX
         order = order_data[order_id]['object']
-        if order.delay_time > 10:
+        if order.delay_time >= 10:
             is_must = 1
         if order.base not in bases:
             bases[order.base] = []
@@ -192,8 +192,8 @@ def get_order_cost():
             order = order_data[order_id]['object']
             sum_cost += list_trunk[-1].trunk_cost_one_road(1, list_base[order.base].position,
                                                            list_destination[order.destination].position)
-            sum_cost += trunk_penalty_cost(0.2)+order.delay_time * 100
-            if order.class_of_delay_time == 3:
+            sum_cost += trunk_penalty_cost(0.1)+order.delay_time * 10
+            if order.delay_time >= 10:
                 sum_cost += trunk_penalty_cost(0)+10
         elif order_data[order_id]['is_loading'] == 1:
             continue

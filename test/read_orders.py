@@ -27,6 +27,7 @@ def read_data(file_name):
     data = []
     base_dict = {}
     dest_dict = {}
+    levels = {}
     for rows in range(305):
         base_name = sht_id.cell(rows, 10).value
         base_dict[base_name] = rows
@@ -50,6 +51,13 @@ def read_data(file_name):
             cell = [id_, base_dict[base_name], dest_dict[dest_name], delay_time, class_of_delay_time]
             data.append(cell)
             id_ += 1
+        level = sht.cell(rows, 11).value
+        if level not in levels:
+            levels[level] = 0
+        levels[level] += car_num
+    import json
+    dumped_data = json.dumps(levels, encoding='gbk', ensure_ascii=False)
+    print dumped_data
 
     return data
 
