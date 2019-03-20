@@ -85,7 +85,6 @@ class Trunk:
         # 车辆返回base
         self.is_return = False
 
-
         # 统计信息
         # 1 板车ID   ： trunk_base_id
         # 2 板车类型 ： trunk_type
@@ -474,6 +473,12 @@ class Trunk:
                 if sum_distance < nearest_distance:
                     nearest_list = current_list
                     nearest_distance = sum_distance
+        for index in range(len(nearest_list) - 1):
+            if isinstance(nearest_list[index], BaseStation) and isinstance(nearest_list[index + 1], Destination):
+                base_name = self.inquiry_info.inquiry_index_to_base(nearest_list[index].b_id)
+                city_name = self.inquiry_info.inquiry_index_to_city(nearest_list[index + 1].d_id)
+                if base_name == city_name:
+                    nearest_list[index], nearest_list[index + 1] = nearest_list[index + 1], nearest_list[index]
         return nearest_list
 
     def calculate_cost(self, position_list, last_position_id, current_low_cost=sys.maxint):
