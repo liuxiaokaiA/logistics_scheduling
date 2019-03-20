@@ -486,6 +486,8 @@ class Trunk:
             print "position_list is null"
             return
         temp_order_list = []
+        if len(position_list) > 1 and isinstance(position_list[-1], BaseStation):
+            return sys.maxint
         cost = 0
         for index, position in enumerate(position_list):
             if index > 0:
