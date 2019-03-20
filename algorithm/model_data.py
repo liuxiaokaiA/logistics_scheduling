@@ -293,9 +293,9 @@ def get_trunk_return():
                         list_base[trunk.trunk_future_base_station_id].name
                     for item in trunk.trunk_target_position_list:
                         if isinstance(item, BaseStation):
-                            print list_base[item].name
+                            print 'list_base: ', item.name
                         else:
-                            print list_destination[item].name
+                            print 'list_destination: ', item.name
                 base.trunk_other_in_station.remove(trunk.trunk_id)
 
             for order_ in del_order:

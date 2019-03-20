@@ -248,14 +248,19 @@ def compute_cost(gene, trunk_data, trunk_orders):
     # trunk: [order]
     gene_data_ = gene.gene_data
     gene_data = change_gene_data(gene_data_, trunk_data)
+    # gene_data = gene_data_
     sum_cost = 0
     if not gene_data:
-        return VALUE_MAX
+        gene.value = VALUE_MAX
+        return
     gene_data = change_gene(gene_data)
-    # print gene_data
+    # print 'compute_cost', gene_data
     for trunk_id in gene_data:
         if not gene_data[trunk_id] or len(gene_data[trunk_id]) == 0:
             continue
+        # if len(gene_data[trunk_id]) > 8:
+        #     gene.value = VALUE_MAX
+        #     return
         trunk = list_trunk[trunk_id]
         # 起始等待车
         if trunk.trunk_state == TRUNK_IN_ORDER:

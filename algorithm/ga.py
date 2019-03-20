@@ -87,6 +87,7 @@ class GA:
         self.trunk_data = {}
         self.gene_bits = 15
         self.trunk_orders = None
+        self.all_order = None
 
     def init_order(self, data, max_order):
         # order = { trunk: order}
@@ -152,8 +153,21 @@ class GA:
         data += str_
         return data
 
+    def add_empty_result(self, gene_size):
+        data = ''
+        for i in range(gene_size):
+            data += '0'
+        gene_temp = Gene()
+        gene_temp.size = len(data)
+        gene_temp.data = data
+        result = self.evaluate_gene(gene_temp)
+        if result > 0:
+            self.colony.append(gene_temp)
+        print 'gene_temp 000 : ', result
+
     def init_colony2(self):
         self.colony = []
+        gene_size = 0
         while 1:
             if len(self.colony) >= self.colony_max_size:
                 break
@@ -162,25 +176,40 @@ class GA:
             arr = numpy.random.choice(self.trunk_list, size=len(self.trunk_list),
                                       replace=False, p=None)
             arr_len = len(self.trunk_list)
+            chosen_trunk = set()
+            chosen_ = {}
+            # gene_data = {order_id: trunk_count]}
+            # trunk_data[trunk_count] = trunk_id
             count = 0
             for order_ in self.order_list:
-                # print key_
-                is_empty = random.randint(0, 10)
-                if is_empty > 7:
-                    if count < arr_len:
-                        trunk_id = arr[count]
-                    else:
-                        trunk_id = 0
-                    b_trunk_id = bin(int(trunk_id))[2:]
-                    str_ += self.get_one_var(b_trunk_id)
-                    count += 1
+                if self.all_order[order_].class_of_delay_time == 3:
+                    for trunk_count in arr:
+                        if trunk_count in chosen_trunk:
+                            continue
+                        trunk_id = self.trunk_data[trunk_count]
+                        if order_ in self.trunk_orders[trunk_id]:
+                            b_trunk_id = bin(int(trunk_count))[2:]
+                            str_ += self.get_one_var(b_trunk_id)
+                            if trunk_id not in chosen_:
+                                chosen_[trunk_id] = []
+                            chosen_[trunk_id].append(order_)
+                            chosen_trunk.add(trunk_count)
+                            break
                 else:
                     str_ += self.get_one_var('')
             gene_temp = Gene()
             gene_temp.size = len(str_)
+            gene_size = len(str_)
             # print gene_temp.size
             gene_temp.data = str_
+            # print str_, gene_size
+            # print chosen_
+
             result = self.evaluate_gene(gene_temp)
+
+            # print result, chosen_
+            # import time
+            # time.sleep(100)
 
             if result > 0:
                 # print result
@@ -193,6 +222,8 @@ class GA:
                 self.colony.append(gene_temp)
             else:
                 continue
+        # self.add_empty_result(gene_size)
+
     '''
     def evaluate_gene(self, gene):
         gene.gene_to_data(self.order, self.key_order)
@@ -358,9 +389,10 @@ class GA:
                 break
             times += 1
 
-    def GA_main2(self, trunk_data, order_list, data):
+    def GA_main2(self, trunk_data, order_list, data, All_order):
         self.trunk_orders = data
         self.init_order2(trunk_data, order_list)
+        self.all_order = All_order
         times = 1
         while 1:
             self.init_colony2()
