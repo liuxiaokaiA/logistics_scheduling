@@ -64,8 +64,9 @@ class Gene:
         gene_data = copy.deepcopy(self.data)
         count = 0
         all_data = {}
-
+        # print len(gene_data)
         for key_ in order_list:
+            # print gene_data
             all_data[key_] = int('0b'+gene_data[:gene_bits], 2)
             gene_data = gene_data[gene_bits:]
         self.gene_data = all_data
@@ -183,6 +184,7 @@ class GA:
             count = 0
             for order_ in self.order_list:
                 if self.all_order[order_].class_of_delay_time == 3:
+                    no_trunk = True
                     for trunk_count in arr:
                         if trunk_count in chosen_trunk:
                             continue
@@ -194,7 +196,10 @@ class GA:
                                 chosen_[trunk_id] = []
                             chosen_[trunk_id].append(order_)
                             chosen_trunk.add(trunk_count)
+                            no_trunk = False
                             break
+                    if no_trunk:
+                        str_ += self.get_one_var('')
                 else:
                     str_ += self.get_one_var('')
             gene_temp = Gene()
