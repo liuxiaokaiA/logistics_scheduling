@@ -284,6 +284,7 @@ def get_trunk_return():
             if trunk.trunk_type <= len(near_order):
                 del_order = near_order[:trunk.trunk_type]
             if del_order:
+                trunk.is_return = True
                 trunk_take_orders(trunk, del_order)
                 base.trunk_other_in_station.remove(trunk.trunk_id)
 
