@@ -39,6 +39,12 @@ def update(day):
 
 def compute():
     get_whole_trunk()
+    update_trunk =[]
+    for trunk in list_trunk:
+        if trunk.trunk_target_position_list:
+            trunk.add_on_way_order()
+            update_trunk.append(trunk)
+
     trunk_max_order = get_trunk_max_order()
     data = get_orders_trunk_can_take(trunk_max_order)
     trunk_data, order_list = get_orders_list(trunk_max_order, data)
@@ -55,6 +61,10 @@ def compute():
     best_gene.gene_to_data(ga.gene_bits, ga.order_list)
     log.info('start to modify_model')
     modify_model(best_gene.gene_data, trunk_data)
+    for trunk in list_trunk:
+        if trunk.trunk_target_position_list and trunk not in update_trunk:
+            trunk.add_on_way_order()
+            update_trunk.append(trunk)
 
 
 def output(day,inquiry_info):
