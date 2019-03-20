@@ -7,7 +7,7 @@ from model.trunk import Trunk
 from log import MyLogging
 from read_configure import read_fuc
 from model.order import Order
-from algorithm.ga import update_global, GA
+from algorithm.ga import update_global, GA, VALUE_MAX
 from algorithm.model_data import get_trunk_max_order, get_orders_trunk_can_take, \
     modify_model, get_whole_trunk, get_orders_list
 from global_data import list_base, list_destination, list_trunk, all_scheduling, trunk_num, destination_num, \
@@ -60,6 +60,8 @@ def compute():
     best_gene = ga.selectBest()
     best_gene.gene_to_data(ga.gene_bits, ga.order_list)
     log.info('start to modify_model')
+    if best_gene.value >= VALUE_MAX:
+        return
     modify_model(best_gene.gene_data, trunk_data)
     for trunk in list_trunk:
         if trunk.trunk_target_position_list and trunk not in update_trunk:

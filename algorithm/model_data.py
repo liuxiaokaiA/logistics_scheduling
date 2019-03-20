@@ -1,6 +1,7 @@
 # coding: utf-8
 from global_data import list_base, list_destination, list_trunk, max_day_stay_base
 from model.base.utils import is_near
+from model.base_station import BaseStation
 from statistic.output import set_empty_num
 from model.inquiry_info import InquiryInfo
 import copy
@@ -91,9 +92,8 @@ def change_gene_data(gene_data, trunk_data):
                 gene_data_[trunk_id] = []
             gene_data_[trunk_id].append(order_id)
     for trunk in list_trunk:
-        if trunk.wait_day >= max_day_stay_base:
-            if trunk.trunk_id not in gene_data_:
-                gene_data_[trunk.trunk_id] = []
+        if trunk.trunk_id not in gene_data_:
+            gene_data_[trunk.trunk_id] = []
     return gene_data_
 
 
@@ -127,8 +127,10 @@ def modify_model(gene_data_, trunk_data):
         if len(orders) == 0:
             continue
         if not is_must and len(orders) not in (0, 8):
+            print trunk.license, orders
             print('error!trunk is not full')
-            return
+            # import sys
+            # sys.exit()
         # 更新trunk的行程
         position_list = []
         bases = {}
@@ -286,6 +288,14 @@ def get_trunk_return():
             if del_order:
                 trunk.is_return = True
                 trunk_take_orders(trunk, del_order)
+                if trunk.trunk_base_id != trunk.trunk_future_base_station_id:
+                    print 'return trunk: ', trunk.license, list_base[trunk.trunk_base_id].name,\
+                        list_base[trunk.trunk_future_base_station_id].name
+                    for item in trunk.trunk_target_position_list:
+                        if isinstance(item, BaseStation):
+                            print list_base[item].name
+                        else:
+                            print list_destination[item].name
                 base.trunk_other_in_station.remove(trunk.trunk_id)
 
             for order_ in del_order:

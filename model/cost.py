@@ -105,7 +105,7 @@ def get_cost_trunk_in_order(trunk, orders, trunk_orders):
         if order.base not in bases:
             bases[order.base] = []
         bases[order.base].append(order)
-    if not is_must and len(orders) not in (0, 8):
+    if 0 == is_must and len(orders) not in (0, 8):
         return VALUE_MAX
     cost_ = 0
     car_num = 0
@@ -238,8 +238,7 @@ def change_gene_data(gene_data, trunk_data):
             gene_data_[trunk_id].append(order_id)
     for trunk_count in trunk_data:
         trunk_id = trunk_data[trunk_count]
-        trunk = list_trunk[trunk_id]
-        if trunk.wait_day >= max_day_stay_base:
+        if trunk_id not in gene_data_:
             gene_data_[trunk_id] = []
     return gene_data_
 
@@ -255,6 +254,8 @@ def compute_cost(gene, trunk_data, trunk_orders):
     gene_data = change_gene(gene_data)
     # print gene_data
     for trunk_id in gene_data:
+        if not gene_data[trunk_id] or len(gene_data[trunk_id]) == 0:
+            continue
         trunk = list_trunk[trunk_id]
         # 起始等待车
         if trunk.trunk_state == TRUNK_IN_ORDER:
@@ -263,7 +264,7 @@ def compute_cost(gene, trunk_data, trunk_orders):
         elif trunk.trunk_state == TRUNK_IN_ORDER_DESTINATION:
             # print 'error, can not be here. TRUNK_IN_ORDER_DESTINATION'
             # sum_cost += get_cost_trunk_in_order_dest(trunk, gene_data[trunk_id])
-            sum_cost += get_cost_trunk_in_order(trunk, gene_data[trunk_id])
+            sum_cost += get_cost_trunk_in_order(trunk, gene_data[trunk_id], trunk_orders)
         else:
             print 'error, can not be here, other statuse'
             sum_cost += VALUE_MAX
