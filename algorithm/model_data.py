@@ -353,6 +353,9 @@ def get_whole_trunk():
             temp = sorted(temp, key=lambda _order: _order.delay_time, reverse=True)
             all_near[destid] = temp
             # print 'temp: ', [od.id for od in temp]
+            if temp and temp[0].base in base_list:
+                base_list.remove(temp[0].base)
+                base_list.append(temp[0].base)
             for base_near_id in base_list[::-1]:
                 base = list_base[base_near_id]
                 try:
