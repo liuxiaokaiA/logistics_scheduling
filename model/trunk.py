@@ -82,6 +82,9 @@ class Trunk:
         self.max_transport = 0
         # 当前板车每个网点信息
         self.position_order_list = []
+        # 车辆返回base
+        self.is_return = False
+
 
         # 统计信息
         # 1 板车ID   ： trunk_base_id
@@ -206,7 +209,7 @@ class Trunk:
                 self.trunk_current_base_station_id = None
                 last_distance = self.inquiry_info.inquiry_distance_by_id(b_id_1=self.trunk_base_id,
                                                                          d_id_1=position_list[-1].d_id)
-                if last_distance < 300:
+                if self.is_return:
                     # 未来入库 base_station 为车队的base_station
                     self.trunk_future_base_station_id = self.trunk_base_id
                 else:
@@ -513,7 +516,13 @@ class Trunk:
             if index > 0 and isinstance(self.trunk_target_position_list[index], BaseStation):
                 city_name = self.inquiry_info.inquiry_index_to_base(self.trunk_target_position_list[index].b_id)
                 destination = self.inquiry_info.inquiry_city_to_index(city_name)
-                if destination is not None:
+                shop_city_name = None
+                if isinstance(self.trunk_target_position_list[index - 1], Destination):
+                    shop_city_name = self.inquiry_info.inquiry_index_to_city(
+                        self.trunk_target_position_list[index - 1].d_id)
+                if shop_city_name is not None and destination is not None and shop_city_name == city_name:
+                    index += 1
+                elif destination is not None:
                     self.trunk_target_position_list.insert(index, list_destination[destination])
                     self.trunk_target_time_list.insert(index, self.trunk_target_time_list[index])
                     index += 2
@@ -522,7 +531,14 @@ class Trunk:
             elif isinstance(self.trunk_target_position_list[index], Destination):
                 city_name = self.inquiry_info.inquiry_index_to_city(self.trunk_target_position_list[index].d_id)
                 base = self.inquiry_info.inquiry_base_to_index(city_name)
-                if base is not None:
+                base_city_name = None
+                if isinstance(self.trunk_target_position_list[index + 1], BaseStation):
+                    base_city_name = self.inquiry_info.inquiry_index_to_base(
+                        self.trunk_target_position_list[index + 1].b_id)
+
+                if base_city_name is not None and base is not None and city_name == base_city_name:
+                    index += 1
+                elif base is not None:
                     self.trunk_target_position_list.insert(index + 1, list_base[base])
                     self.trunk_target_time_list.insert(index, self.trunk_target_time_list[index])
                     index += 2
@@ -603,4 +619,3 @@ class Trunk:
             if not Flag:
                 self.trunk_target_position_list.remove(position)
                 self.trunk_target_time_list.remove(self.trunk_target_time_list[index])
-
