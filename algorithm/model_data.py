@@ -215,10 +215,11 @@ def trunk_take_orders(trunk, orders):
             position_list.remove(list_base[trunk.trunk_current_base_station_id])
         position_list.insert(0, list_base[trunk.trunk_current_base_station_id])
 
-    if trunk.trunk_state == 0:
-        list_base[trunk.trunk_base_id].trunk_in_station.remove(trunk.trunk_id)
-    elif trunk.trunk_state == 3:
-        list_base[trunk.trunk_current_base_station_id].trunk_other_in_station.remove(trunk.trunk_id)
+    # if trunk.trunk_state == 0:
+    #     print trunk.trunk_base_id, list_base[trunk.trunk_base_id].trunk_in_station, trunk.trunk_id
+    #     list_base[trunk.trunk_base_id].trunk_in_station.remove(trunk.trunk_id)
+    # elif trunk.trunk_state == 3:
+    #     list_base[trunk.trunk_current_base_station_id].trunk_other_in_station.remove(trunk.trunk_id)
     trunk.add_target_position_list(position_list)
 
 
@@ -226,6 +227,7 @@ def trunk_take_orders(trunk, orders):
 def get_trunk_to_work(base, type_, all_orders, is_log):
     if is_log:
         print type_
+    # get_trunk_to_use 该函数已经删除了trunk_id
     trunk_id = base.get_trunk_to_use()
     if trunk_id is None:
         if is_log:
@@ -300,6 +302,7 @@ def get_trunk_return():
                             print 'list_base: ', item.name
                         else:
                             print 'list_destination: ', item.name
+                base.trunk_other_in_station.remove(trunk.trunk_id)
             for order_ in del_order:
                 if order_.destination in dest_order:
                     dest_order[order_.destination].remove(order_)
