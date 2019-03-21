@@ -441,7 +441,7 @@ class Trunk:
                         all_list.append(base_list[0:1] + list(temp2 + temp1))
                 else:
                     all_list.append(list(temp1))
-        nearest_list = []
+        nearest_list = position_list
         nearest_distance = sys.maxint
 
         if self.trunk_state == TRUNK_IN_ORDER:
@@ -473,6 +473,7 @@ class Trunk:
                 if sum_distance < nearest_distance:
                     nearest_list = current_list
                     nearest_distance = sum_distance
+
         for index in range(len(nearest_list) - 1):
             if isinstance(nearest_list[index], BaseStation) and isinstance(nearest_list[index + 1], Destination):
                 base_name = self.inquiry_info.inquiry_index_to_base(nearest_list[index].b_id)
@@ -498,20 +499,20 @@ class Trunk:
             if isinstance(position, BaseStation):
                 for order in self.trunk_car_order_list:
                     if order.base == position.b_id:
-                        temp_order_list.append(order)
+                        if len(temp_order_list) < 8:
+                            temp_order_list.append(order)
             else:
-                order_in_temp_order_list = False
                 for order in temp_order_list:
                     if order.destination == position.d_id:
-                        order_in_temp_order_list = True
                         temp_order_list.remove(order)
-                if not order_in_temp_order_list:
-                    return sys.maxint
+        if len(temp_order_list) > 0:
+            return sys.maxint
         cost += self.inquiry_info.inquiry_distance(position_list[-1], list_base[last_position_id]) * self.trunk_cost(
             len(temp_order_list))
         return cost
 
     def add_on_way_order(self):
+
         self.position_list_update()
         self.position_order_list_update()
         self.back_add_order(0, len(self.trunk_target_position_list) - 1)
@@ -564,7 +565,8 @@ class Trunk:
                               Destination) and order.destination == position.d_id and order in current_position_order:
                     current_position_order.remove(order)
                 elif isinstance(position, BaseStation) and order.base == position.b_id:
-                    current_position_order.append(order)
+                    if len(current_position_order) < 8:
+                        current_position_order.append(order)
             temp_position_order_list.append(copy.deepcopy(current_position_order))
         self.position_order_list = []
         self.position_order_list = temp_position_order_list
