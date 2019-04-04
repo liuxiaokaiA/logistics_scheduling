@@ -11,7 +11,7 @@
 """
 import pandas as pd
 import logging
-from data.position import Position
+from model.base.position import Position
 from global_data import base_num, destination_num
 import threading
 
@@ -28,7 +28,6 @@ class InquiryInfo:
             self.base_to_index = pd.read_csv("../generate/base_to_index.csv")
             self.city_to_index = pd.read_csv("../generate/city_to_index.csv")
         except Exception as e:
-            # print e
             self.base_position = pd.read_csv('generate/base_position0315.csv')
             self.shop_position = pd.read_csv('generate/city_position0315.csv')
             self.distance = pd.read_csv('generate/distance0315.csv')

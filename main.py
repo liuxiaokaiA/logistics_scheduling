@@ -26,10 +26,6 @@ def update(day):
         base.create_orders(day)
         base.update_in_station_trunk(list_trunk)
         base.update_near_trunk(list_trunk)
-        # for order in base.new_orders:
-        #     if order.timestamp == day:
-        #         new_order_num += 1
-        #     order.update_order(day)
         trunk_in_station_num_list.append(len(base.trunk_in_station))
         trunk_other_in_station_num_list.append(len(base.trunk_other_in_station))
     add_history_order_num(new_order_num)
@@ -40,10 +36,10 @@ def update(day):
 def compute():
     get_whole_trunk()
     update_trunk =[]
-    # for trunk in list_trunk:
-    #     if trunk.trunk_target_position_list:
-    #         trunk.add_on_way_order()
-    #         update_trunk.append(trunk)
+    for trunk in list_trunk:
+        if trunk.trunk_target_position_list:
+            trunk.add_on_way_order()
+            update_trunk.append(trunk)
 
     trunk_max_order = get_trunk_max_order()
     data = get_orders_trunk_can_take(trunk_max_order)
@@ -64,15 +60,15 @@ def compute():
     if best_gene.value >= VALUE_MAX:
         return
     modify_model(best_gene.gene_data, trunk_data)
-    # for trunk in list_trunk:
-    #     if trunk.trunk_target_position_list and trunk not in update_trunk:
-    #         trunk.add_on_way_order()
-    #         update_trunk.append(trunk)
+    for trunk in list_trunk:
+        if trunk.trunk_target_position_list and trunk not in update_trunk:
+            trunk.add_on_way_order()
+            update_trunk.append(trunk)
 
 
-def output(day,inquiry_info):
+def output(day, inquiry_info):
     out_print(day)
-    write_excel(day,inquiry_info)
+    write_excel(day, inquiry_info)
 
 
 def init_order():

@@ -8,19 +8,14 @@
 ------------      -------    --------    -----------
 2019-03-01 14:10   liuhao      1.0         None
 """
-from cmath import sqrt
-import numpy as np
 
-from data.StatueData import TRUNK_TYPE_SMALL, TRUNK_IN_ORDER, TRUNK_IN_ORDER_DESTINATION, TRUNK_TYPE_MIDDLE, \
-    TRUNK_TYPE_BIG
+from model.base.StatueData import TRUNK_IN_ORDER, TRUNK_IN_ORDER_DESTINATION
 from global_data import trunk_num, distance_around, base_num, destination_num, order_num
 from model.inquiry_info import InquiryInfo
 import logging
 
-from model.order import Order
 from .base.distribution_model import Poisson, get_destination
 from .base.order_id import OrderGroupId
-from .base.utils import get_time_torday
 
 
 class BaseStation:

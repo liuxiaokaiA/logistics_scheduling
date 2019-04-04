@@ -1,7 +1,7 @@
 # coding: utf-8
-import logging, time
-from global_data import list_base, list_destination, list_trunk, max_day_stay_base
-from data.StatueData import TRUNK_IN_ORDER, TRUNK_ON_ROAD, TRUNK_IN_ORDER_DESTINATION
+import logging
+from global_data import list_base, list_destination, list_trunk
+from model.base.StatueData import TRUNK_IN_ORDER, TRUNK_IN_ORDER_DESTINATION
 
 
 log = logging.getLogger('default')

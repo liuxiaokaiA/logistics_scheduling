@@ -10,7 +10,7 @@
 2019-03-01 14:10   liuhao      1.0         None
 """
 import random
-from data.position import Position
+from model.base.position import Position
 import pandas as pd
 import matplotlib.pyplot as plt
 

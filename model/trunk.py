@@ -11,13 +11,12 @@
 """
 import copy
 import random
-from cmath import sqrt
 from itertools import permutations
 
-from data.StatueData import TRUNK_IN_ORDER, TRUNK_TYPE_BIG, TRUNK_TYPE_MIDDLE, TRUNK_TYPE_SMALL, TRUNK_ON_ROAD, \
+from model.base.StatueData import TRUNK_IN_ORDER, TRUNK_TYPE_BIG, TRUNK_TYPE_MIDDLE, TRUNK_TYPE_SMALL, TRUNK_ON_ROAD, \
     TRUNK_IN_ORDER_DESTINATION, TRUNK_NOT_USE, TRUNK_ON_ROAD_NOT_USE
-from data.position import Position
-from global_data import trunk_num, base_num, distance_around, list_base, list_destination
+from model.base.position import Position
+from global_data import base_num, distance_around, list_base, list_destination
 from model.base_station import BaseStation
 from model.destination import Destination
 from model.inquiry_info import InquiryInfo

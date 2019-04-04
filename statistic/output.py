@@ -1,8 +1,7 @@
 # coding: utf-8
 import logging
 
-from data.StatueData import TRUNK_ON_ROAD, TRUNK_ON_ROAD_NOT_USE, TRUNK_IN_ORDER, TRUNK_IN_ORDER_DESTINATION, \
-    TRUNK_TYPE_SMALL, TRUNK_TYPE_MIDDLE
+from model.base.StatueData import TRUNK_ON_ROAD, TRUNK_ON_ROAD_NOT_USE, TRUNK_IN_ORDER, TRUNK_IN_ORDER_DESTINATION
 from global_data import list_base, list_trunk, list_destination, max_day_stay_base, base_num, trunk_num
 from base.write_excel import Writer
 from model.base.utils import model_time_to_date_time
